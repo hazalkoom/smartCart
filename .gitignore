@@ -1,0 +1,71 @@
+# --- Node.js (backend/) ---
+# Dependencies
+/backend/node_modules
+.env
+# Environment Variables (CRITICAL)
+/backend/.env
+/backend/.env.local
+/backend/.env.development
+/backend/.env.test
+/backend/.env.production
+
+# Logs
+/backend/logs
+/backend/*.log
+/backend/npm-debug.log*
+/backend/yarn-debug.log*
+/backend/yarn-error.log*
+/backend/lerna-debug.log*
+
+# Runtime data
+/backend/pids
+/backend/*.pid
+/backend/*.seed
+/backend/*.pid.lock
+
+# Build outputs
+/backend/dist
+/backend/build
+/backend/.next
+/backend/.nuxt
+
+# --- Python (tests/) ---
+# Virtual Environments
+/tests/.venv
+/tests/venv
+/tests/env
+/tests/ENV
+/tests/*-env
+
+# Bytecode
+/tests/__pycache__/
+/tests/*.pyc
+
+# --- OS-specific ---
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# --- IDEs & Editors ---
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# JetBrains (WebStorm, PyCharm)
+.idea/
+
+# --- Other ---
+# Test reports
+/backend/coverage
+/tests/coverage
+/tests/.pytest_cache
