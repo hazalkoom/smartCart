@@ -16,6 +16,8 @@ The system is composed of three main components:
 
 This project's primary goal is to demonstrate a mastery of full-stack development, clean architecture, and the integration of multiple complex systems (like payments, cloud storage, and machine learning) into a single, cohesive product. It is being built with a "sellable" mindset, featuring a multi-tiered role system (`customer`, `admin`, `owner`) so a future client can manage their own employees and operations.
 
+
+
 ---
 
 ## ✨ Key Features
@@ -26,8 +28,16 @@ This project is planned to be a feature-complete e-commerce solution.
 
 * **Secure User Authentication:** Complete user registration (`POST /auth/register`) and login (`POST /auth/login`) system.
 * **Role-Based Access Control (RBAC):** Secure `protect` (authentication) and `authorize` (permission) middleware is complete. The system understands `customer`, `admin`, and `owner` roles.
-* **Advanced Security:** Passwords are fully secured using `bcrypt` hashing. User sessions are managed via JSON Web Tokens (JWT).
-* **Test-Driven Development:** A comprehensive Python integration test suite (`tests/test_api_1.py`) is complete for all auth endpoints, ensuring 100% pass rates and preventing future regressions.
+* **Hardened API Security:** The server is protected with `helmet` for secure headers, `express-json` payload limiting (10kb) to prevent DoS attacks, and production-only `express-rate-limit` to stop brute-force attacks.
+* **Advanced Password Security:** Passwords are fully secured using `bcrypt` hashing, and the hash is never exposed in API query responses.
+
+### 📊 Admin & Owner Portal (In Progress)
+
+* ✅ **Category Management (Complete):** Full, secured CRUD endpoints for creating, reading, updating, and deleting categories. Includes automatic `slug` generation for SEO-friendly URLs.
+* **Product Management (Planned):** Full CRUD for all products, including image uploads to **Cloudinary**.
+* **Order Management (Planned):** View and update order statuses (e.g., "Processing," "Shipped").
+* **User Management (Owner Only) (Planned):** The `owner` can create, edit, and assign `admin` roles to employees.
+* **Analytics Dashboard (Planned):** View key metrics like revenue, orders, and top products.
 
 ### 🛍️ Customer Portal (Planned)
 
@@ -36,14 +46,6 @@ This project is planned to be a feature-complete e-commerce solution.
 * **Secure Checkout:** Full integration with **Stripe** for credit card processing.
 * **User Dashboard:** View order history, track order status, and manage saved addresses.
 * **Reviews & Ratings:** Leave reviews and ratings for purchased products.
-
-### 📊 Admin & Owner Portal (Planned)
-
-* **Analytics Dashboard:** View key metrics like revenue, orders, and top products.
-* **Product Management:** Full CRUD (Create, Read, Update, Delete) for all products, including image uploads to **Cloudinary**.
-* **Order Management:** View and update order statuses (e.g., "Processing," "Shipped").
-* **Category Management:** Organize products into categories.
-* **User Management (Owner Only):** The `owner` can create, edit, and assign `admin` roles to employees.
 
 ### 🤖 Python ML Service (Planned)
 
@@ -56,12 +58,11 @@ This project is planned to be a feature-complete e-commerce solution.
 
 This project emphasizes clean, maintainable, and **DRY (Don't Repeat Yourself)** code. The architecture is designed for scalability and separation of concerns.
 
-
-
 * **Microservice-Inspired:** The core API (Node.js) and the ML service (Python) are two separate applications that communicate via HTTP, allowing them to be developed, deployed, and scaled independently.
-* **Service Layer Pattern:** Controllers are kept "thin" and clean. They only handle the HTTP request and response, while all business logic (database calls, error checking) is delegated to a separate **Service Layer** (e.g., `authService.js`).
-* **Centralized Error Handling:** A single `errorMiddleware` catches all errors from anywhere in the application. It formats them into a consistent JSON response, preventing crashes and providing clean, machine-readable error codes.
+* **Service Layer Pattern:** Controllers are kept "thin" and clean. They only handle the HTTP request and response, while all business logic (database calls, error checking) is delegated to a separate **Service Layer** (e.g., `authService.js`, `categoryService.js`).
+* **Centralized Error Handling:** A single `errorMiddleware` catches all errors from anywhere in the application. It formats them into a consistent JSON response (as defined in PRD 6.11), preventing crashes and providing clean, machine-readable error codes.
 * **Async Error Wrapper:** A simple `asyncHandler` utility wraps all asynchronous functions. This completely eliminates the need for repetitive `try...catch` blocks in every controller and middleware.
+* **Route-Level Validation:** Incoming request bodies are validated *at the route level* using `express-validator`. This stops bad data at the "front door" before it ever reaches the controllers or services, keeping them clean.
 * **Secure by Default:** The `userModel` is designed for security. It automatically hashes passwords *before* saving and automatically hides the hashed password from *all* database queries (`select: false`).
 
 ---
@@ -70,27 +71,43 @@ This project emphasizes clean, maintainable, and **DRY (Don't Repeat Yourself)**
 
 | Component | Technology |
 | :--- | :--- |
-| **Backend** | Node.js, Express.js, Mongoose, JWT, bcrypt.js |
+| **Backend** | Node.js, Express.js, Mongoose, JWT, bcrypt.js, `helmet`, `express-rate-limit`, `express-validator`, `slugify` |
 | **Frontend** | (Planned) Angular, TypeScript, Tailwind CSS |
 | **ML Service** | (Planned) Python, FastAPI, scikit-learn, pandas |
 | **Database** | MongoDB Atlas |
 | **Integrations**| (Planned) Stripe (Payments), Cloudinary (Storage), Brevo (Email) |
-| **Testing** | Python (`requests`), (Planned) Jest |
+| **Testing** | Python, `pytest`, `pytest-ordering`, `requests` |
 
 ---
 
 ## 🚀 Current Status & Roadmap
 
 ### ✅ **Week 1: Auth Foundation (100% Complete)**
+
 * Completed all models, services, controllers, and routes for user registration, login, and profile fetching.
 * Built the core `protect` and `authorize` middleware.
-* Built a comprehensive Python integration test suite for all auth endpoints.
+* Established a permanent `owner@test.com` user for admin testing.
 
-### ➡️ **Next Up: Week 2 - Product & Category Catalog**
-* Build the `categoryModel` and `productModel`.
-* Create all API endpoints for full CRUD management of categories and products.
-* Implement `slugify` for URL-friendly product links.
-* Add new tests to the Python test suite to cover all new product endpoints.
+### ✅ **Week 2: Category Catalog (100% Complete)**
+
+* Built the `categoryModel` with automatic `slug` generation and database indexing.
+* Created all 5 CRUD endpoints for categories (`GET`, `GET /:slug`, `POST`, `PUT`, `DELETE`).
+* Secured admin endpoints using `authorize('admin', 'owner')`.
+* Implemented `express-validator` rules for clean, route-level validation.
+* Updated the `errorMiddleware` to handle all new custom errors (e.g., "Category not found").
+
+### ✅ **Testing (100% Complete for Weeks 1 & 2)**
+
+* Upgraded test suite from a single script to a scalable `pytest` framework.
+* **`test_auth.py`:** A full test suite for the public authentication flow (100% passing).
+* **`test_categories.py`:** A full test suite for all public and admin category endpoints, including security (401/403), validation (400), and logic (404, 201, 200) (100% passing).
+
+### ➡️ **Next Up: Week 2 - Product Catalog**
+
+* Build the `productModel` (the most complex model).
+* Create all API endpoints for full CRUD management of products.
+* Add new `productValidationRules` to the `validationMiddleware`.
+* Create `test_products.py` to test all new endpoints.
 
 ---
 
@@ -122,15 +139,28 @@ This project emphasizes clean, maintainable, and **DRY (Don't Repeat Yourself)**
 
 ### 2. API Tests
 
-1.  In a **new terminal**, navigate to the `tests/` directory:
+The test suite requires a **one-time setup** of a permanent admin user.
+
+**One-Time Setup:**
+1.  Run the backend server (`npm run dev`).
+2.  Run the auth tests to create a user: `pytest tests/test_auth.py`.
+3.  Go to your **MongoDB Atlas** database -> `users` collection.
+4.  Find the new user (e.g., `test-user-17..._@example.com`).
+5.  Edit the document:
+    * Change `email` to **`owner@test.com`**.
+    * Change `role` to **`owner`**.
+6.  Save the user. This is now your permanent test admin.
+
+**Running the Full Test Suite:**
+1.  In a **new terminal**, navigate to the **project root** directory (the one containing `backend/` and `tests/`):
     ```bash
-    cd tests
+    cd smartcart
     ```
-2.  Install the `requests` library:
+2.  Install Python dependencies:
     ```bash
-    pip install requests
+    pip install pytest pytest-ordering requests
     ```
 3.  Run the test suite (while the backend server is running):
     ```bash
-    python test_api_1.py
+    pytest
     ```
