@@ -8,7 +8,18 @@ TEST_USER = {
     "firstName": "Test",
     "lastName": "User"
 }
-global_token = ""
+
+OWNER_LOGIN = {
+    "email": "owner@test.com",
+    "password": "password123"
+}
+
+shared_data = {
+    "customer_token": None,
+    "owner_token": None,
+    "category_id": None,
+    "category_slug": None
+}
 
 def print_test_result(test_name, success, response):
     status_code = response.status_code if hasattr(response, 'status_code') else 'N/A'
