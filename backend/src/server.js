@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const { errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
+const productRoutes = require('./routes/productRoutes');
 
 dotenv.config({ path: '.env' });
 
@@ -28,6 +29,7 @@ if (process.env.NODE_ENV === 'production') {
 // our routers
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/categories', categoryRoutes);
+app.use('/api/v1/products', productRoutes);
 
 // Simple health check route
 app.get('/api/v1/health', (req, res) => {
