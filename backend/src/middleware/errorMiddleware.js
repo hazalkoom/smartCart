@@ -60,6 +60,17 @@ const errorHandler = (err, req, res, next) => {
   }
   // --- END: NEW CATEGORY ERROR FIXES ---
 
+  // --- START: NEW PRODUCT ERROR FIX ---
+  if (err.message === 'Product not found') {
+    statusCode = 404;
+    errorCode = 'NOT_FOUND';
+  }
+  if (err.message === 'A product with this SKU already exists') {
+    statusCode = 400;
+    errorCode = 'DUPLICATE_FIELD';
+  }
+
+
   res.status(statusCode).json({
     success: false,
     error: {

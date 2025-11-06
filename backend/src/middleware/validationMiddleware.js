@@ -1,5 +1,6 @@
 const { body, validationResult } = require('express-validator');
 const asyncHandler = require('../utils/asyncHandler');
+const mongoose = require('mongoose');
 
 const validate = asyncHandler((req, res, next) => {
   const errors = validationResult(req);
@@ -74,8 +75,46 @@ const productValidationRules = [
     }),
 ];
 
+const productUpdateValidationRules = [
+  body('name')
+    .optional() // This is the change
+    .isString()
+    .isLength({ max: 100 })
+    .withMessage('Product name cannot be more than 100 characters')
+    .trim(),
+  body('description')
+    .optional()
+    .isString()
+    .isLength({ max: 2000 })
+    .withMessage('Description cannot be more than 2000 characters')
+    .trim(),
+  body('price')
+    .optional()
+    .isFloat({ min: 0 })
+    .withMessage('Price must be a positive number'),
+  body('sku')
+    .optional()
+    .isString()
+    .trim()
+    .toUpperCase(),
+  body('stock')
+    .optional()
+    .isInt({ min: 0 })
+    .withMessage('Stock must be a positive integer'),
+  body('categoryId')
+    .optional()
+    .isString()
+    .custom((value) => {
+      if (!mongoose.Types.ObjectId.isValid(value)) {
+        throw new Error('Invalid Category ID format');
+      }
+      return true;
+    }),
+];
+
 module.exports = {
   validate,
   categoryValidationRules,
   productValidationRules,
+  productUpdateValidationRules
 };

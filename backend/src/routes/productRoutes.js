@@ -3,6 +3,7 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 const {
   validate,
   productValidationRules,
+  productUpdateValidationRules,
 } = require('../middleware/validationMiddleware');
 const {
   createProduct,
@@ -24,7 +25,7 @@ router.route('/:slug').get(getProductBySlug);
 
 router.route('/').post(protect, authorize('admin', 'owner'), productValidationRules, validate, createProduct);
 
-router.route('/:id').put(protect, authorize('admin', 'owner'), productValidationRules, validate, updateProduct);
+router.route('/:id').put(protect, authorize('admin', 'owner'), productUpdateValidationRules, validate, updateProduct);
 
 router.route('/:id').delete(protect, authorize('admin', 'owner'), deleteProduct);
 
