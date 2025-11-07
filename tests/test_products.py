@@ -173,13 +173,19 @@ def test_update_product_logic_not_found():
 @pytest.mark.run(order=22)
 def test_update_product_logic_duplicate_sku():
     unique_sku = f"SKU-SECOND-{int(time.time())}"
+    unique_name = f"Second Laptop {int(time.time())}"
 
     product_data = {
-        "name": "Second Laptop", "price": 100, "sku": unique_sku, "stock": 10,
-        "categoryId": shared_data['product_test_category_id'], "description": "desc"
+        "name": unique_name, # Use the unique name
+        "price": 100, 
+        "sku": unique_sku, 
+        "stock": 10,
+        "categoryId": shared_data['product_test_category_id'], 
+        "description": "desc" # This is valid
     }
     res_create = requests.post(product_url, json=product_data, headers=owner_headers)
-    assert res_create.status_code == 201 # This will now pass
+    
+    assert res_create.status_code == 201, f"Failed to create helper product. Server said: {res_create.json()}"
 
     product_id = shared_data['product_id']
     
