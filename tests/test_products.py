@@ -172,15 +172,19 @@ def test_update_product_logic_not_found():
 
 @pytest.mark.run(order=22)
 def test_update_product_logic_duplicate_sku():
+    unique_sku = f"SKU-SECOND-{int(time.time())}"
+
     product_data = {
-        "name": "Second Laptop", "price": 100, "sku": "SKU-SECOND", "stock": 10,
+        "name": "Second Laptop", "price": 100, "sku": unique_sku, "stock": 10,
         "categoryId": shared_data['product_test_category_id'], "description": "desc"
     }
     res_create = requests.post(product_url, json=product_data, headers=owner_headers)
-    assert res_create.status_code == 201
+    assert res_create.status_code == 201 # This will now pass
 
     product_id = shared_data['product_id']
-    update_data = { "sku": "SKU-SECOND" }
+    
+    # Now we try to update our *first* product to use the *second* product's SKU
+    update_data = { "sku": unique_sku } 
     res_update = requests.put(f"{product_url}/{product_id}", json=update_data, headers=owner_headers)
     assert res_update.status_code == 400
     assert "SKU already exists" in res_update.json()['error']['message']
