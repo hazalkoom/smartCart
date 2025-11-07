@@ -112,9 +112,37 @@ const productUpdateValidationRules = [
     }),
 ];
 
+const cartItemValidationRules = [
+  body('productId')
+    .notEmpty()
+    .withMessage('Product ID is required')
+    .isString()
+    .custom((value) => {
+      if (!mongoose.Types.ObjectId.isValid(value)) {
+        throw new Error('Invalid Product ID format');
+      }
+      return true;
+    }),
+  body('quantity')
+    .notEmpty()
+    .withMessage('Quantity is required')
+    .isInt({ min: 1 })
+    .withMessage('Quantity must be a positive integer'),
+];
+
+const cartQtyValidationRules = [
+  body('quantity')
+    .notEmpty()
+    .withMessage('Quantity is required')
+    .isInt({ min: 1 })
+    .withMessage('Quantity must be a positive integer'),
+];
+
 module.exports = {
   validate,
   categoryValidationRules,
   productValidationRules,
-  productUpdateValidationRules
+  productUpdateValidationRules,
+  cartItemValidationRules,
+  cartQtyValidationRules
 };

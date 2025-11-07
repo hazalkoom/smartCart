@@ -6,6 +6,7 @@ const { errorHandler } = require('./middleware/errorMiddleware');
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const productRoutes = require('./routes/productRoutes');
+const cartRoutes = require('./routes/cartRoutes');
 
 dotenv.config({ path: '.env' });
 
@@ -30,7 +31,7 @@ if (process.env.NODE_ENV === 'production') {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/products', productRoutes);
-
+app.use('/api/v1/cart', cartRoutes);
 // Simple health check route
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({ success: true, message: 'API is healthy' });
