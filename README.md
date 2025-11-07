@@ -16,8 +16,6 @@ The system is composed of three main components:
 
 This project's primary goal is to demonstrate a mastery of full-stack development, clean architecture, and the integration of multiple complex systems (like payments, cloud storage, and machine learning) into a single, cohesive product. It is being built with a "sellable" mindset, featuring a multi-tiered role system (`customer`, `admin`, `owner`) so a future client can manage their own employees and operations.
 
-
-
 ---
 
 ## ✨ Key Features
@@ -31,21 +29,22 @@ This project is planned to be a feature-complete e-commerce solution.
 * **Hardened API Security:** The server is protected with `helmet` for secure headers, `express-json` payload limiting (10kb) to prevent DoS attacks, and production-only `express-rate-limit` to stop brute-force attacks.
 * **Advanced Password Security:** Passwords are fully secured using `bcrypt` hashing, and the hash is never exposed in API query responses.
 
+### 🛍️ Customer Portal (In Progress)
+
+* ✅ **Shopping Cart (Backend Complete):** Full, secured API for adding, updating, removing, and viewing cart items. The service layer handles all stock-checking, price-locking, and subtotal calculations.
+* **Full Product Catalog (Planned):** Browse, search, and filter all products.
+* **Secure Checkout (Planned):** Full integration with **Stripe** for credit card processing.
+* **User Dashboard (Planned):** View order history, track order status, and manage saved addresses.
+* **Reviews & Ratings (Planned):** Leave reviews and ratings for purchased products.
+
 ### 📊 Admin & Owner Portal (In Progress)
 
 * ✅ **Category Management (Complete):** Full, secured CRUD endpoints for creating, reading, updating, and deleting categories. Includes automatic `slug` generation for SEO-friendly URLs.
-* **Product Management (Planned):** Full CRUD for all products, including image uploads to **Cloudinary**.
-* **Order Management (Planned):** View and update order statuses (e.g., "Processing," "Shipped").
+* ✅ **Product Management (Complete):** Full, secured CRUD endpoints for creating, reading, updating, and deleting products.
+* ✅ **Order Logic (Backend In Progress):** Service layer is complete for creating orders, processing stock reduction, and clearing the cart.
+* **Order Management (Planned):** API endpoints for admins to update order statuses (e.g., "Processing," "Shipped").
 * **User Management (Owner Only) (Planned):** The `owner` can create, edit, and assign `admin` roles to employees.
 * **Analytics Dashboard (Planned):** View key metrics like revenue, orders, and top products.
-
-### 🛍️ Customer Portal (Planned)
-
-* **Full Product Catalog:** Browse, search, and filter all products.
-* **Shopping Cart:** A persistent cart to add/remove/update items.
-* **Secure Checkout:** Full integration with **Stripe** for credit card processing.
-* **User Dashboard:** View order history, track order status, and manage saved addresses.
-* **Reviews & Ratings:** Leave reviews and ratings for purchased products.
 
 ### 🤖 Python ML Service (Planned)
 
@@ -58,12 +57,15 @@ This project is planned to be a feature-complete e-commerce solution.
 
 This project emphasizes clean, maintainable, and **DRY (Don't Repeat Yourself)** code. The architecture is designed for scalability and separation of concerns.
 
+
+
 * **Microservice-Inspired:** The core API (Node.js) and the ML service (Python) are two separate applications that communicate via HTTP, allowing them to be developed, deployed, and scaled independently.
-* **Service Layer Pattern:** Controllers are kept "thin" and clean. They only handle the HTTP request and response, while all business logic (database calls, error checking) is delegated to a separate **Service Layer** (e.g., `authService.js`, `categoryService.js`).
+* **Service Layer Pattern:** Controllers are kept "thin" and clean. They only handle the HTTP request and response, while all business logic (database calls, error checking) is delegated to a separate **Service Layer** (e.g., `authService.js`, `categoryService.js`, `productService.js`, `cartService.js`, `orderService.js`).
 * **Centralized Error Handling:** A single `errorMiddleware` catches all errors from anywhere in the application. It formats them into a consistent JSON response (as defined in PRD 6.11), preventing crashes and providing clean, machine-readable error codes.
 * **Async Error Wrapper:** A simple `asyncHandler` utility wraps all asynchronous functions. This completely eliminates the need for repetitive `try...catch` blocks in every controller and middleware.
-* **Route-Level Validation:** Incoming request bodies are validated *at the route level* using `express-validator`. This stops bad data at the "front door" before it ever reaches the controllers or services, keeping them clean.
+* **Route-Level Validation:** Incoming request bodies are validated *at the route level* using `express-validator`. This stops bad data at the "front door" before it ever reaches the controllers or services. We have distinct rule sets for `categoryValidationRules`, `productValidationRules`, `productUpdateValidationRules`, and `cartItemValidationRules`.
 * **Secure by Default:** The `userModel` is designed for security. It automatically hashes passwords *before* saving and automatically hides the hashed password from *all* database queries (`select: false`).
+* **Transactional Logic:** Critical operations, like creating an order, use `mongoose.startSession()` to ensure that multiple database changes (like *decreasing stock* and *clearing the cart*) either **all succeed** or **all fail** together, preventing data corruption.
 
 ---
 
@@ -86,28 +88,33 @@ This project emphasizes clean, maintainable, and **DRY (Don't Repeat Yourself)**
 
 * Completed all models, services, controllers, and routes for user registration, login, and profile fetching.
 * Built the core `protect` and `authorize` middleware.
-* Established a permanent `owner@test.com` user for admin testing.
 
-### ✅ **Week 2: Category Catalog (100% Complete)**
+### ✅ **Week 2: Product & Category Catalog (100% Complete)**
 
-* Built the `categoryModel` with automatic `slug` generation and database indexing.
-* Created all 5 CRUD endpoints for categories (`GET`, `GET /:slug`, `POST`, `PUT`, `DELETE`).
-* Secured admin endpoints using `authorize('admin', 'owner')`.
-* Implemented `express-validator` rules for clean, route-level validation.
-* Updated the `errorMiddleware` to handle all new custom errors (e.g., "Category not found").
+* Built `categoryModel` and `productModel` with relationships, `slug` generation, and database indexing.
+* Created all 10+ CRUD endpoints for both categories and products.
+* Secured all admin endpoints with `authorize('admin', 'owner')`.
+* Implemented separate `express-validator` rules for creating and updating products (`productValidationRules`, `productUpdateValidationRules`).
 
-### ✅ **Testing (100% Complete for Weeks 1 & 2)**
+### ✅ **Week 3: Cart & Order Logic (In Progress)**
 
-* Upgraded test suite from a single script to a scalable `pytest` framework.
-* **`test_auth.py`:** A full test suite for the public authentication flow (100% passing).
-* **`test_categories.py`:** A full test suite for all public and admin category endpoints, including security (401/403), validation (400), and logic (404, 201, 200) (100% passing).
+* **Cart (Complete):** Built the complete `cartModel`, `cartService`, `cartController`, and `cartRoutes`. The service logic handles all stock checking, subtotal calculations, and item management.
+* **Order (In Progress):** Built the `orderModel` and `orderService`. The service logic correctly handles stock reduction, cart clearing, and transactional database updates.
 
-### ➡️ **Next Up: Week 2 - Product Catalog**
+### ✅ **Automated Testing (100% Passing)**
 
-* Build the `productModel` (the most complex model).
-* Create all API endpoints for full CRUD management of products.
-* Add new `productValidationRules` to the `validationMiddleware`.
-* Create `test_products.py` to test all new endpoints.
+* Upgraded test suite to a scalable `pytest` framework with `pytest-ordering` for sequential execution.
+* **`test_auth.py`:** Full suite for public authentication flow.
+* **`test_categories.py`:** Full suite for all category endpoints (public, admin security, validation, and logic).
+* **`test_products.py`:** Full suite for all product endpoints (security, validation, and logic).
+* **`test_cart.py`:** Full suite for all cart logic (stock checks, quantity updates, subtotal math, etc.).
+* **Total Tests: 52** (and 100% passing).
+
+### ➡️ **Next Up: Finish Week 3**
+
+* Build the `orderController` and `orderRoutes`.
+* Create `test_orders.py` to test the entire checkout flow from start to finish.
+* Implement Stripe payment integration and update the order `status` to "Paid".
 
 ---
 
@@ -154,7 +161,7 @@ The test suite requires a **one-time setup** of a permanent admin user.
 **Running the Full Test Suite:**
 1.  In a **new terminal**, navigate to the **project root** directory (the one containing `backend/` and `tests/`):
     ```bash
-    cd smartcart
+    cd .. 
     ```
 2.  Install Python dependencies:
     ```bash
