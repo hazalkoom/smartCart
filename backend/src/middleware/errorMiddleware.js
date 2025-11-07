@@ -70,6 +70,16 @@ const errorHandler = (err, req, res, next) => {
     errorCode = 'DUPLICATE_FIELD';
   }
 
+  // --- START: NEW CART ERROR FIXES ---
+  if (err.message === 'Item not found in cart') {
+    statusCode = 404;
+    errorCode = 'NOT_FOUND';
+  }
+  if (err.message === 'Insufficient stock' || err.message === 'Insufficient stock for updated quantity') {
+    statusCode = 400;
+    errorCode = 'INSUFFICIENT_STOCK';
+  }
+
 
   res.status(statusCode).json({
     success: false,
