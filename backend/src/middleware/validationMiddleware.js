@@ -138,11 +138,30 @@ const cartQtyValidationRules = [
     .withMessage('Quantity must be a positive integer'),
 ];
 
+const orderCreateValidationRules = [
+  body('shippingAddress').notEmpty().withMessage('Shipping address is required'),
+  body('shippingAddress.street').notEmpty().withMessage('Street is required'),
+  body('shippingAddress.city').notEmpty().withMessage('City is required'),
+  body('shippingAddress.country').notEmpty().withMessage('Country is required'),
+];
+
+const orderStatusValidationRules = [
+  body('status')
+    .notEmpty()
+    .withMessage('Status is required')
+    .isString()
+    .withMessage('Status must be a string')
+    .isIn(['Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'])
+    .withMessage('Invalid order status'),
+];
+
 module.exports = {
   validate,
   categoryValidationRules,
   productValidationRules,
   productUpdateValidationRules,
   cartItemValidationRules,
-  cartQtyValidationRules
+  cartQtyValidationRules,
+  orderCreateValidationRules,
+  orderStatusValidationRules
 };

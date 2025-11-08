@@ -49,7 +49,6 @@ const errorHandler = (err, req, res, next) => {
     errorCode = 'USER_EXISTS';
   }
   
-  // --- START: NEW CATEGORY ERROR FIXES ---
   if (err.message === 'Category not found') {
     statusCode = 404;
     errorCode = 'NOT_FOUND';
@@ -58,9 +57,8 @@ const errorHandler = (err, req, res, next) => {
     statusCode = 400;
     errorCode = 'DUPLICATE_FIELD';
   }
-  // --- END: NEW CATEGORY ERROR FIXES ---
 
-  // --- START: NEW PRODUCT ERROR FIX ---
+
   if (err.message === 'Product not found') {
     statusCode = 404;
     errorCode = 'NOT_FOUND';
@@ -70,14 +68,21 @@ const errorHandler = (err, req, res, next) => {
     errorCode = 'DUPLICATE_FIELD';
   }
 
-  // --- START: NEW CART ERROR FIXES ---
   if (err.message === 'Item not found in cart') {
     statusCode = 404;
     errorCode = 'NOT_FOUND';
   }
-  if (err.message === 'Insufficient stock' || err.message === 'Insufficient stock for updated quantity') {
+  if (err.message.startsWith('Insufficient stock')) {
     statusCode = 400;
     errorCode = 'INSUFFICIENT_STOCK';
+  }
+  if (err.message === 'Your cart is empty') {
+    statusCode = 400;
+    errorCode = 'CART_EMPTY';
+  }
+  if (err.message === 'Order not found') {
+    statusCode = 404;
+    errorCode = 'NOT_FOUND';
   }
 
 
