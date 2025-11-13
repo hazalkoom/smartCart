@@ -25,6 +25,10 @@ const errorHandler = (err, req, res, next) => {
     errorCode = 'VALIDATION_ERROR';
   }
 
+  if (statusCode === 400 && err.name === 'Error') {
+    errorCode = 'VALIDATION_ERROR';
+  }
+
   // --- Auth Errors ---
   if (err.message === 'Not authorized, token failed') {
     statusCode = 401;

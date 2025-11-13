@@ -81,20 +81,22 @@ class OrderService {
     return await Order.find({ userId }).sort({ createdAt: -1 });
   }
 
-  async getOrderById(userId, orderId) {
+  async getOrderById(userId, userRole, orderId) { // 1. Accept all 3 arguments
     const order = await Order.findById(orderId).populate(
       'items.productId',
       'slug'
     );
-
+    
     if (!order) {
       throw new Error('Order not found');
     }
-
-    if (order.userId.toString() !== userId) {
-      throw new Error('Order not found'); 
+    if (
+      userRole !== 'admin' &&
+      userRole !== 'owner' &&
+      order.userId.toString() !== userId
+    ) {
+      throw new Error('Order not found');
     }
-
     return order;
   }
 

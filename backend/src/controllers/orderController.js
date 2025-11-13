@@ -32,8 +32,8 @@ const getMyOrders = asyncHandler(async (req, res) => {
 const getOrderById = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { id } = req.params;
-
-  const order = await OrderService.getOrderById(userId, id);
+  const userRole = req.user.role;
+  const order = await OrderService.getOrderById(userId, userRole, id);
 
   res.status(200).json({
     success: true,
