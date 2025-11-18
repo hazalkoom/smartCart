@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>SmartCart - Product Detail</title> <meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="format-detection" content="telephone=no">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="author" content="">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+	<link rel="stylesheet" type="text/css" href="css/normalize.css">
+	<link rel="stylesheet" type="text/css" href="icomoon/icomoon.css">
+	<link rel="stylesheet" type="text/css" href="css/vendor.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	
+	<link rel="stylesheet" type="text/css" href="custom.css">
+
+</head>
+
+<body>
+
+	<div id="header-wrap">
+		<header id="header">
+			<div class="container-fluid">
+				<div class="row">
+
+					<div class="col-md-2">
+						<div class="main-logo">
+							<a href="index.html"><img src="images/main-logo.png" alt="logo"></a>
+						</div>
+					</div>
+
+					<div class="col-md-8">
+						<nav id="navbar">
+							<div class="main-menu stellarnav">
+								<ul class="menu-list">
+									<li class="menu-item"><a href="index.html" class="nav-link">Home</a></li>
+									<li class="menu-item"><a href="products.html" class="nav-link">All Products</a></li>
+									<li class="menu-item"><a href="categories.html" class="nav-link">Categories</a></li>
+								</ul>
+								<div class="hamburger">
+									<span class="bar"></span>
+									<span class="bar"></span>
+									<span class="bar"></span>
+								</div>
+							</div>
+						</nav>
+					</div>
+
+					<div class="col-md-2">
+						<div class="right-element">
+							<a href="login.html" class="user-account for-buy">
+								<i class="icon icon-user"></i>
+							</a>
+							<a href="cart.html" class="cart for-buy">
+								<i class="icon icon-clipboard"></i>
+							</a>
+							<div class="action-menu">
+								<div class="search-bar">
+									<a href="#" class="search-button search-toggle" data-selector="#header-wrap">
+										<i class="icon icon-search"></i>
+									</a>
+									<form role="search" method="get" class="search-box">
+										<input class="search-field text search-input" placeholder="Search" type="search">
+									</form>
+								</div>
+							</div>
+						</div></div>
+
+				</div>
+			</div>
+		</header>
+	</div><section id="product-detail" class="py-5 my-5">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-6">
+					<div class="product-image">
+						<img src="images/tab-item1.jpg" alt="Product Image" class="img-fluid" style="border: 1px solid #EAE8DF; padding: 20px;">
+						
+						<div class="product-thumbnails d-flex justify-content-start mt-3">
+							<img src="images/tab-item1.jpg" alt="Thumb 1" class="img-thumbnail" style="width: 100px; margin-right: 10px; cursor: pointer;">
+							<img src="images/tab-item2.jpg" alt="Thumb 2" class="img-thumbnail" style="width: 100px; margin-right: 10px; cursor: pointer; opacity: 0.6;">
+							<img src="images/tab-item3.jpg" alt="Thumb 3" class="img-thumbnail" style="width: 100px; margin-right: 10px; cursor: pointer; opacity: 0.6;">
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<div class="product-info">
+						<h2 class="section-title">Portrait photography</h2>
+						<div class="item-price" style="font-size: 2em; color: #74642F; margin-bottom: 20px;">$ 40.00</div>
+						
+						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero ipsum enim pharetra hac. Urna commodo, lacus ut magna velit eleifend. Amet, quis urna, a eu. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero ipsum enim pharetra hac.</p>
+						
+						<hr class="my-4">
+
+						<div class="cart-form d-flex align-items-center">
+							<div class="quantity-control" style="margin-right: 20px;">
+								<label for="quantity" class="form-label">Quantity:</label>
+								<input type="number" id="quantity" name="quantity" value="1" min="1" class="form-control" style="width: 100px;">
+							</div>
+							<button type="button" class="btn btn-primary btn-lg" style="margin-top: 28px;">
+								Add to Cart
+							</button>
+						</div>
+
+						<hr class="my-4">
+
+						<div class="product-meta">
+							<p><strong>SKU:</strong> SG-LAP-1001</p>
+							<p><strong>Category:</strong> <a href="categories.html">Business</a></p>
+							<p><strong>Tags:</strong> <a href="#">Photography</a>, <a href="#">Lifestyle</a></p>
+						</div>
+
+					</div>
+				</div>
+			</div>
+
+			<div class="row mt-5">
+				<div class="col-md-12">
+					<ul class="tabs">
+						<li data-tab-target="#description" class="active tab">Description</li>
+						<li data-tab-target="#reviews" class="tab">Reviews (3)</li>
+					</ul>
+
+					<div class="tab-content">
+						<div id="description" data-tab-content class="active">
+							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero ipsum enim pharetra hac. Urna commodo, lacus ut magna velit eleifend. Amet, quis urna, a eu.</p>
+							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero ipsum enim pharetra hac. Urna commodo, lacus ut magna velit eleifend. Amet, quis urna, a eu. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero ipsum enim pharetra hac.</p>
+						</div>
+						<div id="reviews" data-tab-content>
+							<div class="review-item" style="border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+								<div class="review-author"><strong>John Doe</strong> - <span style="color: #999;">Nov 10, 2025</span></div>
+								<div class="review-rating" style="color: #C5A992;">★★★★☆</div>
+								<p class="review-comment mt-2">Great book! Very insightful.</p>
+							</div>
+							<div class="review-item" style="border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 20px;">
+								<div class="review-author"><strong>Jane Smith</strong> - <span style="color: #999;">Nov 11, 2025</span></div>
+								<div class="review-rating" style="color: #C5A992;">★★★★★</div>
+								<p class="review-comment mt-2">Absolutely loved it. A must-read for anyone in the field.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</section>
+
+	<section id="related-products" class="bookshelf py-5 mb-5" style="background-color: #f9f9f9;">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+
+					<div class="section-header align-center">
+						<h2 class="section-title">Related Products</h2>
+					</div>
+
+					<div class="product-list">
+						<div class="row">
+
+							<div class="col-md-3">
+								<div class="product-item">
+									<figure class="product-style">
+										<img src="images/tab-item5.jpg" alt="Books" class="product-item">
+										<button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
+											Cart</button>
+									</figure>
+									<figcaption>
+										<h3>Peaceful Enlightment</h3>
+										<span>Marmik Lama</span>
+										<div class="item-price">$ 40.00</div>
+									</figcaption>
+								</div>
+							</div>
+
+							<div class="col-md-3">
+								<div class="product-item">
+									<figure class="product-style">
+										<img src="images/tab-item6.jpg" alt="Books" class="product-item">
+										<button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
+											Cart</button>
+									</figure>
+									<figcaption>
+										<h3>Great travel at desert</h3>
+										<span>Sanchit Howdy</span>
+										<div class="item-price">$ 40.00</div>
+									</figcaption>
+								</div>
+							</div>
+
+							<div class="col-md-3">
+								<div class="product-item">
+									<figure class="product-style">
+										<img src="images/tab-item7.jpg" alt="Books" class="product-item">
+										<button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
+											Cart</button>
+									</figure>
+									<figcaption>
+										<h3>Life among the pirates</h3>
+										<span>Armor Ramsey</span>
+										<div class="item-price">$ 40.00</div>
+									</figcaption>
+								</div>
+							</div>
+
+							<div class="col-md-3">
+								<div class="product-item">
+									<figure class="product-style">
+										<img src="images/tab-item8.jpg" alt="Books" class="product-item">
+										<button type="button" class="add-to-cart" data-product-tile="add-to-cart">Add to
+											Cart</button>
+									</figure>
+									<figcaption>
+										<h3>Simple way of piece life</h3>
+										<span>Armor Ramsey</span>
+										<div class="item-price">$ 40.00</div>
+									</figcaption>
+								</div>
+							</div>
+
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</section>
+	
+	<footer id="footer">
+		<div class="container">
+			<div class="row">
+
+				<div class="col-md-4">
+					<div class="footer-item">
+						<div class="company-brand">
+							<img src="images/main-logo.png" alt="logo" class="footer-logo">
+							<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sagittis sed ptibus liberolectus
+								nonet psryroin.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="col-md-2">
+					<div class="footer-menu">
+						<h5>Discover</h5>
+						<ul class="menu-list">
+							<li class="menu-item">
+								<a href="index.html">Home</a>
+							</li>
+							<li class="menu-item">
+								<a href="products.html">All Products</a>
+							</li>
+							<li class="menu-item">
+								<a href="categories.html">Categories</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+
+				<div class="col-md-2">
+					<div class="footer-menu">
+						<h5>My account</h5>
+						<ul class="menu-list">
+							<li class="menu-item">
+								<a href="login.html">Sign In</a>
+							</li>
+							<li class="menu-item">
+								<a href="cart.html">View Cart</a>
+							</li>
+							<li class="menu-item">
+								<a href="account.html">My Account</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</footer>
+
+	<div id="footer-bottom">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="copyright">
+						<div class="row">
+							<div class="col-md-6">
+								<p>© 2022 All rights reserved. Free HTML Template by <a
+										href="https://www.templatesjungle.com/" target="_blank">TemplatesJungle</a></p>
+							</div>
+							<div class="col-md-6">
+								<div class="social-links align-right">
+									<ul>
+										<li>
+											<a href="#"><i class="icon icon-facebook"></i></a>
+										</li>
+										<li>
+											<a href="#"><i class="icon icon-twitter"></i></a>
+										</li>
+										<li>
+											<a href="#"><i class="icon icon-youtube-play"></i></a>
+										</li>
+										<li>
+											<a href="#"><i class="icon icon-behance-square"></i></a>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</div></div></div>
+		</div>
+	</div>
+
+</body>
+
+</html>

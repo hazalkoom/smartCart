@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<title>SmartCart - My Account</title> <meta charset="utf-t">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet"
+		integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+	<link rel="stylesheet" type="text/css" href="css/normalize.css">
+	<link rel="stylesheet" type="text/css" href="icomoon/icomoon.css">
+	<link rel="stylesheet" type="text/css" href="css/vendor.css">
+	<link rel="stylesheet" type="text/css" href="style.css">
+	
+	<style>
+		.form-wrapper {
+			padding: 40px;
+			background: #fff;
+			border: 1px solid #EAE8DF;
+		}
+		.form-wrapper .form-control {
+			height: 55px;
+			border-color: #EAE8DF;
+		}
+		.form-wrapper .form-control:focus {
+			border-color: var(--accent-color);
+			box-shadow: 0 0 0 0.25rem rgba(197, 169, 146, .25);
+		}
+		.order-history-table th {
+			font-family: var(--heading-font);
+			font-weight: 500;
+			color: var(--dark-color);
+		}
+		.order-history-table .order-status {
+			font-weight: bold;
+		}
+		.order-history-table .order-status.pending { color: #ffc107; }
+		.order-history-table .order-status.shipped { color: #0d6efd; }
+		.order-history-table .order-status.delivered { color: #198754; }
+	</style>
+
+</head>
+
+<body>
+
+	<div id="header-wrap">
+		<header id="header">
+			</header>
+	</div><section id="account-page" class="py-5 my-5">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-12">
+					<div class="section-header align-center">
+						<h2 class="section-title">My Account</h2>
+					</div>
+				</div>
+			</div>
+
+			<div class="row">
+
+				<div class="col-md-5">
+					<div class="form-wrapper">
+						<h4>My Profile</h4>
+						<hr class="my-3">
+						<form>
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									<label for="firstName" class="form-label">First Name</label>
+									<input type="text" class="form-control" id="firstName" value="Order">
+								</div>
+								<div class="col-md-6 mb-3">
+									<label for="lastName" class="form-label">Last Name</label>
+									<input type="text" class="form-control" id="lastName" value="Tester">
+								</div>
+							</div>
+							<div class="mb-3">
+								<label for="email" class="form-label">Email address</label>
+								<input type="email" class="form-control" id="email" value="customer-order@test.com" disabled>
+							</div>
+							<div class="mb-3">
+								<label for="phone" class="form-label">Phone (Optional)</label>
+								<input type="tel" class="form-control" id="phone" placeholder="Your phone number">
+							</div>
+							<div class="d-grid">
+								<button type="submit" class="btn btn-primary" style="margin-top: 20px;">Update Profile</button>
+							</div>
+						</form>
+					</div>
+				</div>
+
+				<div class="col-md-7">
+					<h4>My Orders</h4>
+					<hr class="my-3">
+					<table class="table table-hover order-history-table">
+						<thead>
+							<tr>
+								<th scope="col">Order #</th>
+								<th scope="col">Date</th>
+								<th scope="col">Status</th>
+								<th scope="col">Total</th>
+								<th scope="col"></th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr>
+								<th scope="row">2025-11-13-F654A6</th>
+								<td>Nov 13, 2025</td>
+								<td><span class="order-status shipped">Shipped</span></td>
+								<td>$ 250.00</td>
+								<td><a href="#" class="btn btn-outline-dark btn-sm">View</a></td>
+							</tr>
+							<tr>
+								<th scope="row">2025-11-13-687FE3</th>
+								<td>Nov 13, 2025</td>
+								<td><span class="order-status delivered">Delivered</span></td>
+								<td>$ 100.00</td>
+								<td><a href="#" class="btn btn-outline-dark btn-sm">View</a></td>
+							</tr>
+							<tr>
+								<th scope="row">2025-11-12-A1B2C3</th>
+								<td>Nov 12, 2025</td>
+								<td><span class="order-status pending">Pending</span></td>
+								<td>$ 40.00</td>
+								<td><a href="#" class="btn btn-outline-dark btn-sm">View</a></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+
+			</div>
+		</div>
+	</section>
+	
+	<footer id="footer">
+		</footer>
+
+	<div id="footer-bottom">
+		</div>
+
+</body>
+</html>
