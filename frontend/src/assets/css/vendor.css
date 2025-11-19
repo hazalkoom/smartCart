@@ -1,3 +1,4 @@
+@charset "UTF-8";
 /*
 - AOS - animation library
 - Jarallax
@@ -6,8 +7,6 @@
 - Chocolat
 - Stellar Nav - jQuery Menu
 */
-@charset 'UTF-8';
-
 
 /*--------------------------------------------------------------
 /** AOS - animation library
@@ -1200,6 +1199,7 @@ body[data-aos-easing=ease-in-out-quart] [data-aos] {
 /*--------------------------------------------------------------
 /** Slick Slider Css
 --------------------------------------------------------------*/
+
 
 /* Slider */
 .slick-loading .slick-list {
