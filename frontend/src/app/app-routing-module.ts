@@ -18,7 +18,7 @@ const routes: Routes = [{ path: '', component: Home },
 
   // 2. Product Pages
   { path: 'products', component: ProductList },
-  // { path: 'products/:slug', component: ProductDetail }, // Commented out to fix build (SSG error) 
+  { path: 'products/:slug', component: ProductDetail }, // Commented out to fix build (SSG error) 
 
   // 3. Cart & Checkout
   { path: 'cart', component: Cart },

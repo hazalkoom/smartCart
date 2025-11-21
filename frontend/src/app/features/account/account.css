@@ -1,0 +1,37 @@
+.form-wrapper {
+    padding: 40px;
+    background: #fff;
+    border: 1px solid #EAE8DF;
+}
+
+.form-wrapper .form-control {
+    height: 55px;
+    border-color: #EAE8DF;
+}
+
+.form-wrapper .form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(197, 169, 146, .25);
+}
+
+.order-history-table th {
+    font-family: var(--heading-font);
+    font-weight: 500;
+    color: var(--dark-color);
+}
+
+.order-history-table .order-status {
+    font-weight: bold;
+}
+
+.order-history-table .order-status.pending {
+    color: #ffc107;
+}
+
+.order-history-table .order-status.shipped {
+    color: #0d6efd;
+}
+
+.order-history-table .order-status.delivered {
+    color: #198754;
+}

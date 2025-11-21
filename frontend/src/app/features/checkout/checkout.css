@@ -1,0 +1,26 @@
+.form-wrapper {
+    padding: 40px;
+    background: #fff;
+    border: 1px solid #EAE8DF;
+}
+
+.form-wrapper .form-control {
+    height: 55px;
+    border-color: #EAE8DF;
+}
+
+.form-wrapper .form-control:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 0.25rem rgba(197, 169, 146, .25);
+}
+
+.order-summary {
+    background-color: #EDEBE4;
+    /* Matches theme background */
+    padding: 30px;
+}
+
+.order-summary .list-group-item {
+    background-color: transparent;
+    border-color: #E0E0E0;
+}
