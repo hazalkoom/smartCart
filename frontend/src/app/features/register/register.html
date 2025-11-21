@@ -12,32 +12,78 @@
 			<div class="col-md-12">
 				
 				<div class="form-wrapper">
-					<form>
+					<form (ngSubmit)="onSubmit()">
+						
+						<div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+						{{ errorMessage }}
+						</div>
+
 						<div class="row">
-							<div class="col-md-6 mb-3">
-								<label for="firstName" class="form-label">First Name</label>
-								<input type="text" class="form-control" id="firstName" placeholder="John">
-							</div>
-							<div class="col-md-6 mb-3">
-								<label for="lastName" class="form-label">Last Name</label>
-								<input type="text" class="form-control" id="lastName" placeholder="Doe">
-							</div>
+						<div class="col-md-6 mb-3">
+							<label for="firstName" class="form-label">First Name</label>
+							<input 
+							type="text" 
+							class="form-control" 
+							id="firstName" 
+							name="firstName" 
+							[(ngModel)]="firstName" 
+							placeholder="John"
+							required
+							>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label for="lastName" class="form-label">Last Name</label>
+							<input 
+							type="text" 
+							class="form-control" 
+							id="lastName" 
+							name="lastName" 
+							[(ngModel)]="lastName" 
+							placeholder="Doe"
+							required
+							>
+						</div>
 						</div>
 						
 						<div class="mb-3">
-							<label for="email" class="form-label">Email address</label>
-							<input type="email" class="form-control" id="email" placeholder="name@example.com">
+						<label for="email" class="form-label">Email address</label>
+						<input 
+							type="email" 
+							class="form-control" 
+							id="email" 
+							name="email" 
+							[(ngModel)]="email" 
+							placeholder="name@example.com"
+							required
+						>
 						</div>
+						
 						<div class="mb-3">
-							<label for="password" class="form-label">Password</label>
-							<input type="password" class="form-control" id="password" placeholder="Password">
+						<label for="password" class="form-label">Password</label>
+						<input 
+							type="password" 
+							class="form-control" 
+							id="password" 
+							name="password" 
+							[(ngModel)]="password" 
+							placeholder="Password"
+							required
+						>
 						</div>
+						
 						<div class="d-grid">
-							<button type="submit" class="btn btn-primary btn-lg" style="margin-top: 20px;">Create Account</button>
+						<button 
+							type="submit" 
+							class="btn btn-primary btn-lg" 
+							style="margin-top: 20px;"
+							[disabled]="isLoading"
+						>
+							{{ isLoading ? 'Creating Account...' : 'Create Account' }}
+						</button>
 						</div>
 
 						<div class="text-center mt-4">
-							<p>Already have an account? <a href="login.html">Login</a></p>
+						<p>Already have an account? <a routerLink="/login">Login</a></p>
 						</div>
 					</form>
 				</div>
