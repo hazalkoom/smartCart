@@ -2,21 +2,34 @@
 <section id="billboard">
   <div class="container">
     <div class="row">
-      <div class="col-md-12">
+      <div class="col-md-12 position-relative"> <button class="prev slick-arrow" (click)="prevSlide()">
+          <i class="icon icon-arrow-left"></i>
+        </button>
 
-        <!-- Simple Static Hero (Since we removed the jQuery slider) -->
         <div class="main-slider pattern-overlay">
-          <div class="slider-item">
-            <div class="banner-content">
-              <h2 class="banner-title">Life of the Wild</h2>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eu feugiat amet, libero ipsum enim pharetra hac. Urna commodo, lacus ut magna velit eleifend.</p>
-              <div class="btn-wrap">
-                <a routerLink="/products" class="btn btn-outline-accent btn-accent-arrow">Shop Now <i class="icon icon-ns-arrow-right"></i></a>
+          
+          <div class="slider-track" [style.transform]="'translateX(-' + (currentSlide * 100) + '%)'">
+            
+            <div class="slider-item" *ngFor="let product of heroProducts">
+              <div class="banner-content">
+                <h2 class="banner-title">{{ product.name }}</h2>
+                <p>{{ product.description | slice:0:150 }}{{ product.description.length > 150 ? '...' : '' }}</p>
+                <div class="btn-wrap">
+                  <a [routerLink]="['/products', product.slug]" class="btn btn-outline-accent btn-accent-arrow">
+                    Shop Now <i class="icon icon-ns-arrow-right"></i>
+                  </a>
+                </div>
               </div>
+              <img [src]="product.images[0] || 'assets/images/main-banner1.jpg'" [alt]="product.name" class="banner-image">
             </div>
-            <img src="assets/images/main-banner1.jpg" alt="banner" class="banner-image">
+
           </div>
+          
         </div>
+
+        <button class="next slick-arrow" (click)="nextSlide()">
+          <i class="icon icon-arrow-right"></i>
+        </button>
 
       </div>
     </div>

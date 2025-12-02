@@ -1,0 +1,74 @@
+.main-slider {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+}
+
+/* 2. The "Train" - Holds all slides side-by-side */
+.slider-track {
+    display: flex;
+    width: 100%;
+    /* This is the magic line that creates the smooth animation */
+    transition: transform 0.5s ease-in-out;
+}
+
+/* 3. The "Cars" - Force each slide to be exactly 100% width */
+.slider-item {
+    min-width: 100%;
+    flex: 0 0 100%;
+    /* Keep the template's internal centering */
+    display: flex;
+    justify-content: center;
+}
+
+
+.banner-image {
+    width: 400px;
+    /* Smaller width */
+    height: 400px;
+    /* Same height to make it a square first */
+    border-radius: 50%;
+    /* Turns the square into a circle */
+    object-fit: cover;
+    /* Ensures the image doesn't look squashed */
+    border: 8px solid #fff;
+    /* Adds a nice white border */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    /* Adds a soft shadow */
+
+    /* Center the image vertically */
+    align-self: center;
+}
+
+/* --- 2. Fix Layout & Spacing --- */
+.slider-item {
+    /* Ensure content and image are side-by-side and centered */
+    align-items: center;
+    padding: 40px 0;
+    /* Add breathing room top/bottom */
+}
+
+.banner-content {
+    /* Adjust text width and spacing */
+    width: 45% !important;
+    margin-right: 50px !important;
+    /* Reduce the huge margin from the template */
+    margin-top: 0 !important;
+    /* Remove top margin so it centers vertically */
+}
+
+/* --- 3. Move the "Next/Prev" Buttons --- */
+/* Move them further to the edges so they don't cover the text */
+.slick-arrow.prev {
+    left: 0px !important;
+}
+
+.slick-arrow.next {
+    right: 0px !important;
+}
+
+/* --- 4. Move the "Shop Now" Button --- */
+/* Add some space above the button */
+.btn-wrap {
+    margin-top: 30px;
+}

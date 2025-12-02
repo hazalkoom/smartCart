@@ -14,6 +14,7 @@ import { Checkout } from './features/checkout/checkout';
 import { Login } from './features/login/login';
 import { Register } from './features/register/register';
 import { Account } from './features/account/account';
+import { CategoryComponent } from './features/category/category';
 
 
 @NgModule({
@@ -28,7 +29,8 @@ import { Account } from './features/account/account';
     Checkout,
     Login,
     Register,
-    Account
+    Account,
+    CategoryComponent
   ],
   imports: [
     BrowserModule,

@@ -5,7 +5,6 @@ import { CategoryService } from '../../core/services/category';
 import { Product } from '../../core/interfaces/product';
 import { Category } from '../../core/interfaces/category';
 
-// Declare AOS for animations
 declare var AOS: any;
 
 @Component({
@@ -16,15 +15,15 @@ declare var AOS: any;
 })
 export class Home implements OnInit {
   
-  // Data variables
   featuredProducts: Product[] = [];
   categories: Category[] = [];
-  
-  // Variables for the "Popular Books" tab section
   categoryProducts: Product[] = [];
   selectedCategory: string = 'all';
-
   isLoading: boolean = true;
+
+  // --- NEW: Slider Variables ---
+  heroProducts: Product[] = [];
+  currentSlide: number = 0;
 
   constructor(
     private productService: ProductService,
@@ -33,33 +32,27 @@ export class Home implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // 1. Init animations
     if (isPlatformBrowser(this.platformId) && typeof AOS !== 'undefined') {
       AOS.init();
     }
-
-    // 2. Load Data
     this.loadData();
   }
 
   loadData() {
     this.isLoading = true;
 
-    // Fetch Categories
     this.categoryService.getCategories().subscribe({
-      next: (res) => {
-        this.categories = res.data;
-      }
+      next: (res) => { this.categories = res.data; }
     });
 
-    // Fetch All Products (we will filter them in the UI for now)
     this.productService.getProducts().subscribe({
       next: (res) => {
-        // Logic: Take the first 4 as "Featured"
         this.featuredProducts = res.data.slice(0, 4);
-        
-        // Logic: Use all products for the "Popular" section initially
         this.categoryProducts = res.data;
+        
+        // --- NEW: Setup Hero Slider ---
+        // Take the first 3 products for the main banner
+        this.heroProducts = res.data.slice(0, 3);
         
         this.isLoading = false;
         this.refreshAnimations();
@@ -71,19 +64,31 @@ export class Home implements OnInit {
     });
   }
 
-  // Handle Tab Clicks (Business, Tech, etc.)
   onTabChange(categoryId: string): void {
     this.selectedCategory = categoryId;
-    
-    // Note: In a real app, we would call the backend with ?category=ID
-    // For now, we will just filter the "categoryProducts" list if we had more data.
-    // Since we are just displaying the main list, we'll reload the products.
     this.refreshAnimations();
   }
 
   refreshAnimations() {
     if (isPlatformBrowser(this.platformId) && typeof AOS !== 'undefined') {
       setTimeout(() => AOS.refresh(), 100);
+    }
+  }
+
+  // --- NEW: Slider Logic ---
+  nextSlide() {
+    if (this.currentSlide < this.heroProducts.length - 1) {
+      this.currentSlide++;
+    } else {
+      this.currentSlide = 0; // Loop back to start
+    }
+  }
+
+  prevSlide() {
+    if (this.currentSlide > 0) {
+      this.currentSlide--;
+    } else {
+      this.currentSlide = this.heroProducts.length - 1; // Loop to end
     }
   }
 }

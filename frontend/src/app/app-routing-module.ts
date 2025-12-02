@@ -13,13 +13,15 @@ import { Checkout } from './features/checkout/checkout';
 import { Login } from './features/login/login';
 import { Register } from './features/register/register';
 import { Account } from './features/account/account';
+import { CategoryComponent } from './features/category/category';
 
 const routes: Routes = [{ path: '', component: Home },
 
-  // 2. Product Pages
+  // 2. Product Pages and category
   { path: 'products', component: ProductList },
   { path: 'products/:slug', component: ProductDetail }, // Commented out to fix build (SSG error) 
-
+  { path: 'categories', component: CategoryComponent },
+  
   // 3. Cart & Checkout
   { path: 'cart', component: Cart },
   { path: 'checkout', component: Checkout },
@@ -31,9 +33,13 @@ const routes: Routes = [{ path: '', component: Home },
   // 5. User Account
   { path: 'account', component: Account },
 
+
+
   // 6. Fallback (If user types a wrong URL, go to Home)
   { path: '**', redirectTo: '' }];
 
+  // category
+  
 
 
 
