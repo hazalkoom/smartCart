@@ -1,13 +1,13 @@
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
-import { AuthService } from '../../core/services/auth';
+import { AuthService } from '../../core/services/auth'; 
 
 @Component({
   selector: 'app-register',
   standalone: false,
   templateUrl: './register.html',
-  styleUrl: './register.css', // Angular 17+ uses 'styleUrl' (singular)
+  styleUrl: './register.css',
 })
 export class Register {
   
@@ -24,7 +24,7 @@ export class Register {
   constructor(
     private authService: AuthService,
     private router: Router,
-    @Inject(PLATFORM_ID) private platformId: Object // Keep this for SSR safety
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   onSubmit(): void {
@@ -48,19 +48,14 @@ export class Register {
     this.authService.register(userData).subscribe({
       next: (response) => {
         this.isLoading = false;
-        if (response.success && response.data.token) {
-          
-          // SSR CHECK: Only save token if we are in the browser
-          if (isPlatformBrowser(this.platformId)) {
-            this.authService.saveToken(response.data.token);
-          }
-          
+        if (response.success && response.data?.token) {
+          // Token is already saved by AuthService.register()
           this.router.navigate(['/']);
         }
       },
       error: (error) => {
         this.isLoading = false;
-        this.errorMessage = error.error?.error?.message || 'Registration failed. Please try again.';
+        this.errorMessage = error.error?.error?.message || error.error?.message || 'Registration failed. Please try again.';
       }
     });
   }

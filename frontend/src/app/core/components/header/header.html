@@ -1,63 +1,83 @@
-	<div id="header-wrap">
+<div id="header-wrap">
 
+  <header id="header">
+    <div class="container-fluid">
+      <div class="row">
 
+        <div class="col-md-2">
+          <div class="main-logo">
+            <a routerLink="/"><img src="assets/images/main-logo.png" alt="logo"></a>
+          </div>
+        </div>
 
-		<header id="header">
-			<div class="container-fluid">
-				<div class="row">
+        <div class="col-md-8">
+          <nav id="navbar">
+            <div class="main-menu stellarnav">
+              <ul class="menu-list">
+                <li class="menu-item"><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
+                <li class="menu-item"><a routerLink="/products" routerLinkActive="active" class="nav-link">All Products</a></li>
+                <li class="menu-item"><a routerLink="/categories" routerLinkActive="active" class="nav-link">Categories</a></li>
+                
+                <!-- Login/Register in Navbar (Visible only when logged OUT) -->
+                <li *ngIf="!isLoggedIn" class="menu-item"><a routerLink="/login" routerLinkActive="active" class="nav-link">Login</a></li>
+                <li *ngIf="!isLoggedIn" class="menu-item"><a routerLink="/register" routerLinkActive="active" class="nav-link">Register</a></li>
+              </ul>
 
-					<div class="col-md-2">
-						<div class="main-logo">
-							<a routerLink="/"><img src="assets/images/main-logo.png" alt="logo"></a>
-						</div>
-					</div>
+              <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+              </div>
+            </div>
+          </nav>
+        </div>
 
-					<div class="col-md-8">
+        <div class="col-md-2">
+          <div class="right-element">
+            
+            <!-- 1. GUEST STATE: Show Login Icon -->
+            <a *ngIf="!isLoggedIn" routerLink="/login" class="user-account for-buy">
+              <i class="icon icon-user"></i>
+              <span style="font-size: 14px; margin-left: 5px;">Login</span>
+            </a>
 
-						<nav id="navbar">
-							<div class="main-menu stellarnav">
-								<ul class="menu-list">
-									<li class="menu-item"><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
-									<li class="menu-item"><a routerLink="/products" routerLinkActive="active" class="nav-link">All Products</a></li>
-									<li class="menu-item"><a routerLink="/categories" routerLinkActive="active" class="nav-link">Categories</a></li>
-									<li class="menu-item"><a routerLink="/register" routerLinkActive="active" class="nav-link">Register</a></li>
-								</ul>
+            <!-- 2. LOGGED IN STATE: Show Name + Logout -->
+            <div *ngIf="isLoggedIn" class="d-inline-block">
+              <!-- My Account Link with Name -->
+              <a routerLink="/account" class="user-account for-buy" style="margin-right: 10px;" title="My Account">
+                <i class="icon icon-user"></i>
+                <span style="font-size: 14px; margin-left: 5px;">Hi, {{ userName || 'User' }}</span>
+              </a>
+              
+              <!-- Logout Button -->
+              <a (click)="onLogout()" class="user-account for-buy" style="cursor: pointer;" title="Logout">
+                <i class="icon icon-close"></i>
+              </a>
+            </div>
 
-								<div class="hamburger">
-									<span class="bar"></span>
-									<span class="bar"></span>
-									<span class="bar"></span>
-								</div>
+            <!-- 3. CART ICON (Always visible, shows count) -->
+            <a routerLink="/cart" class="cart for-buy">
+              <i class="icon icon-clipboard"></i>
+              <span *ngIf="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
+            </a>
 
-							</div>
-						</nav>
+            <!-- Search Bar -->
+            <div class="action-menu">
+              <div class="search-bar">
+                <a href="#" class="search-button search-toggle" data-selector="#header-wrap">
+                  <i class="icon icon-search"></i>
+                </a>
+                <form role="search" method="get" class="search-box">
+                  <input class="search-field text search-input" placeholder="Search" type="search">
+                </form>
+              </div>
+            </div>
 
-					</div>
+          </div>
+        </div>
 
-					<div class="col-md-2">
-						<div class="right-element">
-							
-							<a routerLink="/login" class="user-account for-buy">
-								<i class="icon icon-user"></i>
-							</a>
-							<a routerLink="/account" class="cart for-buy">
-								<i class="icon icon-clipboard"></i>
-							</a>
+      </div>
+    </div>
+  </header>
 
-							<div class="action-menu">
-								<div class="search-bar">
-									<a href="#" class="search-button search-toggle" data-selector="#header-wrap">
-										<i class="icon icon-search"></i>
-									</a>
-									<form role="search" method="get" class="search-box">
-										<input class="search-field text search-input" placeholder="Search" type="search">
-									</form>
-								</div>
-							</div>
-
-						</div></div>
-					</div>
-			</div>
-		</header>
-
-	</div><!--header-wrap-->
+</div><!--header-wrap-->

@@ -2354,75 +2354,157 @@ footer#footer {
 }
 
 /* Shop page */
-.products-grid {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-}
+/* --- MODERN PRODUCT CARD DESIGN --- */
 
-.product-style {
-  position: relative;
+/* 1. The Card Container */
+.product-card {
+  background: #fff;
+  border-radius: 12px;
+  /* Soft rounded corners */
   overflow: hidden;
-}
-
-.slick-slider .product-style {
-  margin: 0 15px 25px;
-}
-
-.product-style figcaption p {
-  margin-bottom: 20px;
-}
-
-.product-style img.product-item {
+  /* Keeps image inside the curves */
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0;
+  /* Very subtle border */
   position: relative;
-  background: #EFEEE8;
-  border: 1px solid #EAE8DF;
-  padding: 15%;
-  cursor: pointer;
-  width: 100%;
+  height: 100%;
 }
 
-.product-style button.add-to-cart {
+.product-card:hover {
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+  /* Float up effect */
+  transform: translateY(-5px);
+  border-color: transparent;
+}
+
+/* 2. The Image Area */
+.product-image-container {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #f8f8f8;
+  /* Light gray bg for transparent pngs */
+  height: 300px;
+  /* Fixed height for consistency */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* or 'contain' if you want to see the whole product */
+  transition: transform 0.5s ease;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05);
+  /* Slight zoom on hover */
+}
+
+/* 3. The Hover Overlay (Hidden by default) */
+.actions-overlay {
   position: absolute;
-  background: #000;
-  color: #fff;
-  width: 100%;
-  margin: 0;
-  text-transform: uppercase;
-  text-align: center;
-  line-height: 3;
-  bottom: 300px;
-  bottom: -65px;
+  top: 0;
   left: 0;
-  z-index: 9;
-  transition: 0.3s ease-out;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.3);
+  /* Glassmorphism effect */
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  /* Space between buttons */
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
 }
 
-.product-style:hover button.add-to-cart {
-  bottom: 380px;
-  bottom: 0;
+.product-card:hover .actions-overlay {
+  opacity: 1;
+  transform: translateY(0);
 }
 
-.product-item figcaption {
-  margin-top: 30px;
-  margin-bottom: 30px;
+/* 4. The Buttons */
+.action-btn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  /* Circle buttons */
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+  /* Icon size */
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.cart-btn {
+  background: var(--dark-color);
+  color: #fff;
+}
+
+.cart-btn:hover {
+  background: var(--accent-color);
+  transform: scale(1.1);
+}
+
+.view-btn {
+  background: #fff;
+  color: var(--dark-color);
+}
+
+.view-btn:hover {
+  background: var(--accent-color);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+/* 5. The Text Details */
+.product-details {
+  padding: 20px;
   text-align: center;
 }
 
-.product-item figcaption>h3 {
-  font-size: 1.4em;
-  font-weight: 500;
-  color: #74642F;
-  margin: 0;
+.product-title {
+  margin: 0 0 5px;
+  font-size: 1.1em;
+  font-weight: 600;
+  line-height: 1.4;
 }
 
-.product-item figcaption>p {
-  margin: 0;
+.product-title a {
+  color: var(--dark-color);
+  text-decoration: none;
 }
 
-.product-item .item-price {
-  color: #74642F;
-  font-size: 1.3em;
+.product-title a:hover {
+  color: var(--accent-color);
+}
+
+.product-category {
+  display: block;
+  font-size: 0.85em;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.product-price {
+  color: var(--accent-color);
+  font-size: 1.2em;
+  font-weight: 700;
 }
 
 @media screen and (max-width: 768px) {

@@ -8,7 +8,15 @@
 			</div>
 		</div>
 
-		<div class="row">
+		<div *ngIf="isLoading" class="text-center py-5">
+			<p>Loading...</p>
+		</div>
+
+		<div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+			{{ errorMessage }}
+		</div>
+
+		<div *ngIf="!isLoading && !errorMessage" class="row">
 
 			<div class="col-md-5">
 				<div class="form-wrapper">
@@ -18,23 +26,20 @@
 						<div class="row">
 							<div class="col-md-6 mb-3">
 								<label for="firstName" class="form-label">First Name</label>
-								<input type="text" class="form-control" id="firstName" value="Order">
+								<input type="text" class="form-control" id="firstName" [value]="user?.firstName || ''" readonly>
 							</div>
 							<div class="col-md-6 mb-3">
 								<label for="lastName" class="form-label">Last Name</label>
-								<input type="text" class="form-control" id="lastName" value="Tester">
+								<input type="text" class="form-control" id="lastName" [value]="user?.lastName || ''" readonly>
 							</div>
 						</div>
 						<div class="mb-3">
 							<label for="email" class="form-label">Email address</label>
-							<input type="email" class="form-control" id="email" value="customer-order@test.com" disabled>
+							<input type="email" class="form-control" id="email" [value]="user?.email || ''" disabled>
 						</div>
 						<div class="mb-3">
-							<label for="phone" class="form-label">Phone (Optional)</label>
-							<input type="tel" class="form-control" id="phone" placeholder="Your phone number">
-						</div>
-						<div class="d-grid">
-							<button type="submit" class="btn btn-primary" style="margin-top: 20px;">Update Profile</button>
+							<label for="role" class="form-label">Role</label>
+							<input type="text" class="form-control" id="role" [value]="user?.role || ''" disabled>
 						</div>
 					</form>
 				</div>
@@ -43,7 +48,10 @@
 			<div class="col-md-7">
 				<h4>My Orders</h4>
 				<hr class="my-3">
-				<table class="table table-hover order-history-table">
+				<div *ngIf="orders.length === 0" class="alert alert-info">
+					You have no orders yet.
+				</div>
+				<table *ngIf="orders.length > 0" class="table table-hover order-history-table">
 					<thead>
 						<tr>
 							<th scope="col">Order #</th>
@@ -54,26 +62,12 @@
 						</tr>
 					</thead>
 					<tbody>
-						<tr>
-							<th scope="row">2025-11-13-F654A6</th>
-							<td>Nov 13, 2025</td>
-							<td><span class="order-status shipped">Shipped</span></td>
-							<td>$ 250.00</td>
-							<td><a href="#" class="btn btn-outline-dark btn-sm">View</a></td>
-						</tr>
-						<tr>
-							<th scope="row">2025-11-13-687FE3</th>
-							<td>Nov 13, 2025</td>
-							<td><span class="order-status delivered">Delivered</span></td>
-							<td>$ 100.00</td>
-							<td><a href="#" class="btn btn-outline-dark btn-sm">View</a></td>
-						</tr>
-						<tr>
-							<th scope="row">2025-11-12-A1B2C3</th>
-							<td>Nov 12, 2025</td>
-							<td><span class="order-status pending">Pending</span></td>
-							<td>$ 40.00</td>
-							<td><a href="#" class="btn btn-outline-dark btn-sm">View</a></td>
+						<tr *ngFor="let order of orders">
+							<th scope="row">{{ order.orderNumber }}</th>
+							<td>{{ formatDate(order.createdAt) }}</td>
+							<td><span class="order-status" [ngClass]="getOrderStatusClass(order.status)">{{ order.status }}</span></td>
+							<td>$ {{ order.total.toFixed(2) }}</td>
+							<td><a [routerLink]="['/orders', order._id]" class="btn btn-outline-dark btn-sm">View</a></td>
 						</tr>
 					</tbody>
 				</table>

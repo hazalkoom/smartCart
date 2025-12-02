@@ -33,21 +33,30 @@
 					<div id="all-genre" data-tab-content class="active">
 						<div class="row">
 							<div class="col-md-3" *ngFor="let product of products" data-aos="fade-up">
-								<div class="product-item">
-									<figure class="product-style">
-										<img 
-											[src]="product.images && product.images.length > 0 ? product.images[0] : 'assets/images/placeholder.jpg'" 
-											[alt]="product.name" 
-											class="product-item">
-										<button type="button" class="add-to-cart" data-product-tile="add-to-cart">
-											Add to Cart
-										</button>
+								<div class="product-card">
+									<figure class="product-image-container">
+										<img [src]="product.images && product.images.length > 0 ? product.images[0] : 'assets/images/placeholder.jpg'" 
+												 [alt]="product.name" 
+												 class="product-image">
+										
+										<div class="actions-overlay">
+											<button type="button" class="action-btn cart-btn" (click)="addToCart($event, product)">
+												<i class="icon icon-clipboard"></i> Add
+											</button>
+											
+											<a [routerLink]="['/products', product.slug]" class="action-btn view-btn">
+												<i class="icon icon-search"></i> View
+											</a>
+										</div>
 									</figure>
-									<figcaption>
-										<h3>{{ product.name }}</h3>
-										<span>{{ product.categoryId?.name || 'Uncategorized' }}</span>
-										<div class="item-price">$ {{ product.price.toFixed(2) }}</div>
-									</figcaption>
+									
+									<div class="product-details">
+										<h3 class="product-title">
+											<a [routerLink]="['/products', product.slug]">{{ product.name }}</a>
+										</h3>
+										<span class="product-category">{{ product.categoryId?.name || 'Uncategorized' }}</span>
+										<div class="product-price">$ {{ product.price.toFixed(2) }}</div>
+									</div>
 								</div>
 							</div>
 						</div>

@@ -1,112 +1,124 @@
 <section id="checkout-page" class="py-5 my-5">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-12">
-				<div class="section-header align-center">
-					<h2 class="section-title">Checkout</h2>
-				</div>
-			</div>
-		</div>
+  <div class="container">
+    
+    <div class="row">
+      <div class="col-md-12">
+        <div class="section-header align-center">
+          <h2 class="section-title">Checkout</h2>
+        </div>
+      </div>
+    </div>
 
-		<div class="row">
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
 
-			<div class="col-md-7">
-				<div class="form-wrapper">
-					<form>
-						<h4>Shipping Address</h4>
-						<hr class="my-3">
-						<div class="row">
-							<div class="col-md-6 mb-3">
-								<label for="firstName" class="form-label">First Name</label>
-								<input type="text" class="form-control" id="firstName">
-							</div>
-							<div class="col-md-6 mb-3">
-								<label for="lastName" class="form-label">Last Name</label>
-								<input type="text" class="form-control" id="lastName">
-							</div>
-						</div>
-						<div class="mb-3">
-							<label for="street" class="form-label">Street Address</label>
-							<input type="text" class="form-control" id="street" placeholder="123 Test St">
-						</div>
-						<div class="mb-3">
-							<label for="city" class="form-label">City</label>
-							<input type="text" class="form-control" id="city" placeholder="Cairo">
-						</div>
-						<div class="row">
-							<div class="col-md-6 mb-3">
-								<label for="state" class="form-label">State (Optional)</label>
-								<input type="text" class="form-control" id="state">
-							</div>
-							<div class="col-md-6 mb-3">
-								<label for="zip" class="form-label">Zip Code (Optional)</label>
-								<input type="text" class="form-control" id="zip">
-							</div>
-						</div>
-						<div class="mb-3">
-							<label for="country" class="form-label">Country</label>
-							<input type="text" class="form-control" id="country" placeholder="Egypt">
-						</div>
+    <div *ngIf="error" class="alert alert-danger text-center mb-4">
+      {{ error }}
+    </div>
 
-						<h4 class="mt-5">Payment Details</h4>
-						<hr class="my-3">
-						<p>We will add the Stripe Payment Form here.</p>
-						<div id="payment-element" style="height: 100px; border: 1px dashed #ccc; padding: 10px; text-align: center; line-height: 80px; color: #999;">
-							[Stripe credit card form will go here]
-						</div>
-						
-						<div class="d-grid">
-							<button type="submit" class="btn btn-primary btn-lg" style="margin-top: 30px;">Place Order</button>
-						</div>
-					</form>
-				</div>
-			</div>
+    <div class="row" *ngIf="!isLoading && cart">
 
-			<div class="col-md-5">
-				<div class="order-summary">
-					<h4 class="section-title" style="font-size: 1.5em; margin-bottom: 30px;">Order Summary</h4>
-					
-					<div class="d-flex justify-content-between mb-3">
-						<div class="d-flex">
-							<img src="assets/images/tab-item1.jpg" alt="Product" class="img-thumbnail" style="width: 60px; height: 75px; object-fit: cover; margin-right: 15px;">
-							<div>
-								<h6 style="margin-bottom: 0;">Portrait photography</h6>
-								<span class="text-muted" style="font-size: 0.9em;">Qty: 2</span>
-							</div>
-						</div>
-						<strong>$ 80.00</strong>
-					</div>
+      <div class="col-md-7">
+        <div class="form-wrapper">
+          <form (ngSubmit)="placeOrder()">
+            <h4>Shipping Address</h4>
+            <hr class="my-3">
+            
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="firstName" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="firstName" name="firstName" [(ngModel)]="firstName">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="lastName" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="lastName" name="lastName" [(ngModel)]="lastName">
+              </div>
+            </div>
 
-					<div class="d-flex justify-content-between mb-3">
-						<div class="d-flex">
-							<img src="assets/images/tab-item2.jpg" alt="Product" class="img-thumbnail" style="width: 60px; height: 75px; object-fit: cover; margin-right: 15px;">
-							<div>
-								<h6 style="margin-bottom: 0;">Once upon a time</h6>
-								<span class="text-muted" style="font-size: 0.9em;">Qty: 1</span>
-							</div>
-						</div>
-						<strong>$ 35.00</strong>
-					</div>
+            <div class="mb-3">
+              <label for="street" class="form-label">Street Address <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="street" name="street" [(ngModel)]="shippingAddress.street" required placeholder="123 Main St">
+            </div>
 
-					<hr>
+            <div class="mb-3">
+              <label for="city" class="form-label">City <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="city" name="city" [(ngModel)]="shippingAddress.city" required placeholder="City">
+            </div>
 
-					<ul class="list-group list-group-flush">
-						<li class="list-group-item d-flex justify-content-between align-items-center">
-							Subtotal
-							<span>$ 115.00</span>
-						</li>
-						<li class="list-group-item d-flex justify-content-between align-items-center">
-							Shipping
-							<span>$ 5.00</span>
-						</li>
-						<li class="list-group-item d-flex justify-content-between align-items-center" style="font-weight: bold; font-size: 1.2em; color: var(--dark-color);">
-							Total
-							<span>$ 120.00</span>
-						</li>
-					</ul>
-				</div>
-			</div>
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="state" class="form-label">State</label>
+                <input type="text" class="form-control" id="state" name="state" [(ngModel)]="shippingAddress.state">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="zip" class="form-label">Zip Code</label>
+                <input type="text" class="form-control" id="zip" name="zip" [(ngModel)]="shippingAddress.zip">
+              </div>
+            </div>
 
-		</div>
-	</div>
+            <div class="mb-3">
+              <label for="country" class="form-label">Country <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="country" name="country" [(ngModel)]="shippingAddress.country" required placeholder="Country">
+            </div>
+
+            <h4 class="mt-5">Payment Details</h4>
+            <hr class="my-3">
+            <div class="alert alert-info">
+              <i class="icon icon-info-circle"></i> Payment integration (Stripe) coming in Week 6.
+            </div>
+            
+            <div class="d-grid">
+              <button 
+                type="submit" 
+                class="btn btn-primary btn-lg" 
+                style="margin-top: 30px;"
+                [disabled]="isProcessing">
+                {{ isProcessing ? 'Processing...' : 'Place Order' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-5">
+        <div class="order-summary">
+          <h4 class="section-title" style="font-size: 1.5em; margin-bottom: 30px;">Order Summary</h4>
+          
+          <div class="d-flex justify-content-between mb-3" *ngFor="let item of cart.items">
+            <div class="d-flex">
+              <div style="margin-right: 15px;">
+                 <i class="icon icon-clipboard" style="font-size: 2em; color: #ccc;"></i>
+              </div>
+              <div>
+                <h6 style="margin-bottom: 0;">{{ item.productId.name }}</h6>
+                <span class="text-muted" style="font-size: 0.9em;">Qty: {{ item.quantity }}</span>
+              </div>
+            </div>
+            <strong>$ {{ (item.price * item.quantity).toFixed(2) }}</strong>
+          </div>
+
+          <hr>
+
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Subtotal
+              <span>$ {{ cart.subtotal.toFixed(2) }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Shipping
+              <span>$ {{ shippingCost.toFixed(2) }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center" style="font-weight: bold; font-size: 1.2em; color: var(--dark-color);">
+              Total
+              <span>$ {{ getTotal().toFixed(2) }}</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
 </section>

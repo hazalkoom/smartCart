@@ -9,6 +9,6 @@ export interface User {
 
 export interface AuthResponse {
   success: boolean;
-  data: User;
+  data: User & { token: string }; // Token is included in the data object
   message?: string;
 }

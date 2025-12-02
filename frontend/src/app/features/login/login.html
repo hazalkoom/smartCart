@@ -12,22 +12,47 @@
 			<div class="col-md-12">
 				
 				<div class="form-wrapper">
-					<form>
+					<form (ngSubmit)="onLogin()">
+						
+						<!-- Error Message -->
+						<div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+							{{ errorMessage }}
+						</div>
+
 						<div class="mb-3">
 							<label for="email" class="form-label">Email address</label>
-							<input type="email" class="form-control" id="email" placeholder="name@example.com">
+							<input 
+								type="email" 
+								class="form-control" 
+								id="email" 
+								name="email"
+								[(ngModel)]="email"
+								placeholder="name@example.com"
+								required>
 						</div>
 						<div class="mb-3">
 							<label for="password" class="form-label">Password</label>
-							<input type="password" class="form-control" id="password" placeholder="Password">
+							<input 
+								type="password" 
+								class="form-control" 
+								id="password" 
+								name="password"
+								[(ngModel)]="password"
+								placeholder="Password"
+								required>
 						</div>
 						<div class="d-grid">
-							<button type="submit" class="btn btn-primary btn-lg" style="margin-top: 20px;">Login</button>
+							<button 
+								type="submit" 
+								class="btn btn-primary btn-lg" 
+								style="margin-top: 20px;"
+								[disabled]="isLoading">
+								{{ isLoading ? 'Logging in...' : 'Login' }}
+							</button>
 						</div>
 
 						<div class="text-center mt-4">
-							<p>Don't have an account? <a href="register.html">Create one</a></p>
-							<a href="forgot-password.html">Forgot your password?</a>
+							<p>Don't have an account? <a routerLink="/register">Create one</a></p>
 						</div>
 					</form>
 				</div>
