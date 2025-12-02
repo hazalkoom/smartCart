@@ -23,21 +23,42 @@
 
 
 .banner-image {
-    width: 400px;
-    /* Smaller width */
-    height: 400px;
-    /* Same height to make it a square first */
+    width: 350px;
+    height: 350px;
     border-radius: 50%;
-    /* Turns the square into a circle */
     object-fit: cover;
-    /* Ensures the image doesn't look squashed */
-    border: 8px solid #fff;
-    /* Adds a nice white border */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    /* Adds a soft shadow */
-
-    /* Center the image vertically */
+    border: 6px solid #fff;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
     align-self: center;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+/* Add hover effect */
+.banner-image:hover {
+    transform: scale(1.05) rotate(2deg);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* Add subtle pulse animation */
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.03);
+    }
+}
+
+.banner-image {
+    animation: pulse 4s ease-in-out infinite;
+}
+
+.banner-image:hover {
+    animation: none;
+    /* Stop pulse on hover */
 }
 
 /* --- 2. Fix Layout & Spacing --- */
