@@ -1,125 +1,275 @@
-/* Product Detail Styling */
+/* ============================================
+   MODERN PRODUCT DETAIL PAGE ENHANCEMENTS
+   ============================================ */
+
+/* 1. Image Gallery with Lightbox Effect */
 #product-detail .product-image {
     position: relative;
+    margin-bottom: 30px;
 }
 
 #product-detail .main-product-image {
     width: 100%;
     height: auto;
+    max-height: 600px;
     border: 1px solid #EAE8DF;
-    padding: 20px;
-    object-fit: cover;
+    padding: 30px;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 8px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: zoom-in;
 }
 
+#product-detail .main-product-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced Thumbnails with Animation */
 #product-detail .product-thumbnails {
     gap: 10px;
     overflow-x: auto;
     padding-bottom: 10px;
+    margin-top: 20px;
 }
 
 #product-detail .product-thumbnails .img-thumbnail {
-    width: 80px;
-    height: 80px;
+    width: 90px;
+    height: 90px;
     object-fit: cover;
     cursor: pointer;
-    opacity: 0.6;
-    transition: opacity 0.3s ease, border-color 0.3s ease;
-    border: 1px solid #ddd;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    transform: scale(0.95);
 }
 
-#product-detail .product-thumbnails .img-thumbnail:hover,
-#product-detail .product-thumbnails .img-thumbnail.active-thumb {
-    opacity: 1;
+#product-detail .product-thumbnails .img-thumbnail:hover {
+    opacity: 0.8;
+    transform: scale(1);
     border-color: var(--accent-color);
 }
 
-#product-detail .product-info .section-title {
-    margin-bottom: 10px;
+#product-detail .product-thumbnails .img-thumbnail.active-thumb {
+    opacity: 1;
+    border-color: var(--accent-color);
+    transform: scale(1);
+    box-shadow: 0 4px 12px rgba(197, 169, 146, 0.3);
 }
 
+/* 2. Product Info Section with Better Spacing */
+#product-detail .product-info {
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+#product-detail .section-title {
+    margin-bottom: 15px;
+    font-size: 2.2em;
+    line-height: 1.3;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Animated Price with Pulse Effect */
 #product-detail .item-price {
-    font-size: 2em;
-    color: var(--primary-color);
+    font-size: 2.5em;
+    color: var(--accent-color);
     font-weight: bold;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    display: inline-block;
+    animation: priceGlow 2s ease-in-out infinite;
+    position: relative;
 }
 
+@keyframes priceGlow {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.9;
+        transform: scale(1.02);
+    }
+}
+
+/* 3. Modern Cart Form with Better UX */
 #product-detail .cart-form {
     gap: 20px;
+    margin: 30px 0;
+    padding: 25px;
+    background: linear-gradient(135deg, #f8f8f8 0%, #fff 100%);
+    border-radius: 10px;
+    border: 1px solid #eee;
 }
 
 #product-detail .quantity-control {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
+}
+
+#product-detail .quantity-control label {
+    font-weight: 600;
+    color: var(--dark-color);
+    font-size: 1.1em;
 }
 
 #product-detail .quantity-control input {
-    width: 80px;
+    width: 100px;
     text-align: center;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
-#product-detail .add-cart-btn {
-    background-color: var(--accent-color);
+#product-detail .quantity-control input:focus {
     border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(197, 169, 146, 0.1);
+    outline: none;
+}
+
+/* Enhanced Add to Cart Button */
+#product-detail .add-cart-btn {
+    background: linear-gradient(135deg, var(--accent-color) 0%, #9A884C 100%);
+    border: none;
     color: #fff;
-    padding: 10px 30px;
+    padding: 15px 40px;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: background-color 0.3s ease;
+    letter-spacing: 1.5px;
+    font-weight: 700;
+    font-size: 1.1em;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(197, 169, 146, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+#product-detail .add-cart-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+#product-detail .add-cart-btn:hover::before {
+    width: 300px;
+    height: 300px;
 }
 
 #product-detail .add-cart-btn:hover {
-    background-color: var(--dark-color);
-    border-color: var(--dark-color);
+    background: linear-gradient(135deg, #9A884C 0%, var(--dark-color) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(197, 169, 146, 0.4);
 }
 
+#product-detail .add-cart-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 4. Stock Badge */
 #product-detail .product-meta p {
-    margin-bottom: 5px;
-    font-size: 0.9em;
+    margin-bottom: 10px;
+    font-size: 1em;
     color: #666;
+    line-height: 1.8;
+}
+
+#product-detail .product-meta p strong {
+    color: var(--dark-color);
+    font-weight: 600;
+}
+
+/* Stock indicator with color coding */
+#product-detail .product-meta p:has(strong:contains("Stock")) {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    background: #e8f5e9;
+    border-radius: 20px;
+    border-left: 4px solid #4caf50;
 }
 
 #product-detail .product-meta a {
     color: var(--accent-color);
     text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s ease;
 }
 
 #product-detail .product-meta a:hover {
+    color: var(--dark-color);
     text-decoration: underline;
 }
 
-/* Tabs Styling */
+/* 5. Enhanced Tabs with Modern Design */
 ul.tabs {
     list-style: none;
     padding: 0;
-    margin: 0 0 20px 0;
-    border-bottom: 1px solid #ddd;
+    margin: 50px 0 30px 0;
+    border-bottom: 2px solid #eee;
     display: flex;
-    gap: 30px;
+    gap: 40px;
 }
 
 ul.tabs li {
-    padding-bottom: 10px;
+    padding: 15px 5px;
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 1.1em;
     color: #999;
     position: relative;
-    transition: color 0.3s ease;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+ul.tabs li:hover {
+    color: var(--dark-color);
 }
 
 ul.tabs li.active {
     color: var(--dark-color);
 }
 
-ul.tabs li.active::after {
+ul.tabs li::after {
     content: '';
     position: absolute;
-    bottom: -1px;
+    bottom: -2px;
     left: 0;
+    width: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-color), #9A884C);
+    transition: width 0.4s ease;
+}
+
+ul.tabs li.active::after,
+ul.tabs li:hover::after {
     width: 100%;
-    height: 2px;
-    background-color: var(--accent-color);
+}
+
+.tab-content {
+    padding: 30px 0;
 }
 
 .tab-content [data-tab-content] {
@@ -128,15 +278,187 @@ ul.tabs li.active::after {
 
 .tab-content [data-tab-content].active {
     display: block;
-    animation: fadeIn 0.5s ease;
+    animation: tabFadeIn 0.5s ease;
 }
 
-@keyframes fadeIn {
+@keyframes tabFadeIn {
     from {
         opacity: 0;
+        transform: translateY(10px);
     }
 
     to {
         opacity: 1;
+        transform: translateY(0);
     }
+}
+
+/* 6. Alert Boxes Modern Design */
+#product-detail .alert {
+    border-radius: 10px;
+    border: none;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+#product-detail .alert-warning {
+    background: linear-gradient(135deg, #fff3cd 0%, #fffaee 100%);
+    border-left: 4px solid #ffc107;
+}
+
+#product-detail .alert-danger {
+    background: linear-gradient(135deg, #f8d7da 0%, #fff5f5 100%);
+    border-left: 4px solid #dc3545;
+}
+
+/* 7. STICKY ADD TO CART FOR MOBILE */
+@media (max-width: 768px) {
+    #product-detail .sticky-cart-mobile {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #fff;
+        padding: 15px 20px;
+        box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        animation: slideUp 0.4s ease;
+        border-top: 2px solid var(--accent-color);
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    #product-detail .sticky-cart-mobile .price {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: var(--accent-color);
+    }
+
+    #product-detail .sticky-cart-mobile button {
+        padding: 12px 30px;
+        font-size: 0.9em;
+        margin: 0;
+    }
+}
+
+/* 8. RESPONSIVE IMPROVEMENTS */
+@media (max-width: 768px) {
+    #product-detail .section-title {
+        font-size: 1.8em;
+    }
+
+    #product-detail .item-price {
+        font-size: 2em;
+    }
+
+    #product-detail .cart-form {
+        flex-direction: column;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    #product-detail .quantity-control {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    #product-detail .quantity-control input {
+        width: 100%;
+    }
+
+    #product-detail .add-cart-btn {
+        width: 100%;
+        padding: 15px;
+    }
+
+    #product-detail .product-info {
+        margin-top: 20px;
+    }
+
+    ul.tabs {
+        gap: 20px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    ul.tabs li {
+        font-size: 0.95em;
+        white-space: nowrap;
+    }
+}
+
+/* 9. Loading States */
+#product-detail .btn[disabled] {
+    position: relative;
+    color: transparent;
+}
+
+#product-detail .btn[disabled]::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin-left: -10px;
+    margin-top: -10px;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* 10. Trust Badges Section (Add to HTML later) */
+.trust-badges {
+    display: flex;
+    gap: 20px;
+    margin: 30px 0;
+    padding: 20px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    flex-wrap: wrap;
+}
+
+.trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.trust-badge i {
+    color: var(--accent-color);
+    font-size: 1.3em;
 }
