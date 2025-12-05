@@ -65,7 +65,10 @@ export class CheckoutComponent implements OnInit {
   }
 
   getTotal(): number {
-    return (this.cart?.subtotal || 0) + this.shippingCost;
+    if (!this.cart) return 0;
+    // Free shipping if subtotal >= 100
+    const shipping = this.cart.subtotal >= 100 ? 0 : this.shippingCost;
+    return this.cart.subtotal + shipping;
   }
 
   placeOrder() {

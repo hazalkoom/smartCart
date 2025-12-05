@@ -9,6 +9,32 @@
       </div>
     </div>
 
+    <!-- Progress Indicator -->
+    <div class="row" *ngIf="!isLoading">
+      <div class="col-md-12">
+        <div class="checkout-progress">
+          <div class="progress-step completed">
+            <div class="progress-step-circle">
+              <i class="icon icon-check"></i>
+            </div>
+            <span class="progress-step-label">Cart</span>
+          </div>
+          <div class="progress-step active">
+            <div class="progress-step-circle">2</div>
+            <span class="progress-step-label">Shipping</span>
+          </div>
+          <div class="progress-step">
+            <div class="progress-step-circle">3</div>
+            <span class="progress-step-label">Payment</span>
+          </div>
+          <div class="progress-step">
+            <div class="progress-step-circle">4</div>
+            <span class="progress-step-label">Review</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div *ngIf="isLoading" class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
@@ -16,7 +42,8 @@
     </div>
 
     <div *ngIf="error" class="alert alert-danger text-center mb-4">
-      {{ error }}
+      <i class="icon icon-alert-circle"></i>
+      <span>{{ error }}</span>
     </div>
 
     <div class="row" *ngIf="!isLoading && cart">
@@ -24,59 +51,112 @@
       <div class="col-md-7">
         <div class="form-wrapper">
           <form (ngSubmit)="placeOrder()">
-            <h4>Shipping Address</h4>
+            <h4>
+              <i class="icon icon-map-pin"></i>
+              Shipping Address
+            </h4>
             <hr class="my-3">
             
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label for="firstName" class="form-label">First Name</label>
-                <input type="text" class="form-control" id="firstName" name="firstName" [(ngModel)]="firstName">
+                <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="firstName" name="firstName" [(ngModel)]="firstName" required placeholder="John">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="lastName" class="form-label">Last Name</label>
-                <input type="text" class="form-control" id="lastName" name="lastName" [(ngModel)]="lastName">
+                <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="lastName" name="lastName" [(ngModel)]="lastName" required placeholder="Doe">
               </div>
             </div>
 
             <div class="mb-3">
               <label for="street" class="form-label">Street Address <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="street" name="street" [(ngModel)]="shippingAddress.street" required placeholder="123 Main St">
+              <div class="input-with-icon">
+                <input type="text" class="form-control" id="street" name="street" [(ngModel)]="shippingAddress.street" required placeholder="123 Main Street">
+                <i class="icon icon-home"></i>
+              </div>
             </div>
 
-            <div class="mb-3">
-              <label for="city" class="form-label">City <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="city" name="city" [(ngModel)]="shippingAddress.city" required placeholder="City">
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label for="city" class="form-label">City <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="city" name="city" [(ngModel)]="shippingAddress.city" required placeholder="New York">
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="zip" class="form-label">Zip Code <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="zip" name="zip" [(ngModel)]="shippingAddress.zip" required placeholder="10001">
+              </div>
             </div>
 
             <div class="row">
               <div class="col-md-6 mb-3">
                 <label for="state" class="form-label">State</label>
-                <input type="text" class="form-control" id="state" name="state" [(ngModel)]="shippingAddress.state">
+                <input type="text" class="form-control" id="state" name="state" [(ngModel)]="shippingAddress.state" placeholder="New York">
               </div>
               <div class="col-md-6 mb-3">
-                <label for="zip" class="form-label">Zip Code</label>
-                <input type="text" class="form-control" id="zip" name="zip" [(ngModel)]="shippingAddress.zip">
+                <label for="country" class="form-label">Country <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="country" name="country" [(ngModel)]="shippingAddress.country" required placeholder="United States">
               </div>
             </div>
 
-            <div class="mb-3">
-              <label for="country" class="form-label">Country <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="country" name="country" [(ngModel)]="shippingAddress.country" required placeholder="Country">
+            <!-- Save Info Checkbox -->
+            <div class="save-info-wrapper">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="saveInfo">
+                <label class="form-check-label" for="saveInfo">
+                  Save this information for next time
+                </label>
+              </div>
             </div>
 
-            <h4 class="mt-5">Payment Details</h4>
+            <h4 class="mt-5">
+              <i class="icon icon-credit-card"></i>
+              Payment Details
+            </h4>
             <hr class="my-3">
+
+            <!-- Payment Methods -->
+            <div class="payment-methods">
+              <div class="payment-method active">
+                <i class="icon icon-credit-card"></i>
+                <span>Credit Card</span>
+              </div>
+              <div class="payment-method">
+                <i class="icon icon-smartphone"></i>
+                <span>PayPal</span>
+              </div>
+              <div class="payment-method">
+                <i class="icon icon-dollar-sign"></i>
+                <span>Stripe</span>
+              </div>
+            </div>
+
             <div class="alert alert-info">
-              <i class="icon icon-info-circle"></i> Payment integration (Stripe) coming in Week 6.
+              <i class="icon icon-info"></i>
+              <span>Payment integration (Stripe) coming in Week 6.</span>
+            </div>
+
+            <!-- Trust Signals -->
+            <div class="trust-signals">
+              <div class="trust-signal">
+                <i class="icon icon-shield"></i>
+                <span>Secure Payment</span>
+              </div>
+              <div class="trust-signal">
+                <i class="icon icon-lock"></i>
+                <span>SSL Encrypted</span>
+              </div>
+              <div class="trust-signal">
+                <i class="icon icon-refresh-cw"></i>
+                <span>Easy Returns</span>
+              </div>
             </div>
             
             <div class="d-grid">
               <button 
                 type="submit" 
-                class="btn btn-primary btn-lg" 
-                style="margin-top: 30px;"
+                class="btn btn-place-order" 
                 [disabled]="isProcessing">
-                {{ isProcessing ? 'Processing...' : 'Place Order' }}
+                {{ isProcessing ? 'Processing Order...' : 'Place Order' }}
               </button>
             </div>
           </form>
@@ -85,37 +165,54 @@
 
       <div class="col-md-5">
         <div class="order-summary">
-          <h4 class="section-title" style="font-size: 1.5em; margin-bottom: 30px;">Order Summary</h4>
+          <h4>Order Summary</h4>
           
-          <div class="d-flex justify-content-between mb-3" *ngFor="let item of cart.items">
-            <div class="d-flex">
-              <div style="margin-right: 15px;">
-                 <i class="icon icon-clipboard" style="font-size: 2em; color: #ccc;"></i>
-              </div>
-              <div>
-                <h6 style="margin-bottom: 0;">{{ item.productId.name }}</h6>
-                <span class="text-muted" style="font-size: 0.9em;">Qty: {{ item.quantity }}</span>
-              </div>
+          <!-- Order Items -->
+          <div class="order-item" *ngFor="let item of cart.items">
+            <img [src]="item.productId.images[0]" [alt]="item.productId.name" class="order-item-image">
+            <div class="order-item-details">
+              <h6>{{ item.productId.name }}</h6>
+              <span class="item-meta">Qty: {{ item.quantity }}</span>
             </div>
-            <strong>$ {{ (item.price * item.quantity).toFixed(2) }}</strong>
+            <span class="order-item-price">$ {{ (item.price * item.quantity).toFixed(2) }}</span>
           </div>
 
-          <hr>
-
+          <!-- Price Summary -->
           <ul class="list-group list-group-flush">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Subtotal
+            <li class="list-group-item">
+              <span>Subtotal</span>
               <span>$ {{ cart.subtotal.toFixed(2) }}</span>
             </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Shipping
-              <span>$ {{ shippingCost.toFixed(2) }}</span>
+            <li class="list-group-item">
+              <span>Shipping</span>
+              <span *ngIf="cart.subtotal >= 100" style="color: #28a745; font-weight: 700;">FREE</span>
+              <span *ngIf="cart.subtotal < 100">$ {{ shippingCost.toFixed(2) }}</span>
             </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center" style="font-weight: bold; font-size: 1.2em; color: var(--dark-color);">
-              Total
+            <li class="list-group-item">
+              <span>Total</span>
               <span>$ {{ getTotal().toFixed(2) }}</span>
             </li>
           </ul>
+
+          <!-- Promo Code Section -->
+          <div class="promo-code-section">
+            <button type="button" class="promo-code-toggle">
+              <i class="icon icon-tag"></i>
+              Have a promo code?
+            </button>
+            <!-- Uncomment when implementing promo codes
+            <div class="promo-code-input-wrapper">
+              <input type="text" placeholder="Enter code" class="form-control">
+              <button type="button">Apply</button>
+            </div>
+            -->
+          </div>
+
+          <!-- Security Badge -->
+          <div class="security-badge">
+            <i class="icon icon-shield-check"></i>
+            <p>Your payment information is secure and encrypted</p>
+          </div>
         </div>
       </div>
 
