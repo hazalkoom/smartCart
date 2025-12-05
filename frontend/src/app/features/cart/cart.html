@@ -8,6 +8,22 @@
       </div>
     </div>
 
+    <!-- Free Shipping Progress Bar -->
+    <div class="row" *ngIf="!isLoading && cart && cart.items.length > 0">
+      <div class="col-12">
+        <div class="shipping-progress-wrapper">
+          <div class="shipping-progress-text">
+            <i class="icon icon-truck"></i>
+            <span *ngIf="cart.subtotal < 100">Add ${{ (100 - cart.subtotal).toFixed(2) }} more to get FREE shipping!</span>
+            <span *ngIf="cart.subtotal >= 100" style="color: #28a745;">🎉 You've qualified for FREE shipping!</span>
+          </div>
+          <div class="progress">
+            <div class="progress-bar" [style.width.%]="(cart.subtotal / 100) * 100"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div *ngIf="isLoading" class="text-center py-5">
       <div class="spinner-border text-primary" role="status">
         <span class="visually-hidden">Loading...</span>
@@ -19,6 +35,12 @@
     </div>
 
     <div *ngIf="!isLoading && (!cart || cart.items.length === 0)" class="text-center py-5">
+      <div class="empty-cart-illustration">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+          <circle cx="100" cy="100" r="80" stroke="#E0E0E0" stroke-width="4"/>
+          <path d="M70 90 L90 110 L130 70" stroke="#C5A992" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
       <h3>Your cart is empty</h3>
       <p class="text-muted">Looks like you haven't added any books yet.</p>
       <button class="btn btn-primary mt-3" (click)="continueShopping()">Start Shopping</button>
@@ -38,7 +60,7 @@
           </thead>
           <tbody>
             <tr *ngFor="let item of cart.items">
-              <td>
+              <td data-label="Product">
                 <div class="product-item">
                   <img [src]="getProductImage(item)" [alt]="getProductName(item)">
                   <div class="product-name">
@@ -50,23 +72,22 @@
                   </div>
                 </div>
               </td>
-              <td class="price">$ {{ item.price.toFixed(2) }}</td>
-              <td>
-                <div class="quantity-wrapper d-flex align-items-center justify-content-center">
+              <td data-label="Price" class="price">$ {{ item.price.toFixed(2) }}</td>
+              <td data-label="Quantity">
+                <div class="quantity-wrapper">
+                  <button class="quantity-btn" (click)="decreaseQuantity(item)" [disabled]="item.quantity <= 1 || isUpdating[item._id]">−</button>
                   <input 
                     type="number" 
                     [value]="item.quantity" 
-                    (change)="updateQuantity(item, +$any($event.target).value)"
-                    min="1" 
-                    [max]="getProductStock(item)"
-                    class="form-control quantity-input"
-                    [disabled]="isUpdating[item._id]"
+                    class="quantity-input"
+                    readonly
                   >
-                  <span *ngIf="isUpdating[item._id]" class="spinner-border spinner-border-sm ms-2 text-muted"></span>
+                  <button class="quantity-btn" (click)="increaseQuantity(item)" [disabled]="item.quantity >= getProductStock(item) || isUpdating[item._id]">+</button>
                 </div>
+                <span *ngIf="isUpdating[item._id]" class="spinner-border spinner-border-sm ms-2 text-muted"></span>
               </td>
-              <td class="subtotal">$ {{ (item.price * item.quantity).toFixed(2) }}</td>
-              <td>
+              <td data-label="Subtotal" class="subtotal">$ {{ (item.price * item.quantity).toFixed(2) }}</td>
+              <td data-label="Remove">
                 <a href="javascript:void(0)" (click)="removeItem(item._id)" class="remove-item" title="Remove item">×</a>
               </td>
             </tr>
@@ -75,7 +96,8 @@
         
         <div class="cart-buttons mt-4 d-flex justify-content-between">
           <button class="btn btn-outline-primary" (click)="continueShopping()">
-            <i class="icon icon-arrow-left" style="margin-right: 10px;"></i>Continue Shopping
+            <i class="icon icon-arrow-left"></i>
+            <span>Continue Shopping</span>
           </button>
         </div>
 
@@ -83,21 +105,35 @@
 
       <div class="col-md-4">
         <div class="cart-totals">
-          <h4 class="section-title" style="font-size: 1.5em; margin-bottom: 30px;">Cart Totals</h4>
+          <h4>Order Summary</h4>
           <ul class="list-group list-group-flush">
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Subtotal
+            <li class="list-group-item">
+              <span>Subtotal</span>
               <span>$ {{ cart.subtotal.toFixed(2) }}</span>
             </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              Shipping
-              <span>$ {{ shippingCost.toFixed(2) }}</span>
+            <li class="list-group-item">
+              <span>Shipping</span>
+              <span *ngIf="cart.subtotal >= 100" style="color: #28a745; font-weight: 700;">FREE</span>
+              <span *ngIf="cart.subtotal < 100">$ {{ shippingCost.toFixed(2) }}</span>
             </li>
-            <li class="list-group-item d-flex justify-content-between align-items-center" style="font-weight: bold; font-size: 1.2em; color: var(--dark-color);">
-              Total
+            <li class="list-group-item">
+              <span>Total</span>
               <span>$ {{ getTotal().toFixed(2) }}</span>
             </li>
           </ul>
+          
+          <!-- Trust Badges -->
+          <div class="trust-badges">
+            <div class="trust-badge">
+              <i class="icon icon-shield"></i>
+              <span>Secure Checkout</span>
+            </div>
+            <div class="trust-badge">
+              <i class="icon icon-refresh"></i>
+              <span>Easy Returns</span>
+            </div>
+          </div>
+          
           <button class="btn btn-primary w-100" style="margin-top: 30px; padding: 1em;" (click)="proceedToCheckout()">
             Proceed to Checkout
           </button>

@@ -140,10 +140,25 @@ export class CartComponent implements OnInit, OnDestroy {
     this.subscriptions.push(removeSub);
   }
 
+  decreaseQuantity(item: CartItem): void {
+    if (item.quantity > 1) {
+      this.updateQuantity(item, item.quantity - 1);
+    }
+  }
+
+  increaseQuantity(item: CartItem): void {
+    const maxStock = this.getProductStock(item);
+    if (item.quantity < maxStock) {
+      this.updateQuantity(item, item.quantity + 1);
+    }
+  }
+
   getTotal(): number {
     if (!this.cart) return 0;
-    return this.cart.subtotal + this.shippingCost;
-  }
+    // Free shipping if subtotal >= 100
+    const shipping = this.cart.subtotal >= 100 ? 0 : this.shippingCost;
+    return this.cart.subtotal + shipping;
+}
 
   getProductName(item: CartItem): string {
     if (item.productId && typeof item.productId === 'object' && 'name' in item.productId) {
