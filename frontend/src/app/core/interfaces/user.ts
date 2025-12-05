@@ -1,10 +1,11 @@
 export interface User {
-    _id: string;
+  _id: string;
   email: string;
   firstName: string;
   lastName: string;
   role: 'customer' | 'admin' | 'owner';
   token?: string;
+  createdAt?: string;
 }
 
 export interface AuthResponse {

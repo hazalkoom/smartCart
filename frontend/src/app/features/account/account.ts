@@ -124,4 +124,29 @@ export class Account implements OnInit, OnDestroy {
     if (statusLower === 'cancelled') return 'cancelled';
     return '';
   }
+  
+  getInitials(): string {
+    if (!this.user) return '?';
+    const first = this.user.firstName?.charAt(0) || '';
+    const last = this.user.lastName?.charAt(0) || '';
+    return (first + last).toUpperCase() || 'U';
+  }
+
+  getDeliveredOrdersCount(): number {
+    return this.orders.filter(order => 
+      order.status.toLowerCase() === 'delivered'
+    ).length;
+  }
+
+  getPendingOrdersCount(): number {
+    return this.orders.filter(order => 
+      order.status.toLowerCase() === 'pending' || 
+      order.status.toLowerCase() === 'paid'
+    ).length;
+  }
+
+  getTotalSpent(): string {
+    const total = this.orders.reduce((sum, order) => sum + order.total, 0);
+    return total.toFixed(2);
+  }
 }

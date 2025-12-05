@@ -1,76 +1,215 @@
 <section id="account-page" class="py-5 my-5">
 	<div class="container">
-		<div class="row">
-			<div class="col-md-12">
-				<div class="section-header align-center">
-					<h2 class="section-title">My Account</h2>
-				</div>
-			</div>
+		
+		<!-- Welcome Banner -->
+		<div class="welcome-banner" *ngIf="!isLoading && user">
+			<h2>Welcome back, {{ user.firstName }}! 👋</h2>
+			<p>Manage your account, track orders, and explore more</p>
 		</div>
 
+		<!-- Loading State -->
 		<div *ngIf="isLoading" class="text-center py-5">
-			<p>Loading...</p>
+			<div class="spinner-border text-primary" role="status">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+			<p class="mt-3">Loading your account...</p>
 		</div>
 
+		<!-- Error Message -->
 		<div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+			<i class="icon icon-alert-circle"></i>
 			{{ errorMessage }}
 		</div>
 
-		<div *ngIf="!isLoading && !errorMessage" class="row">
+		<div *ngIf="!isLoading && !errorMessage">
 
-			<div class="col-md-5">
-				<div class="form-wrapper">
-					<h4>My Profile</h4>
-					<hr class="my-3">
-					<form>
-						<div class="row">
-							<div class="col-md-6 mb-3">
-								<label for="firstName" class="form-label">First Name</label>
-								<input type="text" class="form-control" id="firstName" [value]="user?.firstName || ''" readonly>
-							</div>
-							<div class="col-md-6 mb-3">
-								<label for="lastName" class="form-label">Last Name</label>
-								<input type="text" class="form-control" id="lastName" [value]="user?.lastName || ''" readonly>
-							</div>
-						</div>
-						<div class="mb-3">
-							<label for="email" class="form-label">Email address</label>
-							<input type="email" class="form-control" id="email" [value]="user?.email || ''" disabled>
-						</div>
-						<div class="mb-3">
-							<label for="role" class="form-label">Role</label>
-							<input type="text" class="form-control" id="role" [value]="user?.role || ''" disabled>
-						</div>
-					</form>
+			<!-- Stats Cards -->
+			<div class="stats-grid">
+				<div class="stat-card">
+					<div class="stat-icon">
+						<i class="icon icon-shopping-bag"></i>
+					</div>
+					<div class="stat-value">{{ orders.length }}</div>
+					<div class="stat-label">Total Orders</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon">
+						<i class="icon icon-check-circle"></i>
+					</div>
+					<div class="stat-value">{{ getDeliveredOrdersCount() }}</div>
+					<div class="stat-label">Delivered</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon">
+						<i class="icon icon-clock"></i>
+					</div>
+					<div class="stat-value">{{ getPendingOrdersCount() }}</div>
+					<div class="stat-label">Pending</div>
+				</div>
+				<div class="stat-card">
+					<div class="stat-icon">
+						<i class="icon icon-dollar-sign"></i>
+					</div>
+					<div class="stat-value">${{ getTotalSpent() }}</div>
+					<div class="stat-label">Total Spent</div>
 				</div>
 			</div>
 
-			<div class="col-md-7">
-				<h4>My Orders</h4>
-				<hr class="my-3">
-				<div *ngIf="orders.length === 0" class="alert alert-info">
-					You have no orders yet.
+			<!-- Quick Actions -->
+			<div class="quick-actions">
+				<a routerLink="/products" class="quick-action-btn">
+					<i class="icon icon-shopping-cart"></i>
+					<span>Continue Shopping</span>
+				</a>
+				<a routerLink="/cart" class="quick-action-btn">
+					<i class="icon icon-shopping-bag"></i>
+					<span>View Cart</span>
+				</a>
+				<a href="javascript:void(0)" class="quick-action-btn">
+					<i class="icon icon-heart"></i>
+					<span>Wishlist</span>
+				</a>
+				<a href="javascript:void(0)" class="quick-action-btn">
+					<i class="icon icon-settings"></i>
+					<span>Settings</span>
+				</a>
+			</div>
+
+			<!-- Tabs Navigation -->
+			<div class="account-tabs">
+				<ul class="nav nav-tabs" id="accountTab" role="tablist">
+					<li class="nav-item" role="presentation">
+						<button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">
+							<i class="icon icon-user"></i> Profile
+						</button>
+					</li>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab">
+							<i class="icon icon-package"></i> Orders
+						</button>
+					</li>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link" id="addresses-tab" data-bs-toggle="tab" data-bs-target="#addresses" type="button" role="tab">
+							<i class="icon icon-map-pin"></i> Addresses
+						</button>
+					</li>
+				</ul>
+			</div>
+
+			<!-- Tab Content -->
+			<div class="tab-content" id="accountTabContent">
+				
+				<!-- Profile Tab -->
+				<div class="tab-pane fade show active" id="profile" role="tabpanel">
+					<div class="profile-card">
+						<div class="profile-header">
+							<div class="profile-avatar">
+								{{ getInitials() }}
+							</div>
+							<div class="profile-info">
+								<h3>{{ user?.firstName }} {{ user?.lastName }}</h3>
+								<span class="badge">{{ user?.role }}</span>
+							</div>
+						</div>
+
+						<form>
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									<label for="firstName" class="form-label">First Name</label>
+									<input type="text" class="form-control" id="firstName" [value]="user?.firstName || ''" readonly>
+								</div>
+								<div class="col-md-6 mb-3">
+									<label for="lastName" class="form-label">Last Name</label>
+									<input type="text" class="form-control" id="lastName" [value]="user?.lastName || ''" readonly>
+								</div>
+							</div>
+							<div class="mb-3">
+								<label for="email" class="form-label">Email Address</label>
+								<input type="email" class="form-control" id="email" [value]="user?.email || ''" disabled>
+							</div>
+							<div class="row">
+								<div class="col-md-6 mb-3">
+									<label for="role" class="form-label">Account Type</label>
+									<input type="text" class="form-control" id="role" [value]="user?.role || ''" disabled>
+								</div>
+								<div class="col-md-6 mb-3">
+									<label for="memberSince" class="form-label">Member Since</label>
+									<input type="text" class="form-control" id="memberSince" [value]="formatDate(user?.createdAt || '')" disabled>
+								</div>
+							</div>
+							<div class="mt-4">
+								<button type="button" class="edit-profile-btn">
+									<i class="icon icon-edit-2"></i> Edit Profile
+								</button>
+							</div>
+						</form>
+					</div>
 				</div>
-				<table *ngIf="orders.length > 0" class="table table-hover order-history-table">
-					<thead>
-						<tr>
-							<th scope="col">Order #</th>
-							<th scope="col">Date</th>
-							<th scope="col">Status</th>
-							<th scope="col">Total</th>
-							<th scope="col"></th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr *ngFor="let order of orders">
-							<th scope="row">{{ order.orderNumber }}</th>
-							<td>{{ formatDate(order.createdAt) }}</td>
-							<td><span class="order-status" [ngClass]="getOrderStatusClass(order.status)">{{ order.status }}</span></td>
-							<td>$ {{ order.total.toFixed(2) }}</td>
-							<td><a [routerLink]="['/orders', order._id]" class="btn btn-outline-dark btn-sm">View</a></td>
-						</tr>
-					</tbody>
-				</table>
+
+				<!-- Orders Tab -->
+				<div class="tab-pane fade" id="orders" role="tabpanel">
+					<div class="orders-wrapper">
+						<h4>
+							<i class="icon icon-package"></i> Order History
+						</h4>
+
+						<!-- Empty State -->
+						<div *ngIf="orders.length === 0" class="empty-state">
+							<div class="empty-state-icon">
+								<i class="icon icon-shopping-bag"></i>
+							</div>
+							<h5>No orders yet</h5>
+							<p>Start shopping and your orders will appear here</p>
+							<a routerLink="/products" class="btn">Start Shopping</a>
+						</div>
+
+						<!-- Order Cards -->
+						<div *ngIf="orders.length > 0">
+							<div class="order-card" *ngFor="let order of orders">
+								<div class="order-card-header">
+									<div>
+										<div class="order-number">Order #{{ order.orderNumber }}</div>
+										<div class="order-date">{{ formatDate(order.createdAt) }}</div>
+									</div>
+									<span class="order-status-badge" [ngClass]="getOrderStatusClass(order.status)">
+										{{ order.status }}
+									</span>
+								</div>
+								<div class="order-card-body">
+									<div class="order-items-count">
+										<i class="icon icon-package"></i>
+										{{ order.items.length || 0 }} {{ order.items.length === 1 ? 'item' : 'items' }}
+									</div>
+									<div class="order-total">$ {{ order.total.toFixed(2) }}</div>
+									<a [routerLink]="['/orders', order._id]" class="order-view-btn">
+										View Details <i class="icon icon-arrow-right"></i>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Addresses Tab -->
+				<div class="tab-pane fade" id="addresses" role="tabpanel">
+					<div class="form-wrapper">
+						<h4>
+							<i class="icon icon-map-pin"></i> Saved Addresses
+						</h4>
+						<hr>
+						<div class="empty-state">
+							<div class="empty-state-icon">
+								<i class="icon icon-map"></i>
+							</div>
+							<h5>No saved addresses</h5>
+							<p>Add your shipping addresses for faster checkout</p>
+							<button type="button" class="btn">
+								<i class="icon icon-plus"></i> Add Address
+							</button>
+						</div>
+					</div>
+				</div>
+
 			</div>
 
 		</div>
