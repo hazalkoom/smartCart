@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router'; // 1. Added ActivatedRoute
 import { isPlatformBrowser } from '@angular/common';
 import { ProductService } from '../../core/services/product';
 import { CartService } from '../../core/services/cart';
@@ -28,20 +28,27 @@ export class ProductList implements OnInit {
     private cartAnimationService: CartAnimationService,
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute, // 2. Injected ActivatedRoute
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit() {
-
     if (isPlatformBrowser(this.platformId) && typeof AOS !== 'undefined') {
       AOS.init();
     }
 
-    this.loadProducts();
+    // 3. Listen for URL changes (Search & Filters)
+    this.route.queryParams.subscribe(params => {
+      this.loadProducts(params);
+    });
   }
 
-  loadProducts(): void {
-    this.productService.getProducts().subscribe({
+  // 4. Accept params (default to empty object)
+  loadProducts(params: any = {}): void {
+    this.isLoading = true;
+    
+    // Pass params to the service (Backend handles ?keyword=...)
+    this.productService.getProducts(params).subscribe({
       next: (response) => {
         this.products = response.data;
         this.isLoading = false;
@@ -70,9 +77,8 @@ export class ProductList implements OnInit {
       return;
     }
 
-    // Get button position for animation - handle clicks on icon or button
+    // Get button position for animation
     let button = event.target as HTMLElement;
-    // If clicked on icon, get the parent button
     if (button.tagName === 'I' || button.classList.contains('icon')) {
       button = button.closest('button') as HTMLElement || button;
     }
@@ -96,8 +102,6 @@ export class ProductList implements OnInit {
       },
       error: (err) => {
         console.error('Error adding to cart:', err);
-        // Don't redirect - let ErrorInterceptor handle auth errors
-        // Only show error if it's not an auth error (ErrorInterceptor will handle logout)
         if (err.status !== 401 && err.status !== 403) {
           alert('Failed to add item to cart. Please try again.');
         }

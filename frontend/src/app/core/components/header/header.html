@@ -6,7 +6,11 @@
 
         <div class="col-md-2">
           <div class="main-logo">
-            <a routerLink="/"><img src="assets/images/main-logo.png" alt="logo"></a>
+            <a routerLink="/" style="text-decoration: none;">
+              <h3 style="font-weight: 800; color: #111; margin: 0; letter-spacing: 1px; text-transform: uppercase; font-size: 24px;">
+                Electri<span style="color: #C5A992;">fied</span>
+              </h3>
+            </a>
           </div>
         </div>
 
@@ -18,7 +22,6 @@
                 <li class="menu-item"><a routerLink="/products" routerLinkActive="active" class="nav-link">All Products</a></li>
                 <li class="menu-item"><a routerLink="/categories" routerLinkActive="active" class="nav-link">Categories</a></li>
                 
-                <!-- Login/Register in Navbar (Visible only when logged OUT) -->
                 <li *ngIf="!isLoggedIn" class="menu-item"><a routerLink="/login" routerLinkActive="active" class="nav-link">Login</a></li>
                 <li *ngIf="!isLoggedIn" class="menu-item"><a routerLink="/register" routerLinkActive="active" class="nav-link">Register</a></li>
               </ul>
@@ -35,41 +38,43 @@
         <div class="col-md-2">
           <div class="right-element">
             
-            <!-- 1. GUEST STATE: Show Login Icon -->
             <a *ngIf="!isLoggedIn" routerLink="/login" class="user-account for-buy">
               <i class="icon icon-user"></i>
               <span style="font-size: 14px; margin-left: 5px;">Login</span>
             </a>
 
-            <!-- 2. LOGGED IN STATE: Show Name + Logout -->
             <div *ngIf="isLoggedIn" class="d-inline-block">
-              <!-- My Account Link with Name -->
               <a routerLink="/account" class="user-account for-buy" style="margin-right: 10px;" title="My Account">
                 <i class="icon icon-user"></i>
                 <span style="font-size: 14px; margin-left: 5px;">Hi, {{ userName || 'User' }}</span>
               </a>
               
-              <!-- Logout Button -->
               <a (click)="onLogout()" class="user-account for-buy" style="cursor: pointer;" title="Logout">
                 <i class="icon icon-close"></i>
               </a>
             </div>
 
-            <!-- 3. CART ICON (Always visible, shows count) -->
             <a routerLink="/cart" class="cart for-buy">
               <i class="icon icon-clipboard"></i>
               <span *ngIf="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
             </a>
 
-            <!-- Search Bar -->
             <div class="action-menu">
-              <div class="search-bar">
-                <a href="#" class="search-button search-toggle" data-selector="#header-wrap">
+              <div class="search-bar" style="width: 100%; display: flex; align-items: center;">
+                
+                <button type="button" (click)="onSearch(searchInput.value)" class="search-button search-toggle" style="border: none; background: transparent; cursor: pointer;">
                   <i class="icon icon-search"></i>
-                </a>
-                <form role="search" method="get" class="search-box">
-                  <input class="search-field text search-input" placeholder="Search" type="search">
+                </button>
+                
+                <form (submit)="onSearch(searchInput.value); $event.preventDefault()" class="search-box" style="width: 100%;">
+                  <input 
+                    #searchInput 
+                    class="search-field text search-input" 
+                    placeholder="Search..." 
+                    type="search"
+                    style="width: 100%;">
                 </form>
+
               </div>
             </div>
 
@@ -80,4 +85,4 @@
     </div>
   </header>
 
-</div><!--header-wrap-->
+</div>```

@@ -30,13 +30,22 @@ class ProductService {
     }
 
     async getAllProducts(query) {
-    // This is a complex query. We'll start simple and build on it.
-    // For now, it just gets all products.
-    // Later, we'll add filtering, search, sorting, and pagination here.
+    const { keyword } = query;
     
-    const products = await Product.find()
-      .populate('categoryId', 'name slug') // Show category name/slug
-      .sort({ createdAt: -1 }); // Sort by newest first
+    let dbQuery = {};
+
+    if (keyword) {
+      dbQuery = {
+        $or: [
+          { name: { $regex: keyword, $options: 'i' } },
+          { description: { $regex: keyword, $options: 'i' } }
+        ]
+      };
+    }
+    
+    const products = await Product.find(dbQuery)
+      .populate('categoryId', 'name slug')
+      .sort({ createdAt: -1 });
 
     return {
       products,

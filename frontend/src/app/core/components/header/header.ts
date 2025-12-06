@@ -1,8 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { AuthService } from '../../services/auth'; // Check this path (auth.ts or auth.service.ts)
-import { CartService } from '../../services/cart'; // Check this path (cart.ts or cart.service.ts)
+import { AuthService } from '../../services/auth';
+import { CartService } from '../../services/cart';
 
 @Component({
   selector: 'app-header',
@@ -14,7 +14,8 @@ export class Header implements OnInit, OnDestroy {
 
   isLoggedIn: boolean = false;
   cartCount: number = 0;
-  userName: string = ''; // Holds the user's name
+  userName: string = '';
+  // Removed 'searchTerm' variable as we now pass the value directly
 
   private subscriptions: Subscription[] = [];
 
@@ -30,17 +31,15 @@ export class Header implements OnInit, OnDestroy {
       this.isLoggedIn = loggedIn;
       
       if (loggedIn) {
-        // If logged in, fetch their cart data immediately
         this.cartService.getCart().subscribe();
       } else {
-        // If logged out, reset local state
         this.cartCount = 0;
         this.userName = '';
       }
     });
     this.subscriptions.push(authSub);
 
-    // 2. Subscribe to user profile (To get the Name)
+    // 2. Subscribe to user profile
     const userSub = this.authService.currentUser$.subscribe(user => {
       if (user) {
         this.userName = user.firstName;
@@ -48,21 +47,30 @@ export class Header implements OnInit, OnDestroy {
     });
     this.subscriptions.push(userSub);
 
-    // 3. Subscribe to cart count (To update the badge)
+    // 3. Subscribe to cart count
     const cartSub = this.cartService.cartCount$.subscribe(count => {
       this.cartCount = count;
     });
     this.subscriptions.push(cartSub);
 
     // 4. Initial Check
-    // If we refreshed the page and still have a token, ensure cart is loaded
     if (this.authService.isAuthenticated()) {
       this.cartService.getCart().subscribe();
     }
   }
 
+  // Search logic: Receives the value directly from the HTML
+  onSearch(term: string): void {
+    console.log('Search clicked. Term:', term); 
+    
+    if (term && term.trim()) {
+      this.router.navigate(['/products'], { 
+        queryParams: { keyword: term.trim() } 
+      });
+    }
+  }
+
   ngOnDestroy(): void {
-    // Clean up subscriptions to prevent memory leaks
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
