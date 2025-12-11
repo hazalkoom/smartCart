@@ -87,3 +87,55 @@ def test_get_me():
     success = res_no_token.status_code == 401 and res_no_token.json()['error']['code'] == 'TOKEN_MISSING'
     print_test_result("Get Me - 3: No Token (401)", success, res_no_token)
     assert success
+
+
+@pytest.mark.run(order=4)
+def test_update_details():
+    print("\n--- 🧪 Running Update Details Tests ---")
+    
+    token = shared_data.get('token')
+    assert token is not None, "Login failed, no token to run Update test"
+    
+    headers = {"Authorization": f"Bearer {token}"}
+
+    # Scenario 1: Successful Update (Name Only)
+    update_data = {
+        "firstName": "UpdatedName", 
+        "lastName": "UpdatedLast"
+    }
+    
+    res = requests.put(f"{auth_url}/updatedetails", json=update_data, headers=headers)
+    
+    success = res.status_code == 200 and res.json()['success'] is True
+    data = res.json().get('data', {})
+    
+    # Check if response data matches what we sent
+    matches = data.get('firstName') == "UpdatedName" and data.get('lastName') == "UpdatedLast"
+    
+    print_test_result("Update - 1: Success (200)", success and matches, res)
+    assert success and matches
+
+    # Scenario 2: Verify Persistence (Call /me to check if it really changed)
+    res_me = requests.get(f"{auth_url}/me", headers=headers)
+    persisted = res_me.json()['data']['firstName'] == "UpdatedName"
+    print_test_result("Update - 2: Persistence Check", persisted, res_me)
+    assert persisted
+
+    # Scenario 3: Attempt to update Email (Should be ignored based on your service logic)
+    # We send an email update, but since you removed email from the allowed fields in authService,
+    # the name should update (or stay same), but the email should NOT change.
+    original_email = res_me.json()['data']['email']
+    hack_attempt = {
+        "firstName": "Hacker",
+        "email": "hacker@test.com"
+    }
+    
+    res_hack = requests.put(f"{auth_url}/updatedetails", json=hack_attempt, headers=headers)
+    
+    # Request should succeed (200) because we update the name
+    # BUT the email in the response should still be the ORIGINAL email
+    email_unchanged = res_hack.json()['data']['email'] == original_email
+    name_changed = res_hack.json()['data']['firstName'] == "Hacker"
+    
+    print_test_result("Update - 3: Email Update Ignored (Security Check)", email_unchanged and name_changed, res_hack)
+    assert email_unchanged

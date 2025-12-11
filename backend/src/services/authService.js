@@ -60,6 +60,26 @@ class AuthService {
     const user = await User.findById(userId);
     return user;
   }
+
+   async updateUserDetail(userId, updatedData) {
+    const { firstName, lastName } = updatedData;
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { firstName, lastName },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    return user;
+  }
 }
+
 
 module.exports = new AuthService();

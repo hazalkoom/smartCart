@@ -67,10 +67,21 @@ const resetPassword = asyncHandler(async (req, res) => {
   });
 });
 
+const updateDetails = asyncHandler(async (req, res) => {
+  const updatedUser = await AuthService.updateUserDetail(req.user.id, req.body);
+
+  res.status(200).json({
+    success: true,
+    data: updatedUser,
+    message: 'Profile updated successfully'
+  });
+});
+
 module.exports = {
   registerUser,
   loginUser,
   getMe,
   forgotPassword,
   resetPassword,
+  updateDetails
 };

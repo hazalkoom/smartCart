@@ -15,7 +15,7 @@ declare var AOS: any;
   templateUrl: './product-list.html',
   styleUrl: './product-list.css',
 })
-export class ProductList implements OnInit {
+export class ProductListComponent implements OnInit {
   
   // Data variables
   products: Product[] = [];

@@ -1,0 +1,182 @@
+<section class="py-5 my-5">
+  <div class="container">
+    
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Loading order details...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error" class="alert alert-danger text-center">
+      <i class="icon icon-alert-circle" style="font-size: 2em; margin-bottom: 15px;"></i>
+      <h5>{{ error }}</h5>
+      <div class="mt-3">
+        <a routerLink="/account" class="btn btn-outline-dark">
+          <i class="icon icon-arrow-left"></i> Back to My Orders
+        </a>
+      </div>
+    </div>
+
+    <!-- Order Content -->
+    <div *ngIf="!isLoading && order" class="order-container">
+      
+      <!-- Order Header -->
+      <div class="order-header">
+        <h2>Order #{{ order.orderNumber }}</h2>
+        <div class="order-meta">
+          <div class="order-meta-item">
+            <i class="icon icon-calendar"></i>
+            <span>{{ order.createdAt | date:'mediumDate' }}</span>
+          </div>
+          <div class="order-meta-item">
+            <i class="icon icon-package"></i>
+            <span>{{ order.items.length }} {{ order.items.length === 1 ? 'Item' : 'Items' }}</span>
+          </div>
+          <div class="order-meta-item">
+            <span class="status-badge" [ngClass]="getStatusClass(order.status).replace('text-', '')">
+              {{ order.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Order Status Timeline -->
+      <div class="order-status-timeline">
+        <h4 style="margin-bottom: 30px;">
+          <i class="icon icon-truck"></i> Order Status
+        </h4>
+        <div class="timeline-container">
+          <div class="timeline-step" [ngClass]="getTimelineClass('pending')">
+            <div class="timeline-circle">
+              <i class="icon icon-check"></i>
+            </div>
+            <span class="timeline-label">Order Placed</span>
+          </div>
+          <div class="timeline-step" [ngClass]="getTimelineClass('paid')">
+            <div class="timeline-circle">
+              <i class="icon icon-credit-card"></i>
+            </div>
+            <span class="timeline-label">Payment Confirmed</span>
+          </div>
+          <div class="timeline-step" [ngClass]="getTimelineClass('shipped')">
+            <div class="timeline-circle">
+              <i class="icon icon-truck"></i>
+            </div>
+            <span class="timeline-label">Shipped</span>
+          </div>
+          <div class="timeline-step" [ngClass]="getTimelineClass('delivered')">
+            <div class="timeline-circle">
+              <i class="icon icon-home"></i>
+            </div>
+            <span class="timeline-label">Delivered</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        
+        <!-- Left Column - Order Items -->
+        <div class="col-lg-8">
+          <div class="order-items-card">
+            <div class="card-header">
+              <h4>
+                <i class="icon icon-shopping-bag"></i>
+                Order Items
+              </h4>
+            </div>
+            <div class="card-body p-0">
+              <div class="order-item-row" *ngFor="let item of order.items">
+                <img [src]="item.image || 'assets/images/default.png'" [alt]="item.name" class="item-image">
+                <div class="item-details">
+                  <h6>
+                    <a [routerLink]="['/products', item.productId]">
+                      {{ item.name }}
+                    </a>
+                  </h6>
+                  <div class="item-meta">SKU: {{ item.productId }}</div>
+                </div>
+                <div class="item-price">$ {{ item.price.toFixed(2) }}</div>
+                <div class="item-quantity">Qty: {{ item.quantity }}</div>
+                <div class="item-total">$ {{ (item.price * item.quantity).toFixed(2) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column - Summary & Actions -->
+        <div class="col-lg-4">
+          
+          <!-- Order Summary -->
+          <div class="summary-card">
+            <div class="card-header">
+              <h5>
+                <i class="icon icon-file-text"></i>
+                Order Summary
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="price-summary-item">
+                <span>Subtotal</span>
+                <span>$ {{ order.subtotal.toFixed(2) }}</span>
+              </div>
+              <div class="price-summary-item">
+                <span>Shipping</span>
+                <span>$ {{ order.shipping.toFixed(2) }}</span>
+              </div>
+              <div class="price-summary-item">
+                <span>Tax</span>
+                <span>$ {{ order.tax.toFixed(2) }}</span>
+              </div>
+              <div class="price-summary-item">
+                <span>Total</span>
+                <span>$ {{ order.total.toFixed(2) }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shipping Address -->
+          <div class="summary-card">
+            <div class="card-header">
+              <h5>
+                <i class="icon icon-map-pin"></i>
+                Shipping Address
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="address-card">
+                <p>
+                  <i class="icon icon-home"></i>
+                  {{ order.shippingAddress.street }}<br>
+                  {{ order.shippingAddress.city }}<span *ngIf="order.shippingAddress.state">, {{ order.shippingAddress.state }}</span> <span *ngIf="order.shippingAddress.zip">{{ order.shippingAddress.zip }}</span><br>
+                  {{ order.shippingAddress.country }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <a routerLink="/account" class="btn-action btn-back">
+              <i class="icon icon-arrow-left"></i>
+              <span>Back to Orders</span>
+            </a>
+            <button type="button" class="btn-action btn-print" onclick="window.print()">
+              <i class="icon icon-printer"></i>
+              <span>Print Order</span>
+            </button>
+            <a href="mailto:support@booksaw.com" class="btn-action btn-support">
+              <i class="icon icon-message-circle"></i>
+              <span>Contact Support</span>
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</section>

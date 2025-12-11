@@ -9,7 +9,7 @@ import { App } from './app';
 import { Header } from './core/components/header/header';
 import { Footer } from './core/components/footer/footer';
 import { Home } from './features/home/home';
-import { ProductList } from './features/product-list/product-list';
+import { ProductListComponent } from './features/product-list/product-list';
 import { ProductDetail } from './features/product-detail/product-detail';
 import { CartComponent } from './features/cart/cart';
 import { CheckoutComponent } from './features/checkout/checkout';
@@ -21,6 +21,7 @@ import { CartAnimationComponent } from './core/components/cart-animation/cart-an
 
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
+import { OrderDetailComponent } from './features/order-detail/order-detail';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,7 @@ import { ErrorInterceptor } from './core/interceptors/error.interceptor';
     Header,
     Footer,
     Home,
-    ProductList,
+    ProductListComponent,
     ProductDetail,
     CartComponent, // Fixed Name
     CheckoutComponent, // Fixed Name
@@ -36,7 +37,8 @@ import { ErrorInterceptor } from './core/interceptors/error.interceptor';
     Register,
     Account,
     CategoryComponent,
-    CartAnimationComponent
+    CartAnimationComponent,
+    OrderDetailComponent
   ],
   imports: [
     BrowserModule,

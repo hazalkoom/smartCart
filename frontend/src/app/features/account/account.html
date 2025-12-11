@@ -181,9 +181,7 @@
 										{{ order.items.length || 0 }} {{ order.items.length === 1 ? 'item' : 'items' }}
 									</div>
 									<div class="order-total">$ {{ order.total.toFixed(2) }}</div>
-									<a [routerLink]="['/orders', order._id]" class="order-view-btn">
-										View Details <i class="icon icon-arrow-right"></i>
-									</a>
+									<a [routerLink]="['/orders', order._id]" class="btn btn-outline-dark btn-sm">View</a>
 								</div>
 							</div>
 						</div>
