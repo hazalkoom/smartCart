@@ -164,7 +164,7 @@ This project emphasizes clean, maintainable, and **DRY (Don't Repeat Yourself)**
     ```
 3.  Run the Angular development server:
     ```bash
-    ng serve
+    ng serve --proxy-config proxy.conf.json
     ```
     The application will be live at `http://localhost:4200`.
 
