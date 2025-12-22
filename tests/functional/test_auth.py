@@ -1,7 +1,7 @@
 import requests
 import pytest
 import time
-from test_config import BASE_URL, TEST_USER, print_test_result, shared_data
+from tests.test_config import BASE_URL, TEST_USER, print_test_result, shared_data
 
 auth_url = f"{BASE_URL}/auth"
 

@@ -1,7 +1,7 @@
 import requests
 import pytest
 import time
-from test_config import BASE_URL, OWNER_LOGIN, print_test_result, shared_data
+from tests.test_config import BASE_URL, OWNER_LOGIN, print_test_result, shared_data
 
 cart_url = f"{BASE_URL}/cart"
 product_url = f"{BASE_URL}/products"

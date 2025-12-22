@@ -1,7 +1,7 @@
 import requests
 import pytest
 import time
-from test_config import BASE_URL, OWNER_LOGIN, print_test_result, shared_data
+from tests.test_config import BASE_URL, OWNER_LOGIN, print_test_result, shared_data
 
 category_url = f"{BASE_URL}/categories"
 owner_headers = {}

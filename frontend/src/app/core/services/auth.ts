@@ -100,6 +100,17 @@ export class AuthService {
     );
   }
 
+  // Update User Profile (Name, Email)
+  updateProfile(data: { firstName: string; lastName: string; email?: string }): Observable<AuthResponse> {
+    return this.http.put<AuthResponse>(`${this.apiUrl}/updatedetails`, data).pipe(
+      tap(response => {
+        if (response.success && response.data) {
+          // Update the current user state immediately
+          this.currentUser$.next(response.data);
+        }
+      })
+    );
+  }
   saveToken(token: string): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('token', token);

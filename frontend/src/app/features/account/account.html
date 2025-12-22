@@ -1,13 +1,11 @@
 <section id="account-page" class="py-5 my-5">
 	<div class="container">
 		
-		<!-- Welcome Banner -->
 		<div class="welcome-banner" *ngIf="!isLoading && user">
 			<h2>Welcome back, {{ user.firstName }}! 👋</h2>
 			<p>Manage your account, track orders, and explore more</p>
 		</div>
 
-		<!-- Loading State -->
 		<div *ngIf="isLoading" class="text-center py-5">
 			<div class="spinner-border text-primary" role="status">
 				<span class="visually-hidden">Loading...</span>
@@ -15,15 +13,13 @@
 			<p class="mt-3">Loading your account...</p>
 		</div>
 
-		<!-- Error Message -->
 		<div *ngIf="errorMessage" class="alert alert-danger" role="alert">
 			<i class="icon icon-alert-circle"></i>
 			{{ errorMessage }}
 		</div>
 
-		<div *ngIf="!isLoading && !errorMessage">
+		<div *ngIf="!isLoading">
 
-			<!-- Stats Cards -->
 			<div class="stats-grid">
 				<div class="stat-card">
 					<div class="stat-icon">
@@ -55,7 +51,6 @@
 				</div>
 			</div>
 
-			<!-- Quick Actions -->
 			<div class="quick-actions">
 				<a routerLink="/products" class="quick-action-btn">
 					<i class="icon icon-shopping-cart"></i>
@@ -75,7 +70,6 @@
 				</a>
 			</div>
 
-			<!-- Tabs Navigation -->
 			<div class="account-tabs">
 				<ul class="nav nav-tabs" id="accountTab" role="tablist">
 					<li class="nav-item" role="presentation">
@@ -96,10 +90,8 @@
 				</ul>
 			</div>
 
-			<!-- Tab Content -->
 			<div class="tab-content" id="accountTabContent">
 				
-				<!-- Profile Tab -->
 				<div class="tab-pane fade show active" id="profile" role="tabpanel">
 					<div class="profile-card">
 						<div class="profile-header">
@@ -112,48 +104,77 @@
 							</div>
 						</div>
 
-						<form>
-							<div class="row">
-								<div class="col-md-6 mb-3">
-									<label for="firstName" class="form-label">First Name</label>
-									<input type="text" class="form-control" id="firstName" [value]="user?.firstName || ''" readonly>
+						<div *ngIf="updateMessage" class="alert alert-success my-3">
+							{{ updateMessage }}
+						</div>
+
+						<div *ngIf="!isEditing">
+							<form>
+								<div class="row">
+									<div class="col-md-6 mb-3">
+										<label class="form-label">First Name</label>
+										<input type="text" class="form-control" [value]="user?.firstName || ''" readonly>
+									</div>
+									<div class="col-md-6 mb-3">
+										<label class="form-label">Last Name</label>
+										<input type="text" class="form-control" [value]="user?.lastName || ''" readonly>
+									</div>
 								</div>
-								<div class="col-md-6 mb-3">
-									<label for="lastName" class="form-label">Last Name</label>
-									<input type="text" class="form-control" id="lastName" [value]="user?.lastName || ''" readonly>
+								<div class="mb-3">
+									<label class="form-label">Email Address</label>
+									<input type="email" class="form-control" [value]="user?.email || ''" disabled>
 								</div>
-							</div>
-							<div class="mb-3">
-								<label for="email" class="form-label">Email Address</label>
-								<input type="email" class="form-control" id="email" [value]="user?.email || ''" disabled>
-							</div>
-							<div class="row">
-								<div class="col-md-6 mb-3">
-									<label for="role" class="form-label">Account Type</label>
-									<input type="text" class="form-control" id="role" [value]="user?.role || ''" disabled>
+								<div class="row">
+									<div class="col-md-6 mb-3">
+										<label class="form-label">Account Type</label>
+										<input type="text" class="form-control" [value]="user?.role || ''" disabled>
+									</div>
+									<div class="col-md-6 mb-3">
+										<label class="form-label">Member Since</label>
+										<input type="text" class="form-control" [value]="formatDate(user?.createdAt || '')" disabled>
+									</div>
 								</div>
-								<div class="col-md-6 mb-3">
-									<label for="memberSince" class="form-label">Member Since</label>
-									<input type="text" class="form-control" id="memberSince" [value]="formatDate(user?.createdAt || '')" disabled>
+								<div class="mt-4">
+									<button type="button" class="edit-profile-btn" (click)="toggleEdit()">
+										<i class="icon icon-edit-2"></i> Edit Profile
+									</button>
 								</div>
-							</div>
-							<div class="mt-4">
-								<button type="button" class="edit-profile-btn">
-									<i class="icon icon-edit-2"></i> Edit Profile
-								</button>
-							</div>
-						</form>
+							</form>
+						</div>
+
+						<div *ngIf="isEditing">
+							<form (ngSubmit)="onUpdateProfile()">
+								<div class="row">
+									<div class="col-md-6 mb-3">
+										<label class="form-label">First Name</label>
+										<input type="text" class="form-control" name="firstName" [(ngModel)]="editData.firstName" required>
+									</div>
+									<div class="col-md-6 mb-3">
+										<label class="form-label">Last Name</label>
+										<input type="text" class="form-control" name="lastName" [(ngModel)]="editData.lastName" required>
+									</div>
+								</div>
+								<div class="mb-3">
+									<label class="form-label">Email Address (Cannot be changed)</label>
+									<input type="email" class="form-control bg-light" name="email" [(ngModel)]="editData.email" disabled>
+								</div>
+								
+								<div class="mt-4 d-flex gap-2">
+									<button type="submit" class="btn btn-primary">Save Changes</button>
+									<button type="button" class="btn btn-outline-secondary" (click)="toggleEdit()">Cancel</button>
+								</div>
+							</form>
+						</div>
+
 					</div>
 				</div>
 
-				<!-- Orders Tab -->
 				<div class="tab-pane fade" id="orders" role="tabpanel">
 					<div class="orders-wrapper">
 						<h4>
 							<i class="icon icon-package"></i> Order History
 						</h4>
 
-						<!-- Empty State -->
 						<div *ngIf="orders.length === 0" class="empty-state">
 							<div class="empty-state-icon">
 								<i class="icon icon-shopping-bag"></i>
@@ -163,7 +184,6 @@
 							<a routerLink="/products" class="btn">Start Shopping</a>
 						</div>
 
-						<!-- Order Cards -->
 						<div *ngIf="orders.length > 0">
 							<div class="order-card" *ngFor="let order of orders">
 								<div class="order-card-header">
@@ -188,7 +208,6 @@
 					</div>
 				</div>
 
-				<!-- Addresses Tab -->
 				<div class="tab-pane fade" id="addresses" role="tabpanel">
 					<div class="form-wrapper">
 						<h4>

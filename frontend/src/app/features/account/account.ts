@@ -18,6 +18,13 @@ export class Account implements OnInit, OnDestroy {
   orders: Order[] = [];
   isLoading: boolean = true;
   errorMessage: string = '';
+  
+  // --- New Edit State Variables ---
+  isEditing: boolean = false;
+  editData = { firstName: '', lastName: '', email: '' };
+  updateMessage: string = '';
+  // --------------------------------
+
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -29,22 +36,20 @@ export class Account implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (isPlatformBrowser(this.platformId)) {
-      // Check if user is logged in
       const authSub = this.authService.isLoggedIn$.subscribe(isLoggedIn => {
         if (!isLoggedIn) {
-          // Redirect to login if not authenticated
           this.router.navigate(['/login']);
           return;
         }
-        // Fetch user profile and orders
         this.loadUserData();
       });
       this.subscriptions.push(authSub);
 
-      // Subscribe to current user updates
       const userSub = this.authService.currentUser$.subscribe(user => {
         if (user) {
           this.user = user;
+          // Initialize edit form with current data
+          this.resetEditData();
         }
       });
       this.subscriptions.push(userSub);
@@ -55,51 +60,83 @@ export class Account implements OnInit, OnDestroy {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
+  // --- New Toggle Function ---
+  toggleEdit() {
+    this.isEditing = !this.isEditing;
+    this.updateMessage = '';
+    this.errorMessage = '';
+    
+    // If canceling, revert data back to original user data
+    if (!this.isEditing) {
+      this.resetEditData();
+    }
+  }
+
+  // --- New Helper to Reset Form Data ---
+  private resetEditData() {
+    if (this.user) {
+      this.editData = {
+        firstName: this.user.firstName,
+        lastName: this.user.lastName,
+        email: this.user.email
+      };
+    }
+  }
+
+  // --- New Update Function ---
+  onUpdateProfile() {
+    this.updateMessage = '';
+    this.errorMessage = '';
+
+    this.authService.updateProfile(this.editData).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.isEditing = false; // Exit edit mode
+          this.updateMessage = 'Profile updated successfully!';
+          
+          // Clear message after 3 seconds
+          setTimeout(() => this.updateMessage = '', 3000);
+        }
+      },
+      error: (err) => {
+        const errorMsg = err.error?.message || 'Failed to update profile';
+        this.errorMessage = errorMsg;
+      }
+    });
+  }
+
   private loadUserData(): void {
     this.isLoading = true;
     this.errorMessage = '';
 
-    // Fetch user profile
     const profileSub = this.authService.getUserProfile().subscribe({
       next: (user) => {
         if (user) {
           this.user = user;
+          this.resetEditData(); // Ensure form is ready
         } else {
           this.errorMessage = 'Failed to load user profile';
         }
-        // Don't set isLoading to false here - wait for orders
       },
       error: (error) => {
         console.error('Error fetching user profile:', error);
-        const errorMsg = error.error?.message || error.error?.error?.message || 'Failed to load user profile';
+        const errorMsg = error.error?.message || 'Failed to load user profile';
         this.errorMessage = errorMsg;
-        // Still try to load orders even if profile fails
       }
     });
     this.subscriptions.push(profileSub);
 
-    // Fetch order history
     const ordersSub = this.orderService.getMyOrders().subscribe({
       next: (response) => {
         if (response.success && response.data) {
           this.orders = response.data;
-        } else {
-          if (!this.errorMessage) {
-            this.errorMessage = 'Failed to load order history';
-          }
         }
         this.isLoading = false;
       },
       error: (error) => {
         console.error('Error fetching orders:', error);
-        const errorMsg = error.error?.message || error.error?.error?.message || 'Failed to load order history';
-        if (!this.errorMessage) {
-          this.errorMessage = errorMsg;
-        } else {
-          // Append order error if profile error already exists
-          this.errorMessage += ' | ' + errorMsg;
-        }
         this.isLoading = false;
+        // We don't block the page if orders fail, just log it
       }
     });
     this.subscriptions.push(ordersSub);
