@@ -1,22 +1,31 @@
 const OrderService = require('../services/orderService');
 const asyncHandler = require('../utils/asyncHandler');
 
-const createOrder = asyncHandler(async (req, res) => {
-  const { shippingAddress } = req.body;
-  const userId = req.user.id;
+const catchAsync = (fn) => {
+  return (req, res, next) => {
+    fn(req, res, next).catch(next);
+  };
+};
 
-  if (!shippingAddress) {
-    res.status(400);
-    throw new Error('Shipping address is required');
+const createOrder = catchAsync(async (req, res, next) => {
+  try {
+    const order = await OrderService.createOrder(req.user, req.body.shippingAddress);
+
+    res.status(201).json({
+      status: 'success',
+      data: { order },
+    });
+  } catch (err) {
+    // LOG THE ERROR: This is how we debug the 500s
+    console.error("🔥 ORDER CONTROLLER ERROR:", err.message);
+
+    const statusCode = err.statusCode || 500;
+    
+    res.status(statusCode).json({
+      status: statusCode === 500 ? 'error' : 'fail',
+      message: err.message || 'Server Error',
+    });
   }
-
-  const order = await OrderService.createOrder(userId, shippingAddress);
-
-  res.status(201).json({
-    success: true,
-    data: order,
-    message: 'Order created successfully',
-  });
 });
 
 const getMyOrders = asyncHandler(async (req, res) => {

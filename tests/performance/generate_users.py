@@ -22,7 +22,7 @@ def generate_and_register():
     print(f"Generating {NUM_USERS} users...")
 
     for i in range(NUM_USERS):
-        email = f"perf_user_{i}@example.com"
+        email = f"fast_user_{i}@example.com"
         password = "Password123!"
         Fname = f"TestUser{i}"
         Sname = "Automated"

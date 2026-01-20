@@ -70,7 +70,7 @@ userSchema.pre('save', async function (next) {
     return next();
   }
 
-  const salt = await bcrypt.genSalt(10); // A salt is a random string of data. bcrypt generates this random string and adds it to your plain-text password before it gets hashed.
+  const salt = await bcrypt.genSalt(8); // A salt is a random string of data. bcrypt generates this random string and adds it to your plain-text password before it gets hashed.
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
