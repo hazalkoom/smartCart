@@ -1,0 +1,96 @@
+const Review = require('../models/reviewModel');
+const Product = require('../models/productModel');
+const Order = require('../models/orderModel')
+
+class ReviewService {
+    async createReview(userId, reviewData) {
+    const { productId, rating, title, comment } = reviewData;
+
+    // Check if product exists
+    const product = await Product.findById(productId);
+    if (!product) {
+      const error = new Error('Product not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Check if user already reviewed this product
+    const existingReview = await Review.findOne({ userId, productId });
+    if (existingReview) {
+      const error = new Error('You have already reviewed this product');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    // Create Review
+    const review = await Review.create({
+      userId,
+      productId,
+      rating,
+      title,
+      comment
+    });
+
+    return review;
+  }
+
+  async getReviewsByProduct(productId) {
+    const reviews = await Review.find({ productId })
+      .populate('userId', 'firstName lastName') // Show reviewer name
+      .sort({ createdAt: -1 }); // Newest first
+
+    return reviews;
+  }
+
+  async updateReview(userId, reviewId, updateData) {
+    const review = await Review.findById(reviewId);
+
+    if (!review) {
+      const error = new Error('Review not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Check ownership
+    if (review.userId.toString() !== userId) {
+      const error = new Error('Not authorized to update this review');
+      error.statusCode = 403;
+      throw error;
+    }
+
+    // Update fields
+    if (updateData.rating) review.rating = updateData.rating;
+    if (updateData.title) review.title = updateData.title;
+    if (updateData.comment) review.comment = updateData.comment;
+
+    await review.save(); // This triggers the .post('save') middleware to update Product average
+    return review;
+  }
+
+  // 4. Delete Review (Only if you own it or are Admin)
+  async deleteReview(userId, userRole, reviewId) {
+    const review = await Review.findById(reviewId);
+
+    if (!review) {
+      const error = new Error('Review not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // Allow if Owner OR Admin OR User is the author
+    const isOwner = review.userId.toString() === userId;
+    const isAdmin = userRole === 'admin' || userRole === 'owner';
+
+    if (!isOwner && !isAdmin) {
+      const error = new Error('Not authorized to delete this review');
+      error.statusCode = 403;
+      throw error;
+    }
+
+    await Review.findByIdAndDelete(reviewId); // This triggers .post('findOneAndDelete') middleware
+    return { message: 'Review deleted successfully' };
+  }
+
+}
+
+module.exports = new ReviewService();
