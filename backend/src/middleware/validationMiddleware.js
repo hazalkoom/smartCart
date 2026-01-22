@@ -155,6 +155,45 @@ const orderStatusValidationRules = [
     .withMessage('Invalid order status'),
 ];
 
+const reviewValidationRules = [
+  body('productId')
+    .notEmpty().withMessage('Product ID is required')
+    .custom((value) => {
+      if (!mongoose.Types.ObjectId.isValid(value)) throw new Error('Invalid Product ID format');
+      return true;
+    }),
+  body('rating')
+    .notEmpty().withMessage('Rating is required')
+    .isInt({ min: 1, max: 5 }).withMessage('Rating must be an integer between 1 and 5'),
+  body('title')
+    .optional()
+    .isString().withMessage('Title must be a string')
+    .trim()
+    .isLength({ max: 100 }).withMessage('Title cannot exceed 100 characters'),
+  body('comment')
+    .optional()
+    .isString().withMessage('Comment must be a string')
+    .trim()
+    .isLength({ max: 1000 }).withMessage('Comment cannot exceed 1000 characters'),
+];
+
+const reviewUpdateValidationRules = [
+  body('rating')
+    .optional() // Change: Optional for updates
+    .isInt({ min: 1, max: 5 }).withMessage('Rating must be an integer between 1 and 5'),
+  body('title')
+    .optional()
+    .isString().withMessage('Title must be a string')
+    .trim()
+    .isLength({ max: 100 }).withMessage('Title cannot exceed 100 characters'),
+  body('comment')
+    .optional()
+    .isString().withMessage('Comment must be a string')
+    .trim()
+    .isLength({ max: 1000 }).withMessage('Comment cannot exceed 1000 characters'),
+  // We DO NOT allow updating productId or userId, so we don't validate them here.
+];
+
 module.exports = {
   validate,
   categoryValidationRules,
@@ -163,5 +202,7 @@ module.exports = {
   cartItemValidationRules,
   cartQtyValidationRules,
   orderCreateValidationRules,
-  orderStatusValidationRules
+  orderStatusValidationRules,
+  reviewValidationRules,
+  reviewUpdateValidationRules
 };

@@ -13,15 +13,14 @@ const generateOrderNumber = () => {
 
 class OrderService {
   async createOrder(user, shippingAddress) {
-    // AGGRESSIVE RETRY CONFIGURATION
-    const MAX_RETRIES = 10; // Try 10 times before giving up
+    const MAX_RETRIES = 10;
     let attempt = 0;
 
     while (true) {
       const session = await mongoose.startSession();
       
       try {
-        // STEP 1: PREPARE DATA (READS) - OUTSIDE TRANSACTION
+        // STEP 1: READ DATA
         const cart = await Cart.findOne({ userId: user._id });
         if (!cart || cart.items.length === 0) {
           throw { statusCode: 400, message: 'Cart is empty' };
@@ -41,7 +40,11 @@ class OrderService {
           const product = productMap.get(item.productId.toString());
 
           if (!product) throw { statusCode: 404, message: `Product ${item.productId} not found` };
-          if (product.quantity < item.quantity) throw { statusCode: 400, message: `Insufficient stock for: ${product.name}` };
+
+          // --- FIX 1: Use 'stock', not 'quantity' ---
+          if (product.stock < item.quantity) {
+             throw { statusCode: 400, message: `Insufficient stock for: ${product.name}` };
+          }
 
           const itemTotal = product.price * item.quantity;
           subtotal += itemTotal;
@@ -54,10 +57,11 @@ class OrderService {
             image: product.images && product.images.length > 0 ? product.images[0] : ''
           });
 
+          // --- FIX 2: Update 'stock', not 'quantity' ---
           bulkOps.push({
             updateOne: {
               filter: { _id: item.productId },
-              update: { $inc: { quantity: -item.quantity } }
+              update: { $inc: { stock: -item.quantity } } 
             }
           });
         }
@@ -65,7 +69,7 @@ class OrderService {
         const total = subtotal;
         const orderNum = generateOrderNumber();
 
-        // STEP 2: THE TRANSACTION (WRITES ONLY)
+        // STEP 2: WRITE TRANSACTION
         session.startTransaction();
 
         await Product.bulkWrite(bulkOps, { session });
@@ -90,27 +94,21 @@ class OrderService {
         return order[0];
 
       } catch (error) {
-        if (session.inTransaction()) {
-          await session.abortTransaction();
-        }
+        if (session.inTransaction()) await session.abortTransaction();
         session.endSession();
 
-        // Custom errors (400/404) should fail immediately
         if (error.statusCode) throw { statusCode: error.statusCode, message: error.message };
 
-        // RETRY LOGIC
+        // Retry logic for transient errors
         const isTransient = error.errorLabels && error.errorLabels.includes('TransientTransactionError');
         const isWriteConflict = error.message && error.message.includes('Write conflict');
 
         if ((isTransient || isWriteConflict) && attempt < MAX_RETRIES) {
           attempt++;
-          // Wait longer to let the traffic clear (Exponential Backoff)
           const delay = randomInt(200, 1000); 
-          console.warn(`⚠️ Write Conflict (Attempt ${attempt}/${MAX_RETRIES}). Retrying in ${delay}ms...`);
           await sleep(delay);
           continue; 
         }
-
         throw error;
       }
     }

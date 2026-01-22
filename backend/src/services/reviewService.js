@@ -6,7 +6,6 @@ class ReviewService {
     async createReview(userId, reviewData) {
     const { productId, rating, title, comment } = reviewData;
 
-    // Check if product exists
     const product = await Product.findById(productId);
     if (!product) {
       const error = new Error('Product not found');
@@ -14,24 +13,36 @@ class ReviewService {
       throw error;
     }
 
-    // Check if user already reviewed this product
-    const existingReview = await Review.findOne({ userId, productId });
+    // Manual check (Still good to have)
+    const existingReview = await Review.findOne({ 
+      userId: userId.toString(), 
+      productId: productId.toString() 
+    });
+
     if (existingReview) {
       const error = new Error('You have already reviewed this product');
       error.statusCode = 400;
       throw error;
     }
 
-    // Create Review
-    const review = await Review.create({
-      userId,
-      productId,
-      rating,
-      title,
-      comment
-    });
-
-    return review;
+    try {
+      const review = await Review.create({
+        userId,
+        productId,
+        rating,
+        title,
+        comment
+      });
+      return review;
+    } catch (err) {
+      // --- FIX: Catch Duplicate Key Error ---
+      if (err.code === 11000) {
+        const error = new Error('You have already reviewed this product');
+        error.statusCode = 400;
+        throw error;
+      }
+      throw err;
+    }
   }
 
   async getReviewsByProduct(productId) {
@@ -51,8 +62,7 @@ class ReviewService {
       throw error;
     }
 
-    // Check ownership
-    if (review.userId.toString() !== userId) {
+    if (review.userId.toString() !== userId.toString()) {
       const error = new Error('Not authorized to update this review');
       error.statusCode = 403;
       throw error;
@@ -63,7 +73,13 @@ class ReviewService {
     if (updateData.title) review.title = updateData.title;
     if (updateData.comment) review.comment = updateData.comment;
 
-    await review.save(); // This triggers the .post('save') middleware to update Product average
+    await review.save(); 
+    
+    if (Review.calcAverageRatings) {
+        await Review.calcAverageRatings(review.productId);
+    }
+    // -----------------------------------------------------------
+
     return review;
   }
 
@@ -78,7 +94,7 @@ class ReviewService {
     }
 
     // Allow if Owner OR Admin OR User is the author
-    const isOwner = review.userId.toString() === userId;
+    const isOwner = review.userId.toString() === userId.toString();
     const isAdmin = userRole === 'admin' || userRole === 'owner';
 
     if (!isOwner && !isAdmin) {

@@ -8,7 +8,7 @@ const {
 const {
   createProduct,
   getAllProducts,
-  getProductBySlug,
+  getProduct,
   updateProduct,
   deleteProduct,
 } = require('../controllers/productController');
@@ -18,7 +18,7 @@ const router = express.Router();
 // --- Public Routes ---
 
 router.route('/').get(getAllProducts);
-router.route('/:slug').get(getProductBySlug);
+router.route('/:slug').get(getProduct);
 
 
 // --- Admin/Owner Only Routes ---

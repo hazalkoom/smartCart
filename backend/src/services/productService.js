@@ -2,7 +2,7 @@ const Product = require('../models/productModel');
 const Category = require('../models/categoryModel');
 
 class ProductService {
-    async createProduct(productData) {
+  async createProduct(productData) {
     const { name, description, price, sku, stock, categoryId } = productData;
 
     const existingSku = await Product.findOne({ sku: sku.toUpperCase() });
@@ -13,7 +13,7 @@ class ProductService {
     const category = await Category.findById(categoryId);
     if (!category) {
       // This error will be caught by our middleware and turned into a 404
-      throw new Error('Category not found'); 
+      throw new Error('Category not found');
     }
 
     const product = await Product.create({
@@ -27,22 +27,22 @@ class ProductService {
     });
 
     return product;
-    }
+  }
 
-    async getAllProducts(query) {
+  async getAllProducts(query) {
     const { keyword } = query;
-    
+
     let dbQuery = {};
 
     if (keyword) {
       dbQuery = {
         $or: [
           { name: { $regex: keyword, $options: 'i' } },
-          { description: { $regex: keyword, $options: 'i' } }
-        ]
+          { description: { $regex: keyword, $options: 'i' } },
+        ],
       };
     }
-    
+
     const products = await Product.find(dbQuery)
       .populate('categoryId', 'name slug')
       .sort({ createdAt: -1 });
@@ -67,6 +67,20 @@ class ProductService {
     }
     return product;
   }
+
+  // --- THIS IS THE NEW FUNCTION YOU NEEDED ---
+  async getProductById(id) {
+    const product = await Product.findById(id).populate(
+      'categoryId',
+      'name slug'
+    );
+
+    if (!product) {
+      throw new Error('Product not found');
+    }
+    return product;
+  }
+  // -------------------------------------------
 
   async updateProduct(productId, updatedData) {
     const { name, description, price, sku, stock, categoryId } = updatedData;
@@ -100,17 +114,12 @@ class ProductService {
     product.description = description || product.description;
     product.price = price || product.price;
     product.stock = stock || product.stock;
-    
+
     // The 'pre-save' hook will auto-update slug if name changes
     const updatedProduct = await product.save();
     return updatedProduct;
   }
 
-  /**
-   * @desc    Delete a product by its ID
-   * @param   {string} productId - The MongoDB _id
-   * @returns {void}
-   */
   async deleteProduct(productId) {
     const product = await Product.findById(productId);
 
@@ -122,8 +131,6 @@ class ProductService {
     // is in any customer orders before deleting.
     await product.deleteOne();
   }
-
-  
 }
 
 module.exports = new ProductService();
