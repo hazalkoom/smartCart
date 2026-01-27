@@ -77,10 +77,27 @@ const orderSchema = new mongoose.Schema(
       enum: ['Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'],
       default: 'Pending',
     },
-    paymentId: {
-      // The charge ID from Stripe
+    // Track which method they used
+    paymentMethod: {
       type: String,
-      index: true,
+      required: true,
+      enum: ['card', 'wallet', 'fawry', 'cash'], 
+    },
+    // Store full details from Paymob (ID, source, etc.)
+    paymentResult: {
+      id: { type: String },
+      status: { type: String },
+      update_time: { type: String },
+      email_address: { type: String },
+      // Allows storing dynamic Paymob data without strict schema
+      type: Map,
+      of: String
+    },
+    // Explicit boolean for easier logic checks
+    isPaid: {
+      type: Boolean,
+      required: true,
+      default: false,
     },
     paidAt: {
       type: Date,
@@ -96,6 +113,5 @@ const orderSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
 
 module.exports = mongoose.model('Order', orderSchema);
