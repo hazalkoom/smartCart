@@ -10,6 +10,8 @@ const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const webhookRoutes = require('./routes/webhookRoutes');
+
 
 dotenv.config({ path: '.env' });
 
@@ -37,6 +39,7 @@ app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
+app.use('/webhook', webhookRoutes);
 // Simple health check route
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({ success: true, message: 'API is healthy' });

@@ -1,7 +1,9 @@
 const crypto = require('crypto');
 
+/**
+ * Validates the Paymob HMAC signature.
+ */
 const validateHmac = (data, hmacSent, secret) => {
-  // The exact keys required by Paymob, strictly sorted lexicographically
   const keys = [
     'amount_cents',
     'created_at',
@@ -36,7 +38,7 @@ const validateHmac = (data, hmacSent, secret) => {
         value = data[key];
       }
 
-      // Sanitize: Treat null/undefined as empty string, convert others to string
+      // Sanitize: Treat null/undefined as empty string
       if (value === null || value === undefined) return '';
       
       // Convert booleans (true -> "true") and numbers to string
@@ -50,7 +52,14 @@ const validateHmac = (data, hmacSent, secret) => {
     .update(concatenatedString)
     .digest('hex');
 
-  // Compare
+  // --- DEBUG LOGGING (Remove this in production) ---
+  console.log('--- HMAC DEBUG ---');
+  console.log('Backend Concatenated String:', concatenatedString);
+  console.log('Backend Calculated HMAC:    ', calculatedHmac);
+  console.log('Received HMAC from Test:    ', hmacSent);
+  console.log('Match Status:               ', calculatedHmac === hmacSent);
+  console.log('------------------');
+
   return calculatedHmac === hmacSent;
 };
 

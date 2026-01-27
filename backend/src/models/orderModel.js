@@ -83,16 +83,15 @@ const orderSchema = new mongoose.Schema(
       required: true,
       enum: ['card', 'wallet', 'fawry', 'cash'], 
     },
-    // Store full details from Paymob (ID, source, etc.)
+    
+    // --- FIX IS HERE ---
+    // We change this to Object (Mixed type).
+    // This allows storing nested objects like "source_data" without crashing.
     paymentResult: {
-      id: { type: String },
-      status: { type: String },
-      update_time: { type: String },
-      email_address: { type: String },
-      // Allows storing dynamic Paymob data without strict schema
-      type: Map,
-      of: String
+      type: Object
     },
+    // -------------------
+
     // Explicit boolean for easier logic checks
     isPaid: {
       type: Boolean,
