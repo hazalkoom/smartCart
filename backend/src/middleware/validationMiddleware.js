@@ -194,6 +194,19 @@ const reviewUpdateValidationRules = [
   // We DO NOT allow updating productId or userId, so we don't validate them here.
 ];
 
+const payOrderValidationRules = [
+  body('paymentMethod')
+    .notEmpty()
+    .withMessage('Payment method is required')
+    .isIn(['card', 'wallet', 'fawry'])
+    .withMessage('Invalid payment method. Accepted values: card, wallet, fawry'),
+
+  body('mobileNumber')
+    .optional()
+    .matches(/^01[0125][0-9]{8}$/)
+    .withMessage('Invalid Egyptian mobile number. Must start with 010, 011, 012, or 015 followed by 8 digits'),
+];
+
 module.exports = {
   validate,
   categoryValidationRules,
@@ -204,5 +217,6 @@ module.exports = {
   orderCreateValidationRules,
   orderStatusValidationRules,
   reviewValidationRules,
-  reviewUpdateValidationRules
+  reviewUpdateValidationRules,
+  payOrderValidationRules,
 };

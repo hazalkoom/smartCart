@@ -3,7 +3,6 @@ const Order = require('../models/orderModel');
 
 class PaymobService {
   constructor() {
-    // Cache for the authentication token
     this._cachedToken = null;
     this._tokenExpiration = null;
   }
@@ -12,18 +11,15 @@ class PaymobService {
     try {
       const now = Date.now();
 
-      // Check if we have a valid cached token (buffer of 5 minutes before actual expiry)
       if (this._cachedToken && this._tokenExpiration && now < this._tokenExpiration - 5 * 60 * 1000) {
         return this._cachedToken;
       }
 
-      // Request new token
       const response = await paymobClient.post('/auth/tokens', {
         api_key: process.env.PAYMOB_API_KEY,
       });
 
       this._cachedToken = response.data.token;
-      // Paymob tokens last 1 hour (3600 seconds). We set expiry to 1 hour from now.
       this._tokenExpiration = now + 3600 * 1000;
 
       return this._cachedToken;
@@ -33,14 +29,17 @@ class PaymobService {
     }
   }
 
-  async _registerOrder(authToken, merchantOrderId, amountCents) {
+  async _registerOrder(authToken, order) {
     try {
+      const amountCents = Math.round(order.total * 100).toString();
+      const merchantOrderId = order._id.toString();
+
       const response = await paymobClient.post('/ecommerce/orders', {
         auth_token: authToken,
         delivery_needed: "false",
-        amount_cents: amountCents.toString(), // Paymob expects string for cents
+        amount_cents: amountCents,
         currency: "EGP",
-        merchant_order_id: merchantOrderId.toString(),
+        merchant_order_id: merchantOrderId,
         items: order.items.map(item => ({
             name: item.name,
             amount_cents: Math.round(item.price * 100).toString(),
@@ -58,8 +57,6 @@ class PaymobService {
 
   async _getPaymentKey(authToken, paymobOrderId, amountCents, integrationId, billingData) {
     try {
-      // Data Sanitization: Paymob rejects requests if specific fields are missing or empty strings.
-      // We default strictly required address fields to "NA" if they are missing in our DB.
       const sanitizedBilling = {
         email: billingData.email,
         first_name: billingData.first_name || "NA",
@@ -78,7 +75,7 @@ class PaymobService {
       const response = await paymobClient.post('/acceptance/payment_keys', {
         auth_token: authToken,
         amount_cents: amountCents.toString(),
-        expiration: 3600, // Payment key valid for 1 hour
+        expiration: 3600, 
         order_id: paymobOrderId,
         billing_data: sanitizedBilling,
         integration_id: integrationId,
@@ -98,17 +95,16 @@ class PaymobService {
       // 1. Get Auth Token
       const authToken = await this._getAuthToken();
 
-      // 2. Calculate Amount in Cents (Security: Always use backend data)
+      // 2. Register Order
+      const paymobOrderId = await this._registerOrder(authToken, order);
+      
       const amountCents = Math.round(order.total * 100);
-
-      // 3. Register Order on Paymob
-      const paymobOrderId = await this._registerOrder(authToken, order._id, amountCents);
-
 
       if (paymentMethod === 'wallet' && !user.mobileNumber) {
             throw new Error('Please save your mobile number to your profile to use Mobile Wallets.');
         }
-      // 4. Select Integration ID based on method
+
+      // 3. Select Integration ID based on method
       let integrationId;
       switch (paymentMethod) {
         case 'card':
@@ -128,14 +124,12 @@ class PaymobService {
         throw new Error(`Integration ID missing for method: ${paymentMethod}`);
       }
 
-      // 5. Prepare Billing Data
+      // 4. Prepare Billing Data
       const billingData = {
         email: user.email,
         first_name: user.firstName,
         last_name: user.lastName,
-        // Use user.mobileNumber, fallback to a dummy number for testing if missing
         phone_number: user.mobileNumber || "01000000000", 
-        // Map shipping address
         street: order.shippingAddress.street,
         city: order.shippingAddress.city,
         country: order.shippingAddress.country,
@@ -143,10 +137,10 @@ class PaymobService {
         postal_code: order.shippingAddress.zip
       };
 
-      // 6. Get Payment Key
+      // 5. Get Payment Key
       const paymentKey = await this._getPaymentKey(authToken, paymobOrderId, amountCents, integrationId, billingData);
 
-      // 7. Generate Response based on Method
+      // 6. Generate Response based on Method
       if (paymentMethod === 'card') {
         return {
           action: 'iframe',
@@ -155,7 +149,6 @@ class PaymobService {
       } 
       
       else if (paymentMethod === 'wallet') {
-        // Wallet requires an extra step: "Pay" request to get the redirect URL
         const walletRes = await paymobClient.post('/acceptance/payments/pay', {
           source: { 
             identifier: billingData.phone_number, 
@@ -166,12 +159,11 @@ class PaymobService {
 
         return {
           action: 'redirect',
-          url: walletRes.data.redirect_url // Redirect user to this URL (e.g., Vodafone Cash page)
+          url: walletRes.data.redirect_url 
         };
       } 
       
       else if (paymentMethod === 'fawry') {
-        // Fawry requires an extra step: "Pay" request to get the Ref Code
         const fawryRes = await paymobClient.post('/acceptance/payments/pay', {
           source: { 
             identifier: "AGGREGATOR", 
@@ -182,13 +174,12 @@ class PaymobService {
 
         return {
           action: 'fawry_code',
-          bill_reference: fawryRes.data.data.bill_reference, // The number to show on screen
+          bill_reference: fawryRes.data.data.bill_reference, 
           message: 'Go to any Fawry machine and pay using this code.'
         };
       }
 
     } catch (error) {
-      // Pass the specific error message up
       throw error;
     }
   }

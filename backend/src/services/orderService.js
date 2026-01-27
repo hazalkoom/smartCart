@@ -41,7 +41,6 @@ class OrderService {
 
           if (!product) throw { statusCode: 404, message: `Product ${item.productId} not found` };
 
-          // --- FIX 1: Use 'stock', not 'quantity' ---
           if (product.stock < item.quantity) {
              throw { statusCode: 400, message: `Insufficient stock for: ${product.name}` };
           }
@@ -57,7 +56,6 @@ class OrderService {
             image: product.images && product.images.length > 0 ? product.images[0] : ''
           });
 
-          // --- FIX 2: Update 'stock', not 'quantity' ---
           bulkOps.push({
             updateOne: {
               filter: { _id: item.productId },
@@ -83,8 +81,12 @@ class OrderService {
           tax: 0,
           shipping: 0,
           shippingAddress,
-          paymentStatus: 'pending',
-          status: 'Pending'
+          status: 'Pending',
+          
+          // --- THE FIX IS HERE ---
+          paymentMethod: 'card', // Default placeholder until they pay
+          isPaid: false
+          // -----------------------
         }], { session });
 
         await Cart.findOneAndDelete({ userId: user._id }).session(session);
@@ -116,12 +118,15 @@ class OrderService {
 
   // --- Keep other methods ---
   async getMyOrders(userId) { return await Order.find({ userId }).sort({ createdAt: -1 }); }
+  
   async getOrderById(userId, userRole, orderId) { 
     const order = await Order.findById(orderId).populate('items.productId', 'slug');
     if (!order || (userRole !== 'admin' && userRole !== 'owner' && order.userId.toString() !== userId)) throw new Error('Order not found');
     return order; 
   }
+  
   async getAllOrders() { return await Order.find().populate('userId', 'email firstName lastName').sort({ createdAt: -1 }); }
+  
   async updateOrderStatus(orderId, status) {
     const order = await Order.findById(orderId);
     if (!order) throw new Error('Order not found');
