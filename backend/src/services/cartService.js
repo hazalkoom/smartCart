@@ -26,6 +26,9 @@ class CartService {
   }
 
   async addItemToCart(userId, productId, quantity) {
+    if (quantity < 1) {
+      throw new Error('Quantity must be at least 1');
+    }
     // 1. Get the product to check stock and price
     const product = await Product.findById(productId);
     if (!product) {
