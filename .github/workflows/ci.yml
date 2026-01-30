@@ -7,7 +7,7 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  # JOB 1: Unit Tests (Fast - Checks Logic)
+  # JOB 1: Unit Tests
   unit-tests:
     name: Unit Tests (Jest)
     runs-on: ubuntu-latest
@@ -20,22 +20,20 @@ jobs:
         node-version: '20'
         cache: 'npm'
         cache-dependency-path: backend/package-lock.json
-        
     - name: Install Dependencies
       run: |
         cd backend
         npm ci
-        
     - name: Run Jest
       run: |
         cd backend
         npm test
 
-  # JOB 2: Functional Tests (Slow - Checks System)
+  # JOB 2: Functional Tests
   functional-tests:
     name: Functional Tests (Pytest)
     runs-on: ubuntu-latest
-    needs: unit-tests # Only runs if Unit Tests pass
+    needs: unit-tests
 
     services:
       mongodb:
@@ -47,32 +45,24 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    # Setup Backend
+    # Setup Env
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
         cache-dependency-path: backend/package-lock.json
-
     - name: Install Backend Deps
-      run: |
-        cd backend
-        npm ci
+      run: cd backend && npm ci
 
-    # Setup Python
     - name: Setup Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-
     - name: Install Python Deps
-      run: |
-        pip install requests pytest pytest-ordering locust uuid
+      run: pip install requests pytest pytest-ordering locust uuid
 
-    # --- THE FIX STARTS HERE ---
-
-    # 1. Wait for MongoDB to be ready
+    # 1. Wait for Mongo
     - name: Wait for MongoDB
       run: |
         echo "Waiting for MongoDB on 127.0.0.1:27017..."
@@ -81,48 +71,54 @@ jobs:
             echo "MongoDB is up!"
             exit 0
           fi
-          echo "Waiting..."
           sleep 1
         done
-        echo "MongoDB failed to start"
         exit 1
 
-    # 2. Seed Database (Safe now that Mongo is up)
+    # 2. Seed DB
     - name: Seed Database
-      run: |
-        cd backend
-        node reset_db_hard.js
+      run: cd backend && node reset_db_hard.js
       env:
         DB_URI: "mongodb://127.0.0.1:27017/smartCart"
 
-    # 3. Start Server & Wait for Port 5000
+    # 3. Start Server (With Dummy Keys & Log Capture)
     - name: Start Server
       run: |
         cd backend
-        # Start in background, set PORT explicitly, redirect logs to file
-        PORT=5000 DB_URI="mongodb://127.0.0.1:27017/smartCart" JWT_SECRET="test_secret_123" npm start > server.log 2>&1 &
+        # Use dummy keys to prevent startup crashes if env vars are checked early
+        PORT=5000 \
+        DB_URI="mongodb://127.0.0.1:27017/smartCart" \
+        JWT_SECRET="test_secret_123" \
+        PAYMOB_API_KEY="dummy_key" \
+        PAYMOB_INTEGRATION_ID_CARD="123" \
+        PAYMOB_INTEGRATION_ID_WALLET="456" \
+        PAYMOB_IFRAME_ID="789" \
+        npm start > server.log 2>&1 &
+        
         SERVER_PID=$!
         echo "Server PID: $SERVER_PID"
         
-        # Wait Loop: Check if Port 5000 is open
+        # Wait Loop
         echo "Waiting for Server on 127.0.0.1:5000..."
         for i in {1..60}; do
           if nc -z 127.0.0.1 5000; then
-            echo "Server is listening on Port 5000!"
+            echo "Server is listening!"
             exit 0
           fi
-          echo "Server not ready yet (attempt $i)..."
           sleep 1
         done
-        
-        # If we get here, it failed. Print logs to debug.
-        echo "Server failed to start. Printing logs:"
-        cat server.log
+        echo "Server failed to start within timeout."
         exit 1
 
-    # --- THE FIX ENDS HERE ---
-
-    # Run the Bulletproof Suite
+    # 4. Run Pytest
     - name: Run Pytest
+      run: pytest tests/functional
+
+    # 5. DEBUG: Print Logs if ANYTHING fails
+    - name: Print Server Logs (On Failure)
+      if: failure()
       run: |
-        pytest tests/functional
+        cd backend
+        echo "================ SERVER LOGS START ================"
+        cat server.log
+        echo "================ SERVER LOGS END ================"
