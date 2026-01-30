@@ -186,7 +186,14 @@ def test_admin_update_status_validation_fails():
 
 @pytest.mark.run(order=48)
 def test_admin_update_status_happy_path():
+    """
+    Test the Correct Flow: Pending -> Paid -> Shipped.
+    """
     order_id = shared_data['order_id']
+    
+    res_paid = requests.patch(f"{order_url}/{order_id}/status", json={"status": "Paid"}, headers=owner_headers)
+    assert res_paid.status_code == 200
+    
     res = requests.patch(f"{order_url}/{order_id}/status", json={"status": "Shipped"}, headers=owner_headers)
     assert res.status_code == 200
     assert res.json()['data']['status'] == "Shipped"

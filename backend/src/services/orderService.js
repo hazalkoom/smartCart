@@ -12,6 +12,7 @@ const generateOrderNumber = () => {
 };
 
 class OrderService {
+  // --- UPGRADED: Create Order with Cost Snapshot ---
   async createOrder(user, shippingAddress) {
     const MAX_RETRIES = 10;
     let attempt = 0;
@@ -20,14 +21,18 @@ class OrderService {
       const session = await mongoose.startSession();
       
       try {
-        // STEP 1: READ DATA
+        session.startTransaction();
+
+        // 1. Get Cart
         const cart = await Cart.findOne({ userId: user._id });
         if (!cart || cart.items.length === 0) {
           throw { statusCode: 400, message: 'Cart is empty' };
         }
 
+        // 2. Fetch Products WITH Cost Price (Owner Analytics)
         const productIds = cart.items.map(item => item.productId);
-        const products = await Product.find({ _id: { $in: productIds } });
+        // We explicitly select '+costPrice' because it is hidden by default
+        const products = await Product.find({ _id: { $in: productIds } }).select('+costPrice');
         
         const productMap = new Map();
         products.forEach(p => productMap.set(p._id.toString(), p));
@@ -39,69 +44,66 @@ class OrderService {
         for (const item of cart.items) {
           const product = productMap.get(item.productId.toString());
 
-          if (!product) throw { statusCode: 404, message: `Product ${item.productId} not found` };
-
+          if (!product) throw { statusCode: 404, message: `Product not found: ${item.productId}` };
+          
           if (product.stock < item.quantity) {
-             throw { statusCode: 400, message: `Insufficient stock for: ${product.name}` };
+            throw { statusCode: 400, message: `Insufficient stock for ${product.name}` };
           }
 
-          const itemTotal = product.price * item.quantity;
-          subtotal += itemTotal;
-
+          // SNAPSHOT: We save the cost NOW. If supplier price changes later,
+          // this historic order data remains accurate.
           orderItems.push({
             productId: product._id,
             name: product.name,
-            price: product.price,
             quantity: item.quantity,
-            image: product.images && product.images.length > 0 ? product.images[0] : ''
+            price: product.price,
+            cost: product.costPrice || 0, // <--- SAVED FOR OWNER
+            image: product.images[0]
           });
 
+          subtotal += product.price * item.quantity;
+
+          // Decrease Stock
           bulkOps.push({
             updateOne: {
-              filter: { _id: item.productId },
-              update: { $inc: { stock: -item.quantity } } 
+              filter: { _id: product._id },
+              update: { $inc: { stock: -item.quantity, purchases: item.quantity } }
             }
           });
         }
 
-        const total = subtotal;
-        const orderNum = generateOrderNumber();
-
-        // STEP 2: WRITE TRANSACTION
-        session.startTransaction();
-
+        // 3. Update Inventory
         await Product.bulkWrite(bulkOps, { session });
+
+        // 4. Create Order
+        const tax = 0; 
+        const shipping = 50; // Flat rate for now
+        const total = subtotal + tax + shipping;
+        const orderNumber = generateOrderNumber();
 
         const order = await Order.create([{
           userId: user._id,
-          orderNumber: orderNum,
+          orderNumber,
           items: orderItems,
-          subtotal,
-          total,
-          tax: 0,
-          shipping: 0,
           shippingAddress,
-          status: 'Pending',
-          
-          // --- THE FIX IS HERE ---
-          paymentMethod: 'card', // Default placeholder until they pay
-          isPaid: false
-          // -----------------------
+          subtotal,
+          tax,
+          shipping,
+          total,
+          paymentMethod: 'card', 
+          status: 'Pending'
         }], { session });
 
-        await Cart.findOneAndDelete({ userId: user._id }).session(session);
+        // 5. Clear Cart
+        await Cart.deleteOne({ userId: user._id }, { session });
 
         await session.commitTransaction();
-        session.endSession();
         return order[0];
 
       } catch (error) {
-        if (session.inTransaction()) await session.abortTransaction();
-        session.endSession();
-
-        if (error.statusCode) throw { statusCode: error.statusCode, message: error.message };
-
-        // Retry logic for transient errors
+        await session.abortTransaction();
+        
+        // Retry logic for transient DB errors
         const isTransient = error.errorLabels && error.errorLabels.includes('TransientTransactionError');
         const isWriteConflict = error.message && error.message.includes('Write conflict');
 
@@ -112,30 +114,73 @@ class OrderService {
           continue; 
         }
         throw error;
+      } finally {
+        session.endSession();
       }
     }
   }
 
-  // --- Keep other methods ---
-  async getMyOrders(userId) { return await Order.find({ userId }).sort({ createdAt: -1 }); }
-  
-  async getOrderById(userId, userRole, orderId) { 
-    const order = await Order.findById(orderId).populate('items.productId', 'slug');
-    if (!order || (userRole !== 'admin' && userRole !== 'owner' && order.userId.toString() !== userId)) throw new Error('Order not found');
-    return order; 
-  }
-  
-  async getAllOrders() { return await Order.find().populate('userId', 'email firstName lastName').sort({ createdAt: -1 }); }
-  
-  async updateOrderStatus(orderId, status) {
+  // --- UPGRADED: Strict Status Flow & Restocking ---
+  async updateOrderStatus(orderId, newStatus) {
     const order = await Order.findById(orderId);
     if (!order) throw new Error('Order not found');
-    order.status = status;
-    if (status === 'Paid') order.paidAt = Date.now();
-    if (status === 'Shipped') order.shippedAt = Date.now();
-    if (status === 'Delivered') order.deliveredAt = Date.now();
+
+    const currentStatus = order.status;
+
+    // 1. Strict Flow Rules (Prevent jumping steps)
+    // Admin cannot mark as 'Shipped' unless it is 'Paid'
+    if (newStatus === 'Shipped' && currentStatus !== 'Paid') {
+      throw { statusCode: 400, message: 'Order must be Paid before Shipping.' };
+    }
+    // Admin cannot mark as 'Delivered' unless it is 'Shipped'
+    if (newStatus === 'Delivered' && currentStatus !== 'Shipped') {
+      throw { statusCode: 400, message: 'Order must be Shipped before Delivery.' };
+    }
+
+    // 2. Cancellation Logic (Restock Items)
+    // If cancelling a non-cancelled order, give items back to inventory
+    if (newStatus === 'Cancelled' && currentStatus !== 'Cancelled') {
+      const bulkOps = order.items.map(item => ({
+        updateOne: {
+          filter: { _id: item.productId },
+          update: { $inc: { stock: item.quantity, purchases: -item.quantity } }
+        }
+      }));
+      await Product.bulkWrite(bulkOps);
+    }
+
+    // 3. Update Status & Timestamps
+    order.status = newStatus;
+    if (newStatus === 'Paid') order.paidAt = Date.now();
+    if (newStatus === 'Shipped') order.shippedAt = Date.now();
+    if (newStatus === 'Delivered') order.deliveredAt = Date.now();
+
     await order.save();
     return order;
+  }
+
+  async getMyOrders(userId) {
+    return await Order.find({ userId }).sort({ createdAt: -1 });
+  }
+
+  async getOrderById(userId, userRole, orderId) {
+    const order = await Order.findById(orderId).populate('items.productId', 'slug');
+    
+    // Authorization Check
+    if (!order) throw { statusCode: 404, message: 'Order not found' };
+    
+    const isAuthorized = userRole === 'admin' || userRole === 'owner' || order.userId.toString() === userId;
+    if (!isAuthorized) {
+      throw { statusCode: 403, message: 'Not authorized to view this order' };
+    }
+
+    return order;
+  }
+
+  async getAllOrders() {
+    return await Order.find()
+      .populate('userId', 'email firstName lastName')
+      .sort({ createdAt: -1 });
   }
 }
 

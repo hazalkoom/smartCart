@@ -1,6 +1,7 @@
 const ProductService = require('../services/productService');
 const asyncHandler = require('../utils/asyncHandler');
 const mongoose = require('mongoose'); // Needed to check if ID is valid
+const Product = require('../models/productModel');
 
 const createProduct = asyncHandler(async (req, res) => {
   const productData = req.body;

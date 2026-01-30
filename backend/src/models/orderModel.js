@@ -18,6 +18,14 @@ const orderItemSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  // --- NEW: Historic Cost Price (For Owner Analytics) ---
+  // Captures the cost at the moment of purchase.
+  cost: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  // ------------------------------------------------------
   image: {
     type: String,
   },
@@ -83,15 +91,10 @@ const orderSchema = new mongoose.Schema(
       required: true,
       enum: ['card', 'wallet', 'fawry', 'cash'], 
     },
-    
-    // --- FIX IS HERE ---
-    // We change this to Object (Mixed type).
-    // This allows storing nested objects like "source_data" without crashing.
+    // Store full details from Paymob (ID, source, etc.)
     paymentResult: {
       type: Object
     },
-    // -------------------
-
     // Explicit boolean for easier logic checks
     isPaid: {
       type: Boolean,

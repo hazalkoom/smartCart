@@ -26,6 +26,12 @@ const productSchema = new mongoose.Schema(
       required: [true, 'Price is required'],
       min: [0, 'Price must be a positive number'],
     },
+    costPrice: {
+      type: Number,
+      required: [true, 'Cost price is required'],
+      default: 0,
+      select: false, // Hidden by default from public API
+    },
     // Stock Keeping Unit.
     sku: { 
       type: String,
@@ -55,6 +61,11 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      select: false, // Hidden by default
+    },
     rating: {
       type: Number,
       default: 0,
@@ -77,12 +88,15 @@ const productSchema = new mongoose.Schema(
   }
 );
 
-productSchema.index({ name: 'text', description: 'text' });
-
 productSchema.pre('save', function (next) {
   if (this.isModified('name')) {
     this.slug = slugify(this.name, { lower: true, strict: true });
   }
+  next();
+});
+
+productSchema.pre(/^find/, function (next) {
+  this.find({ isDeleted: { $ne: true } });
   next();
 });
 

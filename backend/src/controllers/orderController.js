@@ -1,30 +1,33 @@
-const Order = require('../models/orderModel'); // Import Order Model
+const Order = require('../models/orderModel');
 const OrderService = require('../services/orderService');
-const paymobService = require('../services/paymobService'); // Import Paymob Service
+const paymobService = require('../services/paymobService'); 
 const asyncHandler = require('../utils/asyncHandler');
 
-const catchAsync = (fn) => {
-  return (req, res, next) => {
-    fn(req, res, next).catch(next);
-  };
+// Helper: Sanitize Order for Non-Owners
+const sanitizeOrderForAdmin = (order) => {
+  const orderObj = order.toObject ? order.toObject() : order;
+  // Remove sensitive cost info from every item
+  if (orderObj.items) {
+    orderObj.items = orderObj.items.map(item => {
+      const { cost, ...safeItem } = item; 
+      return safeItem;
+    });
+  }
+  return orderObj;
 };
 
-const createOrder = catchAsync(async (req, res, next) => {
+const createOrder = asyncHandler(async (req, res) => {
   try {
     const order = await OrderService.createOrder(req.user, req.body.shippingAddress);
-
     res.status(201).json({
       status: 'success',
       data: { order },
     });
   } catch (err) {
-    // LOG THE ERROR: This is how we debug the 500s
     console.error("🔥 ORDER CONTROLLER ERROR:", err.message);
-
     const statusCode = err.statusCode || 500;
-    
     res.status(statusCode).json({
-      status: statusCode === 500 ? 'error' : 'fail',
+      success: false,
       message: err.message || 'Server Error',
     });
   }
@@ -32,7 +35,6 @@ const createOrder = catchAsync(async (req, res, next) => {
 
 const getMyOrders = asyncHandler(async (req, res) => {
   const orders = await OrderService.getMyOrders(req.user.id);
-
   res.status(200).json({
     success: true,
     count: orders.length,
@@ -41,24 +43,36 @@ const getMyOrders = asyncHandler(async (req, res) => {
 });
 
 const getOrderById = asyncHandler(async (req, res) => {
-  const userId = req.user.id;
-  const { id } = req.params;
-  const userRole = req.user.role;
-  const order = await OrderService.getOrderById(userId, userRole, id);
+  const order = await OrderService.getOrderById(req.user.id, req.user.role, req.params.id);
+  
+  // Security: Hide costs if user is NOT Owner
+  let responseOrder = order;
+  if (req.user.role !== 'owner') {
+    responseOrder = sanitizeOrderForAdmin(order);
+  }
 
   res.status(200).json({
     success: true,
-    data: order,
+    data: responseOrder,
   });
 });
 
 const getAllOrders = asyncHandler(async (req, res) => {
+  // 1. Get All Orders
   const orders = await OrderService.getAllOrders();
+
+  // 2. Filter Data based on Role
+  let responseOrders = orders;
+  
+  // If Admin (not Owner), strip out cost prices
+  if (req.user.role !== 'owner') {
+    responseOrders = orders.map(order => sanitizeOrderForAdmin(order));
+  }
 
   res.status(200).json({
     success: true,
-    count: orders.length,
-    data: orders,
+    count: responseOrders.length,
+    data: responseOrders,
   });
 });
 
@@ -71,70 +85,57 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
     throw new Error('Status is required');
   }
 
+  // Calls Service which enforces: Paid -> Shipped -> Delivered
   const order = await OrderService.updateOrderStatus(id, status);
 
   res.status(200).json({
     success: true,
     data: order,
-    message: 'Order status updated',
+    message: `Order status updated to ${status}`,
   });
 });
-
 
 const payOrder = asyncHandler(async (req, res) => {
   const { paymentMethod, mobileNumber } = req.body;
   const orderId = req.params.id;
 
-  // Step 1: Lookup
   const order = await Order.findById(orderId);
   if (!order) {
     res.status(404);
     throw new Error('Order not found');
   }
 
-  // Step 2: Security (Ownership Check)
   if (order.userId.toString() !== req.user._id.toString()) {
     res.status(403);
     throw new Error('You are not authorized to pay for this order');
   }
 
-  // Step 3: State Check
   if (order.isPaid) {
     res.status(400);
     throw new Error('Order is already paid');
   }
 
-  // Step 4: Wallet Logic (Phone Number)
   if (paymentMethod === 'wallet') {
     if (mobileNumber) {
-      // Case A: User provided a new number in the request
       req.user.mobileNumber = mobileNumber; 
     } else if (!req.user.mobileNumber) {
-      // Case B: No number in request AND no number in DB profile
       res.status(400);
-      throw new Error('Mobile number is required for Wallet payments. Please provide it or save it to your profile.');
+      throw new Error('Mobile number is required for Wallet payments.');
     }
-    // Case C: User didn't provide number, but has one in DB. Service uses that.
   }
 
-  // Step 5: Call Service
   try {
     const paymentResponse = await paymobService.initiatePayment(req.user, order, paymentMethod);
-
     res.status(200).json({
       success: true,
       data: paymentResponse,
     });
   } catch (error) {
     console.error('Payment Initiation Failed:', error.message);
-    
-    // Graceful error handling
     if (error.message.includes('Paymob') || error.message.includes('unavailable')) {
       res.status(502);
-      throw new Error('Payment gateway is currently unavailable. Please try again later.');
+      throw new Error('Payment gateway is currently unavailable.');
     }
-    
-    // Default server error
     res.status(500);
     throw error;
   }
