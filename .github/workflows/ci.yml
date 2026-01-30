@@ -14,7 +14,6 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
-    
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
@@ -71,7 +70,24 @@ jobs:
       run: |
         pip install requests pytest pytest-ordering locust uuid
 
-    # Initialize DB (The "Nuclear Option" script)
+    # --- THE FIX STARTS HERE ---
+
+    # 1. Wait for MongoDB to be ready
+    - name: Wait for MongoDB
+      run: |
+        echo "Waiting for MongoDB on 127.0.0.1:27017..."
+        for i in {1..30}; do
+          if nc -z 127.0.0.1 27017; then
+            echo "MongoDB is up!"
+            exit 0
+          fi
+          echo "Waiting..."
+          sleep 1
+        done
+        echo "MongoDB failed to start"
+        exit 1
+
+    # 2. Seed Database (Safe now that Mongo is up)
     - name: Seed Database
       run: |
         cd backend
@@ -79,17 +95,32 @@ jobs:
       env:
         DB_URI: "mongodb://127.0.0.1:27017/smartCart"
 
-    # Start Server (Background)
+    # 3. Start Server & Wait for Port 5000
     - name: Start Server
       run: |
         cd backend
-        npm start &
-        echo "Waiting for server..."
-        sleep 10
-      env:
-        DB_URI: "mongodb://127.0.0.1:27017/smartCart"
-        JWT_SECRET: "test_secret_123" 
-        # Add your PAYMOB keys here as secrets later if needed
+        # Start in background, set PORT explicitly, redirect logs to file
+        PORT=5000 DB_URI="mongodb://127.0.0.1:27017/smartCart" JWT_SECRET="test_secret_123" npm start > server.log 2>&1 &
+        SERVER_PID=$!
+        echo "Server PID: $SERVER_PID"
+        
+        # Wait Loop: Check if Port 5000 is open
+        echo "Waiting for Server on 127.0.0.1:5000..."
+        for i in {1..60}; do
+          if nc -z 127.0.0.1 5000; then
+            echo "Server is listening on Port 5000!"
+            exit 0
+          fi
+          echo "Server not ready yet (attempt $i)..."
+          sleep 1
+        done
+        
+        # If we get here, it failed. Print logs to debug.
+        echo "Server failed to start. Printing logs:"
+        cat server.log
+        exit 1
+
+    # --- THE FIX ENDS HERE ---
 
     # Run the Bulletproof Suite
     - name: Run Pytest
