@@ -1,6 +1,7 @@
 import requests
 import pytest
 import time
+import uuid
 from tests.test_config import BASE_URL, OWNER_LOGIN, print_test_result, shared_data
 
 # Endpoints
@@ -13,6 +14,10 @@ cart_url = f"{BASE_URL}/cart"
 owner_headers = {}
 user_headers = {}
 attacker_headers = {} # For "User B" tests
+
+# --- Helper: Unique Generator ---
+def get_unique_id():
+    return uuid.uuid4().hex[:8]
 
 # --- 1. SETUP (Order 70) ---
 @pytest.mark.run(order=70)
@@ -29,44 +34,51 @@ def test_payment_setup():
 
     # A. Login Owner
     res_login = requests.post(f"{BASE_URL}/auth/login", json=OWNER_LOGIN)
-    assert res_login.status_code == 200
+    assert res_login.status_code == 200, f"Owner login failed: {res_login.text}"
     owner_token = res_login.json()['data']['token']
     owner_headers = {"Authorization": f"Bearer {owner_token}"}
+    shared_data['owner_token'] = owner_token
 
-    # B. Create Temp Category
-    cat_name = f"Payment Cat {int(time.time())}"
+    # B. Create Temp Category (Unique Name)
+    cat_name = f"Payment Cat {get_unique_id()}"
     res_cat = requests.post(category_url, json={"name": cat_name}, headers=owner_headers)
-    assert res_cat.status_code == 201
+    assert res_cat.status_code == 201, f"Cat creation failed: {res_cat.text}"
     category_id = res_cat.json()['data']['_id']
     shared_data['pay_cat_id'] = category_id
 
-    # C. Create Temp Product
+    # C. Create Temp Product (Unique SKU)
     prod_data = {
-        "name": "Payment Test Item", "price": 100.00, "sku": f"PAY-{int(time.time())}", 
-        "stock": 100, "categoryId": category_id, "description": "For payment tests"
+        "name": f"Payment Item {get_unique_id()}", 
+        "price": 100.00, 
+        "sku": f"PAY-{get_unique_id()}", # Bulletproof SKU
+        "stock": 100, 
+        "categoryId": category_id, 
+        "description": "For payment tests"
     }
     res_prod = requests.post(product_url, json=prod_data, headers=owner_headers)
-    assert res_prod.status_code == 201
+    assert res_prod.status_code == 201, f"Product creation failed: {res_prod.text}"
     product_id = res_prod.json()['data']['_id']
     shared_data['pay_prod_id'] = product_id
 
-    # D. Setup Main User (The Payer)
-    email_main = f"payer_{int(time.time())}@test.com"
+    # D. Setup Main User (The Payer) - Unique Email
+    email_main = f"payer_{get_unique_id()}@test.com"
     requests.post(f"{BASE_URL}/auth/register", json={
         "email": email_main, "password": "password123", "firstName": "Payer", "lastName": "Main",
         "mobileNumber": "01000000001" # Valid Phone
     })
     res_main = requests.post(f"{BASE_URL}/auth/login", json={"email": email_main, "password": "password123"})
+    assert res_main.status_code == 200, "Main user login failed"
     user_token = res_main.json()['data']['token']
     user_headers = {"Authorization": f"Bearer {user_token}"}
     shared_data['pay_user_headers'] = user_headers
 
-    # E. Setup Attacker User (The Thief)
-    email_hack = f"hacker_{int(time.time())}@test.com"
+    # E. Setup Attacker User (The Thief) - Unique Email
+    email_hack = f"hacker_{get_unique_id()}@test.com"
     requests.post(f"{BASE_URL}/auth/register", json={
         "email": email_hack, "password": "password123", "firstName": "Hacker", "lastName": "Bad"
     })
     res_hack = requests.post(f"{BASE_URL}/auth/login", json={"email": email_hack, "password": "password123"})
+    assert res_hack.status_code == 200, "Attacker login failed"
     hack_token = res_hack.json()['data']['token']
     attacker_headers = {"Authorization": f"Bearer {hack_token}"}
     shared_data['pay_attacker_headers'] = attacker_headers
@@ -78,8 +90,8 @@ def test_payment_setup():
     res_order = requests.post(order_url, json={
         "shippingAddress": {"street": "123 Pay St", "city": "Cairo", "country": "Egypt"}
     }, headers=user_headers)
-    assert res_order.status_code == 201
-    shared_data['pay_order_id'] = res_order.json()['data']['order']['_id'] # Use correct key path
+    assert res_order.status_code == 201, f"Order creation failed: {res_order.text}"
+    shared_data['pay_order_id'] = res_order.json()['data']['order']['_id'] 
     
     print(f"Payment Setup Complete. Order ID: {shared_data['pay_order_id']}")
 
@@ -158,6 +170,7 @@ def test_pay_logic_wallet_requirement():
     requests.post(f"{cart_url}/items", json={"productId": shared_data['pay_prod_id'], "quantity": 1}, headers=headers)
     # Create Order
     res_ord = requests.post(order_url, json={"shippingAddress": {"street": "St", "city": "C", "country": "E"}}, headers=headers)
+    assert res_ord.status_code == 201, f"Attacker order creation failed: {res_ord.text}"
     attacker_order_id = res_ord.json()['data']['order']['_id']
 
     # 2. Try to pay with wallet (No phone in body, No phone in DB)
@@ -180,7 +193,7 @@ def test_pay_happy_card_iframe():
     if res.status_code == 502:
         pytest.skip("Paymob Sandbox unavailable (502)")
     
-    assert res.status_code == 200
+    assert res.status_code == 200, f"Card Payment Init Failed: {res.text}"
     assert res.json()['data']['action'] == 'iframe'
     assert "accept.paymob.com" in res.json()['data']['url']
     assert "payment_token=" in res.json()['data']['url']
@@ -197,7 +210,7 @@ def test_pay_happy_wallet_redirect():
     if res.status_code == 502:
         pytest.skip("Paymob Sandbox unavailable (502)")
 
-    assert res.status_code == 200
+    assert res.status_code == 200, f"Wallet Payment Init Failed: {res.text}"
     assert res.json()['data']['action'] == 'redirect'
     assert "accept.paymob" in res.json()['data']['url']
 
@@ -211,7 +224,7 @@ def test_pay_happy_fawry_code():
     if res.status_code == 502:
         pytest.skip("Paymob Sandbox unavailable (502)")
 
-    assert res.status_code == 200
+    assert res.status_code == 200, f"Fawry Payment Init Failed: {res.text}"
     assert res.json()['data']['action'] == 'fawry_code'
     # Check if bill_reference exists (it might be int or string)
     assert 'bill_reference' in res.json()['data']
@@ -220,25 +233,14 @@ def test_pay_happy_fawry_code():
 # --- E. STATE & DOUBLE PAYMENT (Order 75) ---
 @pytest.mark.run(order=75)
 def test_pay_prevent_double_payment():
-    headers = shared_data['pay_user_headers']
-    order_id = shared_data['pay_order_id']
-    
-    # Manually mark order as Paid in DB (Simulating a successful webhook)
-    # Since we can't touch DB directly easily in functional tests without a helper endpoint,
-    # We will simulate this by using the 'Owner' to update status if you have that endpoint.
-    # OR: We rely on the fact that these tests are sequential.
-    
-    # Note: Paymob initiation DOES NOT mark as paid. The Webhook does.
-    # So to test "Order already paid", we need to fake the paid status.
-    # If you don't have a "Force Pay" admin endpoint, this test is hard to run black-box.
-    # Skipping unless you implement a backdoor.
+    # Skipping this logic test as discussed, since we can't mock the Webhook easily here
     pass
 
 
 # --- F. CLEANUP (Order 76) ---
 @pytest.mark.run(order=76)
 def test_payment_cleanup():
-    headers = shared_data['owner_token']
+    headers = shared_data.get('owner_token')
     if headers:
         headers = {"Authorization": f"Bearer {headers}"}
         
