@@ -7,29 +7,32 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  # JOB 1: Unit Tests
+  # JOB 1: Unit Tests (Fast Logic Check)
   unit-tests:
     name: Unit Tests (Jest)
     runs-on: ubuntu-latest
     
     steps:
     - uses: actions/checkout@v4
+    
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
         cache-dependency-path: backend/package-lock.json
+        
     - name: Install Dependencies
       run: |
         cd backend
         npm ci
+        
     - name: Run Jest
       run: |
         cd backend
         npm test
 
-  # JOB 2: Functional Tests
+  # JOB 2: Functional Tests (System Check)
   functional-tests:
     name: Functional Tests (Pytest)
     runs-on: ubuntu-latest
@@ -45,13 +48,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    # Setup Env
+    # --- SETUP ENVIRONMENTS ---
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
         cache: 'npm'
         cache-dependency-path: backend/package-lock.json
+
     - name: Install Backend Deps
       run: cd backend && npm ci
 
@@ -59,13 +63,17 @@ jobs:
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
-    - name: Install Python Deps
-      run: pip install requests pytest pytest-ordering locust uuid
 
-    # 1. Wait for Mongo
+    # Using the requirements file you just created!
+    - name: Install Python Deps
+      run: |
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        pip install pytest pytest-ordering locust uuid requests
+
+    # --- START DATABASE ---
     - name: Wait for MongoDB
       run: |
-        echo "Waiting for MongoDB on 127.0.0.1:27017..."
+        echo "Waiting for MongoDB..."
         for i in {1..30}; do
           if nc -z 127.0.0.1 27017; then
             echo "MongoDB is up!"
@@ -75,17 +83,19 @@ jobs:
         done
         exit 1
 
-    # 2. Seed DB
     - name: Seed Database
       run: cd backend && node reset_db_hard.js
       env:
+        # We set BOTH names to be safe
         DB_URI: "mongodb://127.0.0.1:27017/smartCart"
+        MONGO_URI: "mongodb://127.0.0.1:27017/smartCart"
 
-    # 3. Start Server (With Dummy Keys & Log Capture)
+    # --- START SERVER (The Critical Fix) ---
     - name: Start Server
       run: |
         cd backend
-        # We set BOTH DB_URI and MONGO_URI to be safe
+        # 1. Set EVERY possible env var to prevent "undefined" crashes
+        # 2. Use dummy Paymob keys to prevent startup checks from failing
         PORT=5000 \
         NODE_ENV="test" \
         DB_URI="mongodb://127.0.0.1:27017/smartCart" \
@@ -100,7 +110,7 @@ jobs:
         SERVER_PID=$!
         echo "Server PID: $SERVER_PID"
         
-        # Wait Loop
+        # Smart Wait Loop
         echo "Waiting for Server on 127.0.0.1:5000..."
         for i in {1..60}; do
           if nc -z 127.0.0.1 5000; then
@@ -109,18 +119,14 @@ jobs:
           fi
           sleep 1
         done
-        echo "Server failed to start within timeout."
+        
+        echo "Server failed to start. Printing logs:"
+        cat server.log
         exit 1
 
-    # 4. Run Pytest
+    # --- RUN TESTS ---
     - name: Run Pytest
       run: pytest tests/functional
-
-    # 5. DEBUG: Print Logs if ANYTHING fails
-    - name: Print Server Logs (On Failure)
-      if: failure()
-      run: |
-        cd backend
-        echo "================ SERVER LOGS START ================"
-        cat server.log
-        echo "================ SERVER LOGS END ================"
+      env:
+         # Ensure tests know where to look
+         BASE_URL: "http://localhost:5000/api/v1"
