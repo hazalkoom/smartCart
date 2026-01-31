@@ -32,9 +32,9 @@ jobs:
         cd backend
         npm test
 
-  # JOB 2: Functional Tests
+  # JOB 2: Functional & Security Tests
   functional-tests:
-    name: Functional Tests (Pytest)
+    name: System Tests (Pytest)
     runs-on: ubuntu-latest
     needs: unit-tests
 
@@ -85,25 +85,20 @@ jobs:
     - name: Seed Database
       run: cd backend && node reset_db_hard.js
       env:
-        # We set ALL variations to be safe for the seed script too
+        # We set ALL variations to be safe
         MONGODB_URI: "mongodb://127.0.0.1:27017/smartCart"
         DB_URI: "mongodb://127.0.0.1:27017/smartCart"
 
-    # --- START SERVER (FIXED) ---
+    # --- START SERVER (FIXED + JWT) ---
     - name: Start Server
       env:
         PORT: 5000
         NODE_ENV: "test"
         MONGODB_URI: "mongodb://127.0.0.1:27017/smartCart"
-        # We add ALL database URI names just in case
-        DB_URI: "mongodb://127.0.0.1:27017/smartCart"
-        MONGO_URI: "mongodb://127.0.0.1:27017/smartCart"
-        
-        # --- THE MISSING PIECE ---
+        # --- CRITICAL FIX: JWT CONFIG ---
         JWT_SECRET: "test_secret_123"
         JWT_EXPIRE: "7d" 
-        # -------------------------
-
+        # --------------------------------
         PAYMOB_API_KEY: "dummy_key"
         PAYMOB_INTEGRATION_ID_CARD: "123"
         PAYMOB_INTEGRATION_ID_WALLET: "456"
@@ -112,11 +107,13 @@ jobs:
         PAYMOB_IFRAME_ID: "111"
       run: |
         cd backend
+        # Start server in background
         npm start > server.log 2>&1 &
         
         SERVER_PID=$!
         echo "Server PID: $SERVER_PID"
         
+        # Smart Wait Loop
         echo "Waiting for Server on 127.0.0.1:5000..."
         for i in {1..60}; do
           if nc -z 127.0.0.1 5000; then
@@ -130,8 +127,8 @@ jobs:
         cat server.log
         exit 1
 
-    # --- RUN TESTS ---
+    # --- RUN ALL TESTS (Functional + Security) ---
     - name: Run Pytest
-      run: pytest tests/functional
+      run: pytest tests/functional tests/security
       env:
          BASE_URL: "http://localhost:5000/api/v1"
