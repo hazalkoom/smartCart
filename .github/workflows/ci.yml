@@ -91,12 +91,19 @@ jobs:
 
     # --- START SERVER (FIXED) ---
     - name: Start Server
-      # Move variables here so they apply to the entire step environment
       env:
         PORT: 5000
         NODE_ENV: "test"
         MONGODB_URI: "mongodb://127.0.0.1:27017/smartCart"
+        # We add ALL database URI names just in case
+        DB_URI: "mongodb://127.0.0.1:27017/smartCart"
+        MONGO_URI: "mongodb://127.0.0.1:27017/smartCart"
+        
+        # --- THE MISSING PIECE ---
         JWT_SECRET: "test_secret_123"
+        JWT_EXPIRE: "7d" 
+        # -------------------------
+
         PAYMOB_API_KEY: "dummy_key"
         PAYMOB_INTEGRATION_ID_CARD: "123"
         PAYMOB_INTEGRATION_ID_WALLET: "456"
@@ -105,13 +112,11 @@ jobs:
         PAYMOB_IFRAME_ID: "111"
       run: |
         cd backend
-        # Start server in background
         npm start > server.log 2>&1 &
         
         SERVER_PID=$!
         echo "Server PID: $SERVER_PID"
         
-        # Smart Wait Loop
         echo "Waiting for Server on 127.0.0.1:5000..."
         for i in {1..60}; do
           if nc -z 127.0.0.1 5000; then
