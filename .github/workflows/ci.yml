@@ -7,7 +7,7 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  # JOB 1: Unit Tests (Fast Logic Check)
+  # JOB 1: Unit Tests
   unit-tests:
     name: Unit Tests (Jest)
     runs-on: ubuntu-latest
@@ -32,7 +32,7 @@ jobs:
         cd backend
         npm test
 
-  # JOB 2: Functional Tests (System Check)
+  # JOB 2: Functional Tests
   functional-tests:
     name: Functional Tests (Pytest)
     runs-on: ubuntu-latest
@@ -64,7 +64,6 @@ jobs:
       with:
         python-version: '3.10'
 
-    # Using the requirements file you just created!
     - name: Install Python Deps
       run: |
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
@@ -86,25 +85,27 @@ jobs:
     - name: Seed Database
       run: cd backend && node reset_db_hard.js
       env:
-        # We set BOTH names to be safe
+        # We set ALL variations to be safe for the seed script too
+        MONGODB_URI: "mongodb://127.0.0.1:27017/smartCart"
         DB_URI: "mongodb://127.0.0.1:27017/smartCart"
-        MONGO_URI: "mongodb://127.0.0.1:27017/smartCart"
 
-    # --- START SERVER (The Critical Fix) ---
+    # --- START SERVER (FIXED) ---
     - name: Start Server
+      # Move variables here so they apply to the entire step environment
+      env:
+        PORT: 5000
+        NODE_ENV: "test"
+        MONGODB_URI: "mongodb://127.0.0.1:27017/smartCart"
+        JWT_SECRET: "test_secret_123"
+        PAYMOB_API_KEY: "dummy_key"
+        PAYMOB_INTEGRATION_ID_CARD: "123"
+        PAYMOB_INTEGRATION_ID_WALLET: "456"
+        PAYMOB_INTEGRATION_ID_FAWRY: "789"
+        PAYMOB_HMAC_SECRET: "dummy_hmac"
+        PAYMOB_IFRAME_ID: "111"
       run: |
         cd backend
-        # 1. Set EVERY possible env var to prevent "undefined" crashes
-        # 2. Use dummy Paymob keys to prevent startup checks from failing
-        PORT=5000 \
-        NODE_ENV="test" \
-        DB_URI="mongodb://127.0.0.1:27017/smartCart" \
-        MONGO_URI="mongodb://127.0.0.1:27017/smartCart" \
-        JWT_SECRET="test_secret_123" \
-        PAYMOB_API_KEY="dummy_key" \
-        PAYMOB_INTEGRATION_ID_CARD="123" \
-        PAYMOB_INTEGRATION_ID_WALLET="456" \
-        PAYMOB_IFRAME_ID="789" \
+        # Start server in background
         npm start > server.log 2>&1 &
         
         SERVER_PID=$!
@@ -128,5 +129,4 @@ jobs:
     - name: Run Pytest
       run: pytest tests/functional
       env:
-         # Ensure tests know where to look
          BASE_URL: "http://localhost:5000/api/v1"
