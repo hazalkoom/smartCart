@@ -116,7 +116,7 @@ jobs:
           PAYMOB_INTEGRATION_ID_CARD: "5482753"
           PAYMOB_INTEGRATION_ID_WALLET: "5482764"
           PAYMOB_INTEGRATION_ID_FAWRY: "5482773"
-          PAYMOB_HMAC_SECRET: "dummy_paymob_hmac_secret"
+          PAYMOB_HMAC_SECRET: "9398BBEE4367A5BB6119DD67EECECC1D"
           PAYMOB_IFRAME_ID: "1000652"
         run: |
           cd backend
