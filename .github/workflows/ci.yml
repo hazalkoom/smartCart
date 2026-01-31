@@ -82,6 +82,21 @@ jobs:
       - name: Init MongoDB Replica Set
         run: |
           echo "Initializing Mongo replica set (rs0)..."
+          echo "Waiting for mongod to accept connections..."
+          for i in {1..60}; do
+            if docker exec smartcart-mongo mongosh --quiet --eval "db.runCommand({ ping: 1 })" >/dev/null 2>&1; then
+              echo "mongod is accepting connections"
+              break
+            fi
+            sleep 1
+          done
+
+          if ! docker exec smartcart-mongo mongosh --quiet --eval "db.runCommand({ ping: 1 })" >/dev/null 2>&1; then
+            echo "mongod is still not reachable. docker logs:"
+            docker logs smartcart-mongo || true
+            exit 1
+          fi
+
           docker exec smartcart-mongo mongosh --eval "try { rs.status() } catch (e) { rs.initiate({_id: 'rs0', members: [{ _id: 0, host: '127.0.0.1:27017' }]}) }"
 
           echo "Waiting for rs0 to become PRIMARY..."
