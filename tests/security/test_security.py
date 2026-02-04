@@ -11,7 +11,7 @@ from tests.test_config import BASE_URL, print_test_result, shared_data
 auth_url = f"{BASE_URL}/auth"
 product_url = f"{BASE_URL}/products"
 
-@pytest.mark.run(order=51)
+@pytest.mark.run(order=95)
 def test_security_rbac():
     print("\n--- 🛡️ Running Security (RBAC) Tests ---")
     
@@ -51,7 +51,7 @@ def test_security_rbac():
     assert success_delete
 
 
-@pytest.mark.run(order=52)
+@pytest.mark.run(order=96)
 def test_security_injection():
     print("\n--- 💉 Running Security (Injection) Tests ---")
     

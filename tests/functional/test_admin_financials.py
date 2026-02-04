@@ -10,7 +10,7 @@ cart_url = f"{BASE_URL}/cart"
 def get_unique_id():
     return uuid.uuid4().hex[:8]
 
-@pytest.mark.run(order=120)
+@pytest.mark.run(order=85)
 def test_fin_setup():
     # 1. Login Owner
     res = requests.post(f"{BASE_URL}/auth/login", json=OWNER_LOGIN)
@@ -47,7 +47,7 @@ def test_fin_setup():
     assert p_res.status_code == 201
     shared_data['prod_id'] = p_res.json()['data']['_id']
 
-@pytest.mark.run(order=121)
+@pytest.mark.run(order=86)
 def test_create_order_check_cost():
     email = f"buy_{get_unique_id()}@t.com"
     # FIX: Check registration & use strong password
@@ -65,7 +65,7 @@ def test_create_order_check_cost():
     assert ord_res.status_code == 201
     shared_data['ord_id'] = ord_res.json()['data']['order']['_id']
 
-@pytest.mark.run(order=122)
+@pytest.mark.run(order=87)
 def test_privacy_check():
     # Owner Check
     r1 = requests.get(f"{ord_url}/{shared_data['ord_id']}", headers=shared_data['owner_head'])
@@ -80,7 +80,7 @@ def test_privacy_check():
     item_admin = r2.json()['data']['items'][0]
     assert 'cost' not in item_admin, "Admin must NOT see cost"
 
-@pytest.mark.run(order=123)
+@pytest.mark.run(order=88)
 def test_strict_flow_enforcement():
     oid = shared_data['ord_id']
     h = shared_data['admin_head']
@@ -95,7 +95,7 @@ def test_strict_flow_enforcement():
     assert res_ship.status_code == 200
     assert res_ship.json()['data']['status'] == "Shipped"
 
-@pytest.mark.run(order=124)
+@pytest.mark.run(order=89)
 def test_cancel_restores_stock():
     oid = shared_data['ord_id']
     h = shared_data['admin_head']
@@ -107,7 +107,7 @@ def test_cancel_restores_stock():
     p_after = requests.get(f"{prod_url}/{shared_data['prod_id']}")
     assert p_after.json()['data']['stock'] == 10
 
-@pytest.mark.run(order=125)
+@pytest.mark.run(order=90)
 def test_cleanup_financials():
     requests.delete(f"{prod_url}/{shared_data['prod_id']}", headers=shared_data['owner_head'])
     requests.delete(f"{BASE_URL}/categories/{shared_data['fin_cat_id']}", headers=shared_data['owner_head'])

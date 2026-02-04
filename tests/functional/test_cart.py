@@ -10,7 +10,7 @@ owner_headers = {}
 
 # --- Helper Test (Order 27) ---
 
-@pytest.mark.run(order=27)
+@pytest.mark.run(order=44)
 def test_cart_setup():
     # 1. Log in as owner
     global owner_headers
@@ -52,7 +52,7 @@ def test_cart_setup():
     shared_data['cart_product_price'] = 10.50
 # --- 2. Cart (GET) Tests ---
 
-@pytest.mark.run(order=28)
+@pytest.mark.run(order=45)
 def test_get_empty_cart():
     res = requests.get(cart_url, headers=owner_headers)
     assert res.status_code == 200
@@ -61,7 +61,7 @@ def test_get_empty_cart():
 
 # --- 3. Add Item (POST) Tests ---
 
-@pytest.mark.run(order=29)
+@pytest.mark.run(order=46)
 def test_add_item_validation_fails():
     # Scenario 1: Missing ProductID
     res = requests.post(f"{cart_url}/items", json={"quantity": 1}, headers=owner_headers)
@@ -73,14 +73,14 @@ def test_add_item_validation_fails():
     assert res.status_code == 400
     assert "positive integer" in res.json()['error']['message']
 
-@pytest.mark.run(order=29)
+@pytest.mark.run(order=46)
 def test_add_item_product_not_found():
     fake_id = "605d5b1d9c3e1a001f7b8b1a"
     res = requests.post(f"{cart_url}/items", json={"productId": fake_id, "quantity": 1}, headers=owner_headers)
     assert res.status_code == 404
     assert res.json()['error']['message'] == "Product not found"
 
-@pytest.mark.run(order=30)
+@pytest.mark.run(order=47)
 def test_add_item_happy_path():
     product_id = shared_data['cart_product_id']
     res = requests.post(f"{cart_url}/items", json={"productId": product_id, "quantity": 2}, headers=owner_headers)
@@ -93,7 +93,7 @@ def test_add_item_happy_path():
     # Save the cart's item_id for later tests
     shared_data['cart_item_id'] = data['items'][0]['_id']
 
-@pytest.mark.run(order=31)
+@pytest.mark.run(order=48)
 def test_add_item_insufficient_stock():
     product_id = shared_data['cart_product_id']
     stock = shared_data['cart_product_stock'] # This is 50
@@ -101,7 +101,7 @@ def test_add_item_insufficient_stock():
     assert res.status_code == 400
     assert "Insufficient stock" in res.json()['error']['message']
 
-@pytest.mark.run(order=32)
+@pytest.mark.run(order=49)
 def test_add_item_again_updates_quantity():
     product_id = shared_data['cart_product_id']
     # We already have 2 in the cart, add 3 more
@@ -114,21 +114,21 @@ def test_add_item_again_updates_quantity():
 
 # --- 4. Update Item (PUT) Tests ---
 
-@pytest.mark.run(order=33)
+@pytest.mark.run(order=50)
 def test_update_item_validation_fails():
     item_id = shared_data['cart_item_id']
     res = requests.put(f"{cart_url}/items/{item_id}", json={"quantity": 0}, headers=owner_headers)
     assert res.status_code == 400
     assert "positive integer" in res.json()['error']['message']
 
-@pytest.mark.run(order=33)
+@pytest.mark.run(order=50)
 def test_update_item_not_found():
     fake_item_id = "605d5b1d9c3e1a001f7b8b1a"
     res = requests.put(f"{cart_url}/items/{fake_item_id}", json={"quantity": 10}, headers=owner_headers)
     assert res.status_code == 404
     assert res.json()['error']['message'] == "Item not found in cart"
 
-@pytest.mark.run(order=34)
+@pytest.mark.run(order=51)
 def test_update_item_insufficient_stock():
     item_id = shared_data['cart_item_id']
     stock = shared_data['cart_product_stock'] # This is 50
@@ -136,7 +136,7 @@ def test_update_item_insufficient_stock():
     assert res.status_code == 400
     assert "Insufficient stock" in res.json()['error']['message']
 
-@pytest.mark.run(order=35)
+@pytest.mark.run(order=52)
 def test_update_item_happy_path():
     item_id = shared_data['cart_item_id']
     res = requests.put(f"{cart_url}/items/{item_id}", json={"quantity": 10}, headers=owner_headers)
@@ -147,14 +147,14 @@ def test_update_item_happy_path():
 
 # --- 5. Remove Item (DELETE) Tests ---
 
-@pytest.mark.run(order=36)
+@pytest.mark.run(order=53)
 def test_remove_item_not_found():
     fake_item_id = "605d5b1d9c3e1a001f7b8b1a"
     res = requests.delete(f"{cart_url}/items/{fake_item_id}", headers=owner_headers)
     assert res.status_code == 404
     assert res.json()['error']['message'] == "Item not found in cart"
 
-@pytest.mark.run(order=37)
+@pytest.mark.run(order=54)
 def test_remove_item_happy_path():
     item_id = shared_data['cart_item_id']
     res = requests.delete(f"{cart_url}/items/{item_id}", headers=owner_headers)
@@ -164,7 +164,7 @@ def test_remove_item_happy_path():
 
 # --- 6. Clear Cart (DELETE) Test ---
 
-@pytest.mark.run(order=38)
+@pytest.mark.run(order=55)
 def test_clear_cart():
     # First, add an item back
     product_id = shared_data['cart_product_id']
@@ -180,13 +180,13 @@ def test_clear_cart():
 
 # --- 7. Security & Cleanup Tests ---
 
-@pytest.mark.run(order=39)
+@pytest.mark.run(order=56)
 def test_cart_security_no_token():
     res = requests.get(cart_url) # No headers
     assert res.status_code == 401
     assert res.json()['error']['code'] == 'TOKEN_MISSING'
 
-@pytest.mark.run(order=40)
+@pytest.mark.run(order=57)
 def test_cart_cleanup():
     # Clean up the product and category we made for this test file
     prod_id = shared_data['cart_product_id']

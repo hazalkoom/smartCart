@@ -113,6 +113,7 @@ def setup_data():
 
 # --- TESTS ---
 
+@pytest.mark.run(order=91)
 def test_webhook_impersonator_attack(setup_data):
     """
     Attack: Send valid data but invalid HMAC.
@@ -139,6 +140,7 @@ def test_webhook_impersonator_attack(setup_data):
     # Check if your backend sends JSON or text for 403
     # assert "Invalid HMAC" in res.text
 
+@pytest.mark.run(order=92)
 def test_webhook_man_in_the_middle_attack(setup_data):
     """
     Attack: Intercept valid payload, change amount, keep valid signature.
@@ -179,6 +181,7 @@ def test_webhook_man_in_the_middle_attack(setup_data):
     
     assert res.status_code == 403
 
+@pytest.mark.run(order=93)
 def test_webhook_happy_path_success(setup_data):
     """
     Valid Paymob Callback -> Order should become PAID.
@@ -233,6 +236,7 @@ def test_webhook_happy_path_success(setup_data):
     assert order_data['isPaid'] is True
     assert order_data.get('paidAt') is not None
 
+@pytest.mark.run(order=94)
 def test_webhook_idempotency(setup_data):
     """
     Send the same valid webhook again.

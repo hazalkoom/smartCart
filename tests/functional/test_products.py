@@ -14,7 +14,7 @@ def get_unique_id():
     return uuid.uuid4().hex[:8]
 
 # --- Helper Tests ---
-@pytest.mark.run(order=13)
+@pytest.mark.run(order=22)
 def test_product_setup_get_owner_token():
     global owner_headers
     if not shared_data.get('owner_token'):
@@ -25,7 +25,7 @@ def test_product_setup_get_owner_token():
     owner_headers = {"Authorization": f"Bearer {shared_data['owner_token']}"}
     print("Product tests are using the Owner token.")
 
-@pytest.mark.run(order=14)
+@pytest.mark.run(order=23)
 def test_product_setup_get_customer_token():
     global temp_customer_headers
     customer_email = f"cust_prod_{get_unique_id()}@example.com"
@@ -40,7 +40,7 @@ def test_product_setup_get_customer_token():
     temp_customer_headers = {"Authorization": f"Bearer {customer_token}"}
     print("Product tests created a temporary customer.")
 
-@pytest.mark.run(order=14.5)
+@pytest.mark.run(order=24)
 def test_product_setup_create_category():
     category_name = f"Test Product Category {get_unique_id()}"
     res = requests.post(category_url, json={"name": category_name}, headers=owner_headers)
@@ -51,46 +51,46 @@ def test_product_setup_create_category():
 
 # --- 2. Security Tests ---
 
-@pytest.mark.run(order=15)
+@pytest.mark.run(order=25)
 def test_product_security_post_no_token():
     res = requests.post(product_url, json={})
     assert res.status_code == 401 and res.json()['error']['code'] == 'TOKEN_MISSING'
 
-@pytest.mark.run(order=15)
+@pytest.mark.run(order=25)
 def test_product_security_post_customer_token():
     res = requests.post(product_url, json={}, headers=temp_customer_headers)
     assert res.status_code == 403 and res.json()['error']['code'] == 'FORBIDDEN'
 
-@pytest.mark.run(order=15)
+@pytest.mark.run(order=25)
 def test_product_security_put_no_token():
     res = requests.put(f"{product_url}/fake-id", json={})
     assert res.status_code == 401 and res.json()['error']['code'] == 'TOKEN_MISSING'
 
-@pytest.mark.run(order=15)
+@pytest.mark.run(order=25)
 def test_product_security_put_customer_token():
     res = requests.put(f"{product_url}/fake-id", json={}, headers=temp_customer_headers)
     assert res.status_code == 403 and res.json()['error']['code'] == 'FORBIDDEN'
 
-@pytest.mark.run(order=15)
+@pytest.mark.run(order=25)
 def test_product_security_delete_no_token():
     res = requests.delete(f"{product_url}/fake-id")
     assert res.status_code == 401 and res.json()['error']['code'] == 'TOKEN_MISSING'
 
-@pytest.mark.run(order=15)
+@pytest.mark.run(order=25)
 def test_product_security_delete_customer_token():
     res = requests.delete(f"{product_url}/fake-id", headers=temp_customer_headers)
     assert res.status_code == 403 and res.json()['error']['code'] == 'FORBIDDEN'
 
 # --- 3. Validation Tests ---
 
-@pytest.mark.run(order=16)
+@pytest.mark.run(order=26)
 def test_create_product_validation_missing_fields():
     res = requests.post(product_url, json={}, headers=owner_headers)
     assert res.status_code == 400
     msg = res.json()['error']['message']
     assert "name" in msg.lower() or "price" in msg.lower()
 
-@pytest.mark.run(order=16)
+@pytest.mark.run(order=26)
 def test_create_product_validation_bad_data():
     res = requests.post(product_url, json={
         "name": "Test", "description": "Test", "price": -10,
@@ -102,7 +102,7 @@ def test_create_product_validation_bad_data():
     assert "Price must be a positive number" in msg
     assert "Stock must be a positive integer" in msg
 
-@pytest.mark.run(order=16)
+@pytest.mark.run(order=26)
 def test_update_product_validation_bad_data():
     res = requests.put(f"{product_url}/fake-id", json={"price": -99, "stock": "not-a-number"}, headers=owner_headers)
     assert res.status_code == 400
@@ -112,7 +112,7 @@ def test_update_product_validation_bad_data():
 
 # --- 4. Logic Tests ---
 
-@pytest.mark.run(order=17)
+@pytest.mark.run(order=27)
 def test_create_product_logic_bad_category():
     res = requests.post(product_url, json={
         "name": "Test", "description": "Test", "price": 100,
@@ -121,7 +121,7 @@ def test_create_product_logic_bad_category():
     assert res.status_code == 404
     assert res.json()['error']['message'] == 'Category not found'
 
-@pytest.mark.run(order=18)
+@pytest.mark.run(order=28)
 def test_create_product_happy_path():
     assert 'product_test_category_id' in shared_data
     
@@ -143,7 +143,7 @@ def test_create_product_happy_path():
     shared_data['product_slug'] = res.json()['data']['slug']
     shared_data['product_sku'] = unique_sku 
 
-@pytest.mark.run(order=19)
+@pytest.mark.run(order=29)
 def test_create_product_logic_duplicate_sku():
     product_data = {
         "name": "CopyCat", "description": "Desc", "price": 999,
@@ -157,7 +157,7 @@ def test_create_product_logic_duplicate_sku():
 
 # --- 5. Read Tests ---
 
-@pytest.mark.run(order=20)
+@pytest.mark.run(order=30)
 def test_get_all_products_public():
     res = requests.get(product_url)
     assert res.status_code == 200
@@ -165,28 +165,28 @@ def test_get_all_products_public():
     found = any(p['_id'] == my_id for p in res.json()['data'])
     assert found, f"Created product {my_id} not found in getAll list"
 
-@pytest.mark.run(order=20)
+@pytest.mark.run(order=30)
 def test_get_single_product_public_happy_path():
     slug = shared_data['product_slug']
     res = requests.get(f"{product_url}/{slug}")
     assert res.status_code == 200
     assert res.json()['data']['slug'] == slug
 
-@pytest.mark.run(order=20)
+@pytest.mark.run(order=30)
 def test_get_single_product_public_not_found():
     res = requests.get(f"{product_url}/does-not-exist-{get_unique_id()}")
     assert res.status_code == 404
 
 # --- 6. Update Tests ---
 
-@pytest.mark.run(order=21)
+@pytest.mark.run(order=31)
 def test_update_product_logic_not_found():
     fake_id = "605d5b1d9c3e1a001f7b8b1a"
     res = requests.put(f"{product_url}/{fake_id}", json={}, headers=owner_headers)
     assert res.status_code == 404
     assert res.json()['error']['message'] == 'Product not found'
 
-@pytest.mark.run(order=22)
+@pytest.mark.run(order=32)
 def test_update_product_logic_duplicate_sku():
     sku_b = f"SKU-SECOND-{get_unique_id()}"
     product_b_data = {
@@ -206,7 +206,7 @@ def test_update_product_logic_duplicate_sku():
     assert res_update.status_code == 400
     assert "SKU already exists" in res_update.json()['error']['message']
 
-@pytest.mark.run(order=23)
+@pytest.mark.run(order=33)
 def test_update_product_happy_path():
     product_id = shared_data['product_id']
     new_name = f"SuperGamer Laptop v2 {get_unique_id()}"
@@ -224,20 +224,20 @@ def test_update_product_happy_path():
 
 # --- 7. Delete Tests ---
 
-@pytest.mark.run(order=24)
+@pytest.mark.run(order=34)
 def test_delete_product_happy_path():
     product_id = shared_data['product_id']
     res = requests.delete(f"{product_url}/{product_id}", headers=owner_headers)
     assert res.status_code == 200
     assert res.json().get('success') == True or 'trash' in res.json().get('message', '')
 
-@pytest.mark.run(order=25)
+@pytest.mark.run(order=35)
 def test_delete_product_logic_not_found():
     product_id = shared_data['product_id']
     res = requests.delete(f"{product_url}/{product_id}", headers=owner_headers)
     assert res.status_code in [200, 404]
 
-@pytest.mark.run(order=26)
+@pytest.mark.run(order=36)
 def test_product_cleanup_category():
     category_id = shared_data['product_test_category_id']
     res = requests.delete(f"{category_url}/{category_id}", headers=owner_headers)

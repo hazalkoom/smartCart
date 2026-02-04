@@ -6,7 +6,7 @@ from tests.test_config import BASE_URL, OWNER_LOGIN, print_test_result, shared_d
 category_url = f"{BASE_URL}/categories"
 owner_headers = {}
 
-@pytest.mark.run(order=4)
+@pytest.mark.run(order=13)
 def test_get_owner_token():
     global owner_headers
     
@@ -22,21 +22,21 @@ def test_get_owner_token():
     assert success, "Could not get owner token. Did you create 'owner@test.com' in MongoDB?"
 
 
-@pytest.mark.run(order=5)
+@pytest.mark.run(order=14)
 def test_get_all_categories_public():
     res = requests.get(category_url)
     success = res.status_code == 200 and 'count' in res.json()
     print_test_result("GET - 1: Get All (Public)", success, res)
     assert success
 
-@pytest.mark.run(order=6)
+@pytest.mark.run(order=15)
 def test_category_security_no_token():
     res = requests.post(category_url, json={"name": "No Token Test"})
     success = res.status_code == 401 and res.json()['error']['code'] == 'TOKEN_MISSING'
     print_test_result("Security - 1: POST without token (401)", success, res)
     assert success
 
-@pytest.mark.run(order=7)
+@pytest.mark.run(order=16)
 def test_category_security_customer_role():
     customer_email = f"customer-{int(time.time())}@example.com"
     
@@ -63,7 +63,7 @@ def test_category_security_customer_role():
     print_test_result("Security - 2: POST with Customer token (403)", success, res)
     assert success
 
-@pytest.mark.run(order=8)
+@pytest.mark.run(order=17)
 def test_create_category_validation():
     # Scenario 1: Missing name
     res_missing = requests.post(category_url, json={"name": ""}, headers=owner_headers)
@@ -78,7 +78,7 @@ def test_create_category_validation():
     print_test_result("POST - 2: Validation (Long Name)", success_long, res_long)
     assert success_long
 
-@pytest.mark.run(order=9)
+@pytest.mark.run(order=18)
 def test_create_category_logic():
     # Scenario 1: Happy Path
     category_data = {"name": "Test Electronics", "description": "A test category"}
@@ -97,7 +97,7 @@ def test_create_category_logic():
     print_test_result("POST - 4: Logic (Duplicate Name)", success_dup, res_dup)
     assert success_dup
 
-@pytest.mark.run(order=10)
+@pytest.mark.run(order=19)
 def test_get_single_category_public():
     slug = shared_data.get('category_slug')
     assert slug, "Create test failed, no slug to test GET"
@@ -114,7 +114,7 @@ def test_get_single_category_public():
     print_test_result("GET - 3: Get Single (Not Found)", success_404, res_404)
     assert success_404
 
-@pytest.mark.run(order=11)
+@pytest.mark.run(order=20)
 def test_update_category_logic():
     category_id = shared_data.get('category_id')
     assert category_id, "Create test failed, no ID to test PUT"
@@ -133,7 +133,7 @@ def test_update_category_logic():
     print_test_result("PUT - 2: Logic (Not Found)", success_404, res_404)
     assert success_404
 
-@pytest.mark.run(order=12)
+@pytest.mark.run(order=21)
 def test_delete_category():
     category_id = shared_data.get('category_id')
     assert category_id, "Create test failed, no ID to test DELETE"

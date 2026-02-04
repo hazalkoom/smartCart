@@ -9,7 +9,7 @@ auth_url = f"{BASE_URL}/auth"
 def get_unique_id():
     return uuid.uuid4().hex[:8]
 
-@pytest.mark.run(order=100)
+@pytest.mark.run(order=5)
 def test_setup_users():
     # 1. Login Owner
     res = requests.post(f"{auth_url}/login", json=OWNER_LOGIN)
@@ -44,7 +44,7 @@ def test_setup_users():
     
     shared_data['target_id'] = res_user.json()['data']['_id']
 
-@pytest.mark.run(order=101)
+@pytest.mark.run(order=6)
 def test_get_all_users_owner_pagination():
     res = requests.get(f"{user_url}?limit=2&page=1", headers=shared_data['owner_header'])
     assert res.status_code == 200
@@ -52,19 +52,19 @@ def test_get_all_users_owner_pagination():
     assert isinstance(res.json()['data'], list)
     assert len(res.json()['data']) <= 2
 
-@pytest.mark.run(order=102)
+@pytest.mark.run(order=7)
 def test_get_all_users_security_intruder():
     res = requests.get(user_url, headers=shared_data['admin_header'])
     assert res.status_code == 403
 
-@pytest.mark.run(order=103)
+@pytest.mark.run(order=8)
 def test_promote_user_to_admin():
     target_id = shared_data['target_id']
     res = requests.put(f"{user_url}/{target_id}", json={"role": "admin"}, headers=shared_data['owner_header'])
     assert res.status_code == 200
     assert res.json()['data']['role'] == "admin"
 
-@pytest.mark.run(order=104)
+@pytest.mark.run(order=9)
 def test_owner_cannot_demote_self():
     owner_id = shared_data['owner_id']
     res = requests.put(f"{user_url}/{owner_id}", json={"role": "customer"}, headers=shared_data['owner_header'])
@@ -75,13 +75,13 @@ def test_owner_cannot_demote_self():
     msg = response_json.get('message') or response_json.get('error', {}).get('message', '')
     assert "Owner" in msg
 
-@pytest.mark.run(order=105)
+@pytest.mark.run(order=10)
 def test_update_non_existent_user():
     fake_id = "605d5b1d9c3e1a001f7b8b1a"
     res = requests.put(f"{user_url}/{fake_id}", json={"role": "admin"}, headers=shared_data['owner_header'])
     assert res.status_code == 404
 
-@pytest.mark.run(order=106)
+@pytest.mark.run(order=11)
 def test_delete_user_lifecycle():
     target_id = shared_data['target_id']
     res_del = requests.delete(f"{user_url}/{target_id}", headers=shared_data['owner_header'])
@@ -90,7 +90,7 @@ def test_delete_user_lifecycle():
     res_get = requests.get(f"{user_url}/{target_id}", headers=shared_data['owner_header'])
     assert res_get.status_code == 404
 
-@pytest.mark.run(order=107)
+@pytest.mark.run(order=12)
 def test_owner_delete_self_fails():
     owner_id = shared_data['owner_id']
     res = requests.delete(f"{user_url}/{owner_id}", headers=shared_data['owner_header'])

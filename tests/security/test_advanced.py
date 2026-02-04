@@ -5,7 +5,7 @@ from tests.test_config import BASE_URL, print_test_result, shared_data
 auth_url = f"{BASE_URL}/auth"
 products_url = f"{BASE_URL}/products"
 
-@pytest.mark.run(order=56)
+@pytest.mark.run(order=100)
 def test_security_xss_injection():
     """
     Attempt to inject malicious JavaScript into user fields.
@@ -41,7 +41,7 @@ def test_security_xss_injection():
         print_test_result("Security - XSS: Server rejected payload", is_rejection, res)
         assert is_rejection
 
-@pytest.mark.run(order=57)
+@pytest.mark.run(order=101)
 def test_security_hpp_parameter_pollution():
     """
     HTTP Parameter Pollution (HPP) Attack.
@@ -55,7 +55,7 @@ def test_security_hpp_parameter_pollution():
     print_test_result("Security - HPP: Server survived duplicate params", is_safe, res_hpp)
     assert is_safe
 
-@pytest.mark.run(order=58)
+@pytest.mark.run(order=102)
 def test_security_method_tampering():
     """
     Try to use an invalid HTTP method on a known route.
@@ -69,7 +69,7 @@ def test_security_method_tampering():
     print_test_result("Security - Method: Invalid Verb Blocked", success, res)
     assert success
 
-@pytest.mark.run(order=59)
+@pytest.mark.run(order=103)
 def test_security_directory_traversal():
     """
     Attempt to access system files via URL manipulation.
@@ -83,7 +83,7 @@ def test_security_directory_traversal():
 
 # --- NEW TESTS ADDED BELOW ---
 
-@pytest.mark.run(order=59.1)
+@pytest.mark.run(order=103.1)
 def test_security_sensitive_data_exposure():
     """
     Verify API does not leak password hashes or internal DB versions (__v).
@@ -109,7 +109,7 @@ def test_security_sensitive_data_exposure():
         # If login failed (maybe XSS test failed earlier), skip
         pytest.skip("Skipping Data Leak test - Login failed")
 
-@pytest.mark.run(order=59.2)
+@pytest.mark.run(order=103.2)
 def test_security_jwt_tampering():
     """
     Verify that modifying the JWT token (even slightly) causes 401.

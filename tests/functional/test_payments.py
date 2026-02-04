@@ -20,7 +20,7 @@ def get_unique_id():
     return uuid.uuid4().hex[:8]
 
 # --- 1. SETUP (Order 70) ---
-@pytest.mark.run(order=70)
+@pytest.mark.run(order=68)
 def test_payment_setup():
     """
     Sets up the environment for payment tests:
@@ -97,14 +97,14 @@ def test_payment_setup():
 
 
 # --- A. SECURITY & AUTHORIZATION (Order 71) ---
-@pytest.mark.run(order=71)
+@pytest.mark.run(order=69)
 def test_pay_security_401_no_token():
     order_id = shared_data['pay_order_id']
     res = requests.post(f"{order_url}/{order_id}/pay", json={"paymentMethod": "card"})
     assert res.status_code == 401
     assert res.json()['error']['code'] == 'TOKEN_MISSING'
 
-@pytest.mark.run(order=71)
+@pytest.mark.run(order=69)
 def test_pay_security_403_wrong_user():
     """User B tries to pay for User A's order"""
     order_id = shared_data['pay_order_id']
@@ -115,7 +115,7 @@ def test_pay_security_403_wrong_user():
     # Matches the error thrown in your controller
     assert "not authorized" in res.json()['error']['message'].lower()
 
-@pytest.mark.run(order=71)
+@pytest.mark.run(order=69)
 def test_pay_security_404_invalid_id():
     headers = shared_data['pay_user_headers']
     # Valid MongoID format but doesn't exist
@@ -126,7 +126,7 @@ def test_pay_security_404_invalid_id():
 
 
 # --- B. INPUT VALIDATION (Order 72) ---
-@pytest.mark.run(order=72)
+@pytest.mark.run(order=70)
 def test_pay_validation_missing_method():
     headers = shared_data['pay_user_headers']
     order_id = shared_data['pay_order_id']
@@ -135,7 +135,7 @@ def test_pay_validation_missing_method():
     assert res.status_code == 400
     assert "required" in res.json()['error']['message']
 
-@pytest.mark.run(order=72)
+@pytest.mark.run(order=70)
 def test_pay_validation_invalid_method():
     headers = shared_data['pay_user_headers']
     order_id = shared_data['pay_order_id']
@@ -144,7 +144,7 @@ def test_pay_validation_invalid_method():
     assert res.status_code == 400
     assert "Invalid payment method" in res.json()['error']['message']
 
-@pytest.mark.run(order=72)
+@pytest.mark.run(order=70)
 def test_pay_validation_wallet_bad_phone_regex():
     headers = shared_data['pay_user_headers']
     order_id = shared_data['pay_order_id']
@@ -156,7 +156,7 @@ def test_pay_validation_wallet_bad_phone_regex():
 
 
 # --- C. BUSINESS LOGIC (Order 73) ---
-@pytest.mark.run(order=73)
+@pytest.mark.run(order=71)
 def test_pay_logic_wallet_requirement():
     """
     Test the specific logic: If user has no phone in DB, 
@@ -183,7 +183,7 @@ def test_pay_logic_wallet_requirement():
 # NOTE: These tests assume your backend is connected to Paymob Sandbox 
 # and the credentials in .env are valid.
 
-@pytest.mark.run(order=74)
+@pytest.mark.run(order=72)
 def test_pay_happy_card_iframe():
     headers = shared_data['pay_user_headers']
     order_id = shared_data['pay_order_id']
@@ -198,7 +198,7 @@ def test_pay_happy_card_iframe():
     assert "accept.paymob.com" in res.json()['data']['url']
     assert "payment_token=" in res.json()['data']['url']
 
-@pytest.mark.run(order=74)
+@pytest.mark.run(order=72)
 def test_pay_happy_wallet_redirect():
     headers = shared_data['pay_user_headers']
     order_id = shared_data['pay_order_id']
@@ -214,7 +214,7 @@ def test_pay_happy_wallet_redirect():
     assert res.json()['data']['action'] == 'redirect'
     assert "accept.paymob" in res.json()['data']['url']
 
-@pytest.mark.run(order=74)
+@pytest.mark.run(order=72)
 def test_pay_happy_fawry_code():
     headers = shared_data['pay_user_headers']
     order_id = shared_data['pay_order_id']
@@ -231,14 +231,14 @@ def test_pay_happy_fawry_code():
 
 
 # --- E. STATE & DOUBLE PAYMENT (Order 75) ---
-@pytest.mark.run(order=75)
+@pytest.mark.run(order=73)
 def test_pay_prevent_double_payment():
     # Skipping this logic test as discussed, since we can't mock the Webhook easily here
     pass
 
 
 # --- F. CLEANUP (Order 76) ---
-@pytest.mark.run(order=76)
+@pytest.mark.run(order=74)
 def test_payment_cleanup():
     headers = shared_data.get('owner_token')
     if headers:

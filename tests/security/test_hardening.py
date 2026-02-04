@@ -5,7 +5,7 @@ from tests.test_config import BASE_URL
 # --- CONFIGURATION ---
 PAYLOAD_LIMIT_BYTES = 10 * 1024 
 
-@pytest.mark.run(order=53)
+@pytest.mark.run(order=97)
 def test_security_headers_helmet():
     """
     Verify that Helmet.js is active and setting critical security headers.
@@ -28,7 +28,7 @@ def test_security_headers_helmet():
     # Express adds 'X-Powered-By: Express' by default. Helmet removes it.
     assert 'X-Powered-By' not in headers
 
-@pytest.mark.run(order=54)
+@pytest.mark.run(order=98)
 def test_security_payload_limit():
     """
     Verify the 10kb body limit prevents Denial of Service (DoS) via large payloads.
@@ -53,7 +53,7 @@ def test_security_payload_limit():
     
     assert success
 
-@pytest.mark.run(order=55)
+@pytest.mark.run(order=99)
 def test_security_error_leakage():
     """
     Ensure the API does not leak Stack Traces in production/testing.

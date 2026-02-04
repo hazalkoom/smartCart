@@ -10,7 +10,7 @@ cat_url = f"{BASE_URL}/categories"
 def get_unique_id():
     return uuid.uuid4().hex[:8]
 
-@pytest.mark.run(order=110)
+@pytest.mark.run(order=37)
 def test_product_setup_bulk():
     res = requests.post(f"{BASE_URL}/auth/login", json=OWNER_LOGIN)
     shared_data['owner_header'] = {"Authorization": f"Bearer {res.json()['data']['token']}"}
@@ -46,7 +46,7 @@ def test_product_setup_bulk():
 
     shared_data['prod_ids'] = ids
 
-@pytest.mark.run(order=111)
+@pytest.mark.run(order=38)
 def test_filter_low_stock():
     res = requests.get(f"{prod_url}?stockStatus=low")
     assert res.status_code == 200
@@ -54,7 +54,7 @@ def test_filter_low_stock():
     assert shared_data['prod_ids'][0] in ids
     assert shared_data['prod_ids'][1] not in ids
 
-@pytest.mark.run(order=112)
+@pytest.mark.run(order=39)
 def test_filter_out_of_stock():
     res = requests.get(f"{prod_url}?stockStatus=out")
     assert res.status_code == 200
@@ -62,21 +62,21 @@ def test_filter_out_of_stock():
     assert shared_data['prod_ids'][1] in ids
     assert shared_data['prod_ids'][0] not in ids
 
-@pytest.mark.run(order=113)
+@pytest.mark.run(order=40)
 def test_search_keyword():
     res = requests.get(f"{prod_url}?keyword=Mouse")
     assert res.status_code == 200
     ids = [p['_id'] for p in res.json()['data']]
     assert shared_data['prod_ids'][2] in ids
 
-@pytest.mark.run(order=114)
+@pytest.mark.run(order=41)
 def test_pagination_logic():
     res = requests.get(f"{prod_url}?limit=1&page=1")
     assert res.status_code == 200
     assert len(res.json()['data']) == 1
     assert res.json()['pages'] >= 1
 
-@pytest.mark.run(order=115)
+@pytest.mark.run(order=42)
 def test_soft_delete_flow():
     target_id = shared_data['prod_ids'][0]
     
@@ -93,7 +93,7 @@ def test_soft_delete_flow():
     ids = [p['_id'] for p in res_get.json()['data']]
     assert target_id not in ids
 
-@pytest.mark.run(order=116)
+@pytest.mark.run(order=43)
 def test_cleanup_admin_products():
     for pid in shared_data['prod_ids']:
         requests.delete(f"{prod_url}/{pid}", headers=shared_data['owner_header'])

@@ -12,7 +12,7 @@ owner_headers = {}
 customer_headers = {}
 
 # --- 1. SETUP (Order 51) ---
-@pytest.mark.run(order=51)
+@pytest.mark.run(order=75)
 def test_review_setup():
     """
     1. Login as Owner (to create product)
@@ -67,7 +67,7 @@ def test_review_setup():
 
 
 # --- 2. CREATE REVIEW (Order 52) ---
-@pytest.mark.run(order=52)
+@pytest.mark.run(order=76)
 def test_create_review_validation():
     headers = shared_data['review_customer_headers']
     
@@ -89,7 +89,7 @@ def test_create_review_validation():
     # Matches "between 1 and 5" regardless of casing
     assert "between 1 and 5" in error_msg
 
-@pytest.mark.run(order=53)
+@pytest.mark.run(order=77)
 def test_create_review_happy_path():
     headers = shared_data['review_customer_headers']
     product_id = shared_data['review_product_id']
@@ -108,7 +108,7 @@ def test_create_review_happy_path():
     # Save Review ID
     shared_data['review_id'] = res.json()['data']['review']['_id']
 
-@pytest.mark.run(order=54)
+@pytest.mark.run(order=78)
 def test_prevent_duplicate_reviews():
     headers = shared_data['review_customer_headers']
     product_id = shared_data['review_product_id']
@@ -128,7 +128,7 @@ def test_prevent_duplicate_reviews():
         assert res.status_code == 400
         assert "already reviewed" in res.json()['error']['message']
 
-@pytest.mark.run(order=55)
+@pytest.mark.run(order=79)
 def test_verify_product_stats_updated():
     # Check if the product now has rating 5 and count 1
     slug = shared_data['review_product_slug']
@@ -142,7 +142,7 @@ def test_verify_product_stats_updated():
 
 
 # --- 3. UPDATE REVIEW (Order 56) ---
-@pytest.mark.run(order=56)
+@pytest.mark.run(order=80)
 def test_update_review_permissions():
     review_id = shared_data['review_id']
     headers = shared_data['review_owner_headers']
@@ -152,7 +152,7 @@ def test_update_review_permissions():
     assert res.status_code == 403
     assert "not authorized" in res.json()['error']['message'].lower()
 
-@pytest.mark.run(order=57)
+@pytest.mark.run(order=81)
 def test_update_review_happy_path():
     review_id = shared_data['review_id']
     headers = shared_data['review_customer_headers']
@@ -163,7 +163,7 @@ def test_update_review_happy_path():
     assert res.status_code == 200
     assert res.json()['data']['review']['rating'] == 3
 
-@pytest.mark.run(order=58)
+@pytest.mark.run(order=82)
 def test_verify_stats_after_update():
     # Give the DB a moment to run the aggregation
     time.sleep(0.5)
@@ -175,7 +175,7 @@ def test_verify_stats_after_update():
 
 
 # --- 4. DELETE REVIEW (Order 59) ---
-@pytest.mark.run(order=59)
+@pytest.mark.run(order=83)
 def test_delete_review_happy_path():
     review_id = shared_data['review_id']
     headers = shared_data['review_customer_headers']
@@ -183,7 +183,7 @@ def test_delete_review_happy_path():
     res = requests.delete(f"{review_url}/{review_id}", headers=headers)
     assert res.status_code == 204 # No Content
 
-@pytest.mark.run(order=59.5)
+@pytest.mark.run(order=83.5)
 def test_verify_stats_after_delete():
     # Product rating should reset to 0
     slug = shared_data['review_product_slug']
@@ -193,7 +193,7 @@ def test_verify_stats_after_delete():
 
 
 # --- 5. CLEANUP (Order 60) ---
-@pytest.mark.run(order=60)
+@pytest.mark.run(order=84)
 def test_review_cleanup():
     headers = shared_data['review_owner_headers']
     prod_id = shared_data['review_product_id']
