@@ -12,6 +12,30 @@ const { protect } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
+
+
+
+
+
+router.post('/register', registerUser);
+
+
+router.post('/login', loginUser);
+
+
+router.post('/forgot-password', forgotPassword);
+
+
+router.post('/reset-password/:token', resetPassword);
+
+
+router.get('/me', protect, getMe);
+
+
+router.put('/updatedetails', protect, updateDetails);
+
+module.exports = router;
+
 /**
  * @swagger
  * components:
@@ -112,7 +136,6 @@ const router = express.Router();
  *       400:
  *         description: Invalid input or Email already exists
  */
-router.post('/register', registerUser);
 
 /**
  * @swagger
@@ -136,7 +159,6 @@ router.post('/register', registerUser);
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', loginUser);
 
 /**
  * @swagger
@@ -162,7 +184,6 @@ router.post('/login', loginUser);
  *       404:
  *         description: User not found
  */
-router.post('/forgot-password', forgotPassword);
 
 /**
  * @swagger
@@ -196,7 +217,6 @@ router.post('/forgot-password', forgotPassword);
  *       400:
  *         description: Invalid token
  */
-router.post('/reset-password/:token', resetPassword);
 
 /**
  * @swagger
@@ -221,7 +241,6 @@ router.post('/reset-password/:token', resetPassword);
  *       401:
  *         description: Not authorized
  */
-router.get('/me', protect, getMe);
 
 /**
  * @swagger
@@ -257,6 +276,3 @@ router.get('/me', protect, getMe);
  *                 data:
  *                   $ref: '#/components/schemas/User'
  */
-router.put('/updatedetails', protect, updateDetails);
-
-module.exports = router;
