@@ -101,6 +101,36 @@ def test_add_item_insufficient_stock():
     assert res.status_code == 400
     assert "Insufficient stock" in res.json()['error']['message']
 
+
+@pytest.mark.run(order=48.5)
+def test_add_item_zero_stock_product():
+    """
+    Gap Analysis Test: Attempt to add a product that has zero stock.
+    """
+    # Create a product with zero stock
+    cat_id = shared_data['cart_test_category_id']
+    zero_stock_product = {
+        "name": f"Zero Stock Product {int(time.time())}",
+        "price": 15.00,
+        "sku": f"ZERO-{int(time.time())}",
+        "stock": 0,
+        "categoryId": cat_id,
+        "description": "This product has no stock"
+    }
+    
+    res_create = requests.post(product_url, json=zero_stock_product, headers=owner_headers)
+    assert res_create.status_code == 201, "Failed to create zero stock product"
+    
+    zero_prod_id = res_create.json()['data']['_id']
+    shared_data['zero_stock_product_id'] = zero_prod_id
+    
+    # Try to add it to cart - should fail
+    res = requests.post(f"{cart_url}/items", json={"productId": zero_prod_id, "quantity": 1}, headers=owner_headers)
+    
+    assert res.status_code == 400, f"Expected 400, got {res.status_code}"
+    assert "stock" in res.json()['error']['message'].lower() or "insufficient" in res.json()['error']['message'].lower()
+
+
 @pytest.mark.run(order=49)
 def test_add_item_again_updates_quantity():
     product_id = shared_data['cart_product_id']

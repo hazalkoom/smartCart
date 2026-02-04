@@ -165,6 +165,36 @@ def test_get_all_products_public():
     found = any(p['_id'] == my_id for p in res.json()['data'])
     assert found, f"Created product {my_id} not found in getAll list"
 
+
+@pytest.mark.run(order=30.1)
+def test_get_products_pagination():
+    """
+    Gap Analysis Test: Verify pagination parameters work correctly.
+    """
+    # Test with page and limit
+    res = requests.get(f"{product_url}?page=1&limit=5")
+    assert res.status_code == 200
+    
+    data = res.json()
+    
+    # Should return at most 5 products
+    products = data.get('data', [])
+    assert len(products) <= 5, f"Expected at most 5 products, got {len(products)}"
+    
+    # Check if pagination info is in response (depends on implementation)
+    # Common patterns: pagination object, count, total, page info
+    has_pagination = (
+        'pagination' in data or 
+        'count' in data or 
+        'total' in data or 
+        'totalPages' in data
+    )
+    
+    # Test page 2 (may be empty if not enough products)
+    res_page2 = requests.get(f"{product_url}?page=2&limit=5")
+    assert res_page2.status_code == 200
+
+
 @pytest.mark.run(order=30)
 def test_get_single_product_public_happy_path():
     slug = shared_data['product_slug']

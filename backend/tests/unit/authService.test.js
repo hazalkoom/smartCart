@@ -137,4 +137,89 @@ describe('AuthService', () => {
       expect(generateToken).not.toHaveBeenCalled();
     });
   });
+
+  describe('forgotPassword', () => {
+    it('throws error when email is not found', async () => {
+      User.findOne.mockResolvedValue(null);
+
+      await expect(authService.forgotPassword('nonexistent@test.com')).rejects.toThrow(
+        'There is no user with that email'
+      );
+
+      expect(User.findOne).toHaveBeenCalledWith({ email: 'nonexistent@test.com' });
+    });
+
+    it('generates reset token, saves user, and returns raw token', async () => {
+      const mockUser = {
+        _id: 'user-id-reset',
+        email: 'reset@test.com',
+        getResetPasswordToken: jest.fn().mockReturnValue('raw-reset-token-123'),
+        save: jest.fn().mockResolvedValue(true),
+      };
+
+      User.findOne.mockResolvedValue(mockUser);
+
+      const result = await authService.forgotPassword('reset@test.com');
+
+      expect(User.findOne).toHaveBeenCalledWith({ email: 'reset@test.com' });
+      expect(mockUser.getResetPasswordToken).toHaveBeenCalled();
+      expect(mockUser.save).toHaveBeenCalledWith({ validateBeforeSave: false });
+      expect(result).toBe('raw-reset-token-123');
+    });
+  });
+
+  describe('resetPassword', () => {
+    it('throws error for invalid or expired token', async () => {
+      User.findOne.mockResolvedValue(null);
+
+      await expect(authService.resetPassword('invalid-token', 'newpass123')).rejects.toThrow(
+        'Invalid token or token has expired'
+      );
+
+      // Verify it searched with hashed token and expiry check
+      expect(User.findOne).toHaveBeenCalledWith({
+        resetPasswordToken: expect.any(String),
+        resetPasswordExpire: { $gt: expect.any(Number) },
+      });
+    });
+
+    it('updates password and clears reset fields on valid token', async () => {
+      const mockUser = {
+        _id: 'user-id-4',
+        password: 'old-hashed-password',
+        resetPasswordToken: 'hashed-token',
+        resetPasswordExpire: Date.now() + 600000,
+        save: jest.fn().mockResolvedValue(true),
+      };
+
+      User.findOne.mockResolvedValue(mockUser);
+
+      const result = await authService.resetPassword('valid-raw-token', 'newSecurePass123');
+
+      expect(mockUser.password).toBe('newSecurePass123');
+      expect(mockUser.resetPasswordToken).toBeUndefined();
+      expect(mockUser.resetPasswordExpire).toBeUndefined();
+      expect(mockUser.save).toHaveBeenCalled();
+      expect(result).toBe(mockUser);
+    });
+
+    it('hashes the incoming token with SHA256 before searching', async () => {
+      const crypto = require('crypto');
+      const testToken = 'my-test-token';
+      const expectedHash = crypto.createHash('sha256').update(testToken).digest('hex');
+
+      User.findOne.mockResolvedValue(null);
+
+      try {
+        await authService.resetPassword(testToken, 'anypass');
+      } catch (e) {
+        // Expected to throw
+      }
+
+      expect(User.findOne).toHaveBeenCalledWith({
+        resetPasswordToken: expectedHash,
+        resetPasswordExpire: { $gt: expect.any(Number) },
+      });
+    });
+  });
 });

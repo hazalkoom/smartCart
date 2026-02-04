@@ -207,6 +207,21 @@ const payOrderValidationRules = [
     .withMessage('Invalid Egyptian mobile number. Must start with 010, 011, 012, or 015 followed by 8 digits'),
 ];
 
+const forgotPasswordValidationRules = [
+  body('email')
+    .notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Please provide a valid email address')
+    // This normalizeEmail is CRITICAL for security (converts inputs to string)
+    .normalizeEmail(), 
+];
+
+const resetPasswordValidationRules = [
+  body('password')
+    .notEmpty().withMessage('New password is required')
+    .isString()
+    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+];
+
 module.exports = {
   validate,
   categoryValidationRules,
@@ -219,4 +234,6 @@ module.exports = {
   reviewValidationRules,
   reviewUpdateValidationRules,
   payOrderValidationRules,
+  forgotPasswordValidationRules,
+  resetPasswordValidationRules,
 };

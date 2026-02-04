@@ -139,3 +139,77 @@ def test_update_details():
     
     print_test_result("Update - 3: Email Update Ignored (Security Check)", email_unchanged and name_changed, res_hack)
     assert email_unchanged
+
+
+@pytest.mark.run(order=4.1)
+def test_forgot_password_happy_path():
+    print("\n--- 🧪 Running Forgot Password Tests ---")
+    
+    # Use the TEST_USER email from earlier tests
+    res = requests.post(f"{auth_url}/forgot-password", json={"email": TEST_USER['email']})
+    
+    success = res.status_code == 200 and res.json().get('success') == True
+    print_test_result("Forgot Password - 1: Success (200)", success, res)
+    assert success
+    
+    # Save the reset token for the next test
+    reset_token = res.json().get('resetToken')
+    assert reset_token is not None, "Reset token not returned in response"
+    shared_data['reset_token'] = reset_token
+    shared_data['old_password'] = TEST_USER['password']
+
+
+@pytest.mark.run(order=4.2)
+def test_forgot_password_invalid_email():
+    # Test with non-existent email
+    res = requests.post(f"{auth_url}/forgot-password", json={"email": "nonexistent@nowhere.com"})
+    
+    # Should fail (400 or 404)
+    success = res.status_code in [400, 404]
+    print_test_result("Forgot Password - 2: Invalid Email (400/404)", success, res)
+    assert success
+
+
+@pytest.mark.run(order=4.3)
+def test_reset_password_happy_path():
+    print("\n--- 🧪 Running Reset Password Tests ---")
+    
+    reset_token = shared_data.get('reset_token')
+    assert reset_token is not None, "No reset token found. Run forgot_password test first."
+    
+    new_password = "newSecurePassword123"
+    
+    res = requests.post(f"{auth_url}/reset-password/{reset_token}", json={"password": new_password})
+    
+    success = res.status_code == 200 and res.json().get('success') == True
+    print_test_result("Reset Password - 1: Success (200)", success, res)
+    assert success
+    
+    # Save new password for verification
+    shared_data['new_password'] = new_password
+
+
+@pytest.mark.run(order=4.4)
+def test_login_with_new_password():
+    print("\n--- 🧪 Verifying Password Change ---")
+    
+    new_password = shared_data.get('new_password')
+    old_password = shared_data.get('old_password')
+    
+    assert new_password is not None, "New password not set"
+    
+    # Scenario 1: Login with NEW password should WORK
+    res_new = requests.post(f"{auth_url}/login", json={"email": TEST_USER['email'], "password": new_password})
+    new_works = res_new.status_code == 200 and res_new.json().get('success') == True
+    print_test_result("Password Verify - 1: New Password Works", new_works, res_new)
+    assert new_works
+    
+    # Update the shared token with new login
+    if new_works:
+        shared_data['token'] = res_new.json()['data']['token']
+    
+    # Scenario 2: Login with OLD password should FAIL
+    res_old = requests.post(f"{auth_url}/login", json={"email": TEST_USER['email'], "password": old_password})
+    old_fails = res_old.status_code == 401
+    print_test_result("Password Verify - 2: Old Password Fails", old_fails, res_old)
+    assert old_fails
