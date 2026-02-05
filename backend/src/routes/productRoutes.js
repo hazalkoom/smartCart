@@ -15,6 +15,20 @@ const {
 
 const router = express.Router();
 
+router.route('/').get(getAllProducts);
+router.route('/:slug').get(getProduct);
+router.route('/').post(protect, authorize('admin', 'owner'), productValidationRules, validate, createProduct);
+router.route('/:id').put(protect, authorize('admin', 'owner'), productUpdateValidationRules, validate, updateProduct);
+
+// --- OWNER ONLY: Permanent Delete ---
+router.route('/:id').delete(protect, authorize('owner'), deleteProduct);
+
+module.exports = router;
+
+// =========================================================================
+//  SWAGGER DOCUMENTATION
+// =========================================================================
+
 /**
  * @swagger
  * components:
@@ -149,7 +163,6 @@ const router = express.Router();
  *                   items:
  *                     $ref: '#/components/schemas/Product'
  */
-router.route('/').get(getAllProducts);
 
 /**
  * @swagger
@@ -178,7 +191,6 @@ router.route('/').get(getAllProducts);
  *       404:
  *         description: Product not found
  */
-router.route('/:slug').get(getProduct);
 
 /**
  * @swagger
@@ -213,7 +225,6 @@ router.route('/:slug').get(getProduct);
  *       403:
  *         description: Not an Admin/Owner
  */
-router.route('/').post(protect, authorize('admin', 'owner'), productValidationRules, validate, createProduct);
 
 /**
  * @swagger
@@ -269,9 +280,3 @@ router.route('/').post(protect, authorize('admin', 'owner'), productValidationRu
  *       404:
  *         description: Product not found
  */
-router.route('/:id').put(protect, authorize('admin', 'owner'), productUpdateValidationRules, validate, updateProduct);
-
-// --- OWNER ONLY: Permanent Delete ---
-router.route('/:id').delete(protect, authorize('owner'), deleteProduct);
-
-module.exports = router;

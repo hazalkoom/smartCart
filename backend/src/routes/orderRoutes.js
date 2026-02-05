@@ -17,6 +17,29 @@ const {
 
 const router = express.Router();
 
+// Apply protection to all routes
+router.use(protect);
+
+router.route('/my').get(getMyOrders);
+router.route('/').post(orderCreateValidationRules, validate, createOrder);
+router.route('/:id').get(getOrderById);
+router.route('/').get(authorize('admin', 'owner'), getAllOrders);
+router.route('/:id/status').patch(authorize('admin', 'owner'), orderStatusValidationRules, validate, updateOrderStatus);
+router.post(
+  '/:id/pay',
+  protect,                   // 1. Check Auth
+  payOrderValidationRules,   // 2. Check Input Rules
+  validate,                  // 3. Check for Validation Errors
+  payOrder                   // 4. Execute Logic
+);
+
+module.exports = router;
+
+// =========================================================================
+//  SWAGGER DOCUMENTATION
+// =========================================================================
+
+
 /**
  * @swagger
  * components:
@@ -119,9 +142,6 @@ const router = express.Router();
  *   description: Order processing and management
  */
 
-// Apply protection to all routes
-router.use(protect);
-
 /**
  * @swagger
  * /orders/my:
@@ -147,7 +167,6 @@ router.use(protect);
  *                   items:
  *                     $ref: '#/components/schemas/Order'
  */
-router.route('/my').get(getMyOrders);
 
 /**
  * @swagger
@@ -179,7 +198,6 @@ router.route('/my').get(getMyOrders);
  *       400:
  *         description: Invalid input or Empty Cart
  */
-router.route('/').post(orderCreateValidationRules, validate, createOrder);
 
 /**
  * @swagger
@@ -210,7 +228,6 @@ router.route('/').post(orderCreateValidationRules, validate, createOrder);
  *       404:
  *         description: Order not found
  */
-router.route('/:id').get(getOrderById);
 
 /**
  * @swagger
@@ -235,7 +252,6 @@ router.route('/:id').get(getOrderById);
  *       403:
  *         description: Not authorized (Admin/Owner only)
  */
-router.route('/').get(authorize('admin', 'owner'), getAllOrders);
 
 /**
  * @swagger
@@ -269,7 +285,6 @@ router.route('/').get(authorize('admin', 'owner'), getAllOrders);
  *       403:
  *         description: Not authorized
  */
-router.route('/:id/status').patch(authorize('admin', 'owner'), orderStatusValidationRules, validate, updateOrderStatus);
 
 /**
  * @swagger
@@ -310,12 +325,3 @@ router.route('/:id/status').patch(authorize('admin', 'owner'), orderStatusValida
  *       400:
  *         description: Invalid payment method or missing phone number
  */
-router.post(
-  '/:id/pay',
-  protect,                   // 1. Check Auth
-  payOrderValidationRules,   // 2. Check Input Rules
-  validate,                  // 3. Check for Validation Errors
-  payOrder                   // 4. Execute Logic
-);
-
-module.exports = router;

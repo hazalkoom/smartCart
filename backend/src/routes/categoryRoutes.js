@@ -14,6 +14,27 @@ const {
 
 const router = express.Router();
 
+
+router.route('/').get(getAllCategories);
+
+
+router.route('/:slug').get(getCategoryBySlug);
+
+
+router.route('/').post(protect, authorize('admin', 'owner'), categoryValidationRules, validate, createCategory);
+
+
+router.route('/:id')
+  .put(protect, authorize('admin', 'owner'), categoryValidationRules, validate, updateCategory)
+  .delete(protect, authorize('admin', 'owner'), deleteCategory);
+
+module.exports = router;
+
+// =========================================================================
+//  SWAGGER DOCUMENTATION
+// =========================================================================
+
+
 /**
  * @swagger
  * components:
@@ -83,7 +104,6 @@ const router = express.Router();
  *                   items:
  *                     $ref: '#/components/schemas/Category'
  */
-router.route('/').get(getAllCategories);
 
 /**
  * @swagger
@@ -113,7 +133,6 @@ router.route('/').get(getAllCategories);
  *       404:
  *         description: Category not found
  */
-router.route('/:slug').get(getCategoryBySlug);
 
 /**
  * @swagger
@@ -146,7 +165,6 @@ router.route('/:slug').get(getCategoryBySlug);
  *       403:
  *         description: Not an Admin/Owner
  */
-router.route('/').post(protect, authorize('admin', 'owner'), categoryValidationRules, validate, createCategory);
 
 /**
  * @swagger
@@ -200,8 +218,3 @@ router.route('/').post(protect, authorize('admin', 'owner'), categoryValidationR
  *       404:
  *         description: Category not found
  */
-router.route('/:id')
-  .put(protect, authorize('admin', 'owner'), categoryValidationRules, validate, updateCategory)
-  .delete(protect, authorize('admin', 'owner'), deleteCategory);
-
-module.exports = router;

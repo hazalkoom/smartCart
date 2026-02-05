@@ -8,3 +8,48 @@ const { handlePaymobWebhook } = require('../controllers/webhookController');
 router.post('/paymob', handlePaymobWebhook);
 
 module.exports = router;
+
+// =========================================================================
+//  SWAGGER DOCUMENTATION
+// =========================================================================
+
+/**
+ * @swagger
+ * tags:
+ *   name: Webhooks
+ *   description: External service integrations (Public/Secure)
+ */
+
+/**
+ * @swagger
+ * /webhook/paymob:
+ *   post:
+ *     summary: Paymob Payment Webhook
+ *     description: Receives payment transaction updates from Paymob servers. Validates security via HMAC signature.
+ *     tags: [Webhooks]
+ *     parameters:
+ *       - in: query
+ *         name: hmac
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: HMAC signature provided by Paymob for security verification
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             description: The full transaction object from Paymob
+ *             example:
+ *               type: "TRANSACTION"
+ *               obj:
+ *                 id: 123456
+ *                 success: true
+ *                 amount_cents: 10000
+ *     responses:
+ *       200:
+ *         description: Webhook received and processed
+ *       400:
+ *         description: Invalid HMAC signature (Security violation)
+ */

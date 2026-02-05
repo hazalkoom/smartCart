@@ -36,6 +36,10 @@ router.put('/updatedetails', protect, updateDetails);
 
 module.exports = router;
 
+// =========================================================================
+//  SWAGGER DOCUMENTATION
+// =========================================================================
+
 /**
  * @swagger
  * components:

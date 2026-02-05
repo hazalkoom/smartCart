@@ -1,5 +1,13 @@
+const logger = require('../utils/logger'); // <--- 1. NEW IMPORT
+
 const errorHandler = (err, req, res, next) => {
-  console.error(err.stack);
+  // --- 2. NEW LOGGING LOGIC ---
+  // We log the Error Message, URL, Method, and IP to the file.
+  // We also attach the 'stack' trace object for deep debugging.
+  logger.error(`${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`, {
+    stack: err.stack, 
+  });
+  // -----------------------------
 
   let statusCode = err.statusCode ? err.statusCode : (res.statusCode === 200 ? 500 : res.statusCode);
   let message = err.message || 'Internal Server Error';
@@ -62,7 +70,6 @@ const errorHandler = (err, req, res, next) => {
     errorCode = 'DUPLICATE_FIELD';
   }
 
-
   if (err.message === 'Product not found') {
     statusCode = 404;
     errorCode = 'NOT_FOUND';
@@ -88,7 +95,6 @@ const errorHandler = (err, req, res, next) => {
     statusCode = 404;
     errorCode = 'NOT_FOUND';
   }
-
 
   res.status(statusCode).json({
     success: false,
