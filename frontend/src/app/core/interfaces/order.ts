@@ -34,6 +34,23 @@ export interface Order {
   updatedAt: string;
 }
 
+
+export interface PaymentRequest {
+  method: 'card' | 'wallet' | 'fawry';
+  mobileNumber?: string;
+}
+
+export interface PaymentResponse {
+  success: boolean;
+  action: 'redirect' | 'iframe' | 'display';
+  data: {
+    redirectUrl?: string;
+    iframeUrl?: string;
+    billReference?: string;
+  };
+}
+
+
 export interface OrderResponse {
   success: boolean;
   data: Order;
@@ -45,5 +62,3 @@ export interface OrdersResponse {
   count: number;
   data: Order[];
 }
-
-
