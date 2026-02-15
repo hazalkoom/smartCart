@@ -22,6 +22,7 @@ import { CartAnimationComponent } from './core/components/cart-animation/cart-an
 import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { OrderDetailComponent } from './features/order-detail/order-detail';
+import { PaymentCallbackComponent } from './features/payment-callback/payment-callback';
 
 @NgModule({
   declarations: [
@@ -38,7 +39,8 @@ import { OrderDetailComponent } from './features/order-detail/order-detail';
     Account,
     CategoryComponent,
     CartAnimationComponent,
-    OrderDetailComponent
+    OrderDetailComponent,
+    PaymentCallbackComponent
   ],
   imports: [
     BrowserModule,

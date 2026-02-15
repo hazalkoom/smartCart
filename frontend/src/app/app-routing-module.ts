@@ -11,6 +11,7 @@ import { Register } from './features/register/register';
 import { Account } from './features/account/account';
 import { CategoryComponent } from './features/category/category';
 import { OrderDetailComponent } from './features/order-detail/order-detail'; // (Check if CLI named it OrderDetail or OrderDetailComponent)
+import { PaymentCallbackComponent } from './features/payment-callback/payment-callback';
 
 const routes: Routes = [
   { path: '', component: Home },
@@ -23,6 +24,7 @@ const routes: Routes = [
   { path: 'account', component: Account },
   { path: 'categories', component: CategoryComponent },
   { path: 'orders/:id', component: OrderDetailComponent },
+  { path: 'payment-callback', component: PaymentCallbackComponent },
   { path: '**', redirectTo: '' }
 ];
 
