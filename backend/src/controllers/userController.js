@@ -1,6 +1,23 @@
 const UserService = require('../services/userService');
 const asyncHandler = require('../utils/asyncHandler');
 
+// @desc    Create user
+// @route   POST /api/v1/users
+// @access  Private/Owner
+const createUser = asyncHandler(async (req, res) => {
+  try {
+    const user = await UserService.createUser(req.body, req.user._id);
+    res.status(201).json({
+      success: true,
+      data: user,
+      message: 'User created successfully'
+    });
+  } catch (err) {
+    res.status(err.statusCode || 500);
+    throw new Error(err.message);
+  }
+});
+
 // @desc    Get all users
 // @route   GET /api/v1/users
 // @access  Private/Owner
@@ -54,6 +71,23 @@ const updateUserRole = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Update user
+// @route   PUT /api/v1/users/:id
+// @access  Private/Owner
+const updateUser = asyncHandler(async (req, res) => {
+  try {
+    const updatedUser = await UserService.updateUser(req.params.id, req.body, req.user._id);
+    res.status(200).json({
+      success: true,
+      data: updatedUser,
+      message: 'User updated successfully'
+    });
+  } catch (err) {
+    res.status(err.statusCode || 500);
+    throw new Error(err.message);
+  }
+});
+
 // @desc    Delete user
 // @route   DELETE /api/v1/users/:id
 // @access  Private/Owner
@@ -68,8 +102,10 @@ const deleteUser = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  createUser,
   getAllUsers,
   getUserById,
   updateUserRole,
+  updateUser,
   deleteUser,
 };

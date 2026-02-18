@@ -23,6 +23,12 @@ import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 import { OrderDetailComponent } from './features/order-detail/order-detail';
 import { PaymentCallbackComponent } from './features/payment-callback/payment-callback';
+import { AdminLayoutComponent } from './features/admin-layout/admin-layout';
+import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard';
+import { AdminOrdersComponent } from './features/admin-orders/admin-orders.component';
+import { AdminUsersComponent } from './features/admin-users/admin-users.component';
+import { AdminProductsComponent } from './features/admin-products/admin-products.component';
+import { AdminCategoriesComponent } from './features/admin-categories/admin-categories.component';
 
 @NgModule({
   declarations: [
@@ -40,7 +46,13 @@ import { PaymentCallbackComponent } from './features/payment-callback/payment-ca
     CategoryComponent,
     CartAnimationComponent,
     OrderDetailComponent,
-    PaymentCallbackComponent
+    PaymentCallbackComponent,
+    AdminLayoutComponent,
+    AdminDashboardComponent,
+    AdminOrdersComponent,
+    AdminUsersComponent,
+    AdminProductsComponent,
+    AdminCategoriesComponent
   ],
   imports: [
     BrowserModule,

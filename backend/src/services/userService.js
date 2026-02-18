@@ -1,14 +1,51 @@
 const User = require('../models/userModel');
 
 class UserService {
+  async createUser(userData, currentOwnerId) {
+    const { email, password, firstName, lastName, role } = userData;
+
+    const existing = await User.findOne({ email });
+    if (existing) {
+      throw { statusCode: 400, message: 'User already exists' };
+    }
+
+    if (role === 'owner') {
+      throw { statusCode: 400, message: 'Cannot create an Owner account' };
+    }
+
+    const user = await User.create({
+      email,
+      password,
+      firstName,
+      lastName,
+      role: role || 'customer'
+    });
+
+    const safeUser = user.toObject();
+    delete safeUser.password;
+    return safeUser;
+  }
+
   // UPGRADED: Added Pagination
   async getAllUsers(query) {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
     const skip = (page - 1) * limit;
+    const filter = {};
 
-    const count = await User.countDocuments();
-    const users = await User.find({})
+    if (query.role) {
+      const roles = query.role
+        .split(',')
+        .map(role => role.trim())
+        .filter(role => role.length > 0);
+
+      if (roles.length > 0) {
+        filter.role = { $in: roles };
+      }
+    }
+
+    const count = await User.countDocuments(filter);
+    const users = await User.find(filter)
       .select('-password')
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -48,6 +85,41 @@ class UserService {
 
     user.role = role;
     return await user.save();
+  }
+
+  async updateUser(id, userData, currentOwnerId) {
+    const { email, firstName, lastName, role, password } = userData;
+    const user = await User.findById(id).select('+password');
+
+    if (!user) {
+      throw { statusCode: 404, message: 'User not found' };
+    }
+
+    if (user.role === 'owner' && user._id.toString() !== currentOwnerId.toString()) {
+      throw { statusCode: 400, message: 'Cannot update the Owner account' };
+    }
+
+    if (role === 'owner') {
+      throw { statusCode: 400, message: 'Cannot assign Owner role' };
+    }
+
+    if (email) {
+      const existing = await User.findOne({ email, _id: { $ne: id } });
+      if (existing) {
+        throw { statusCode: 400, message: 'Email already in use' };
+      }
+      user.email = email;
+    }
+
+    if (firstName !== undefined) user.firstName = firstName;
+    if (lastName !== undefined) user.lastName = lastName;
+    if (role) user.role = role;
+    if (password) user.password = password;
+
+    const updatedUser = await user.save();
+    const safeUser = updatedUser.toObject();
+    delete safeUser.password;
+    return safeUser;
   }
 
   async deleteUser(id, currentOwnerId) {

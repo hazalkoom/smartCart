@@ -114,25 +114,25 @@
             </h4>
             <hr class="my-3">
 
-            <!-- Payment Methods -->
-            <div class="payment-methods">
-              <div class="payment-method active">
-                <i class="icon icon-credit-card"></i>
-                <span>Credit Card</span>
+            <div class="payment-methods" style="display: flex; gap: 10px; margin-bottom: 20px;">
+              <div class="payment-method" [class.active]="paymentMethod === 'card'" (click)="paymentMethod = 'card'" style="cursor: pointer; flex: 1; text-align: center; border: 1px solid #EAE8DF; padding: 15px; border-radius: 8px; transition: 0.2s;">
+                <i class="icon icon-credit-card" style="font-size: 1.5em;"></i><br>
+                <span style="font-weight: 600; margin-top: 5px; display: block;">Card</span>
               </div>
-              <div class="payment-method">
-                <i class="icon icon-smartphone"></i>
-                <span>PayPal</span>
+              <div class="payment-method" [class.active]="paymentMethod === 'wallet'" (click)="paymentMethod = 'wallet'" style="cursor: pointer; flex: 1; text-align: center; border: 1px solid #EAE8DF; padding: 15px; border-radius: 8px; transition: 0.2s;">
+                <i class="icon icon-smartphone" style="font-size: 1.5em;"></i><br>
+                <span style="font-weight: 600; margin-top: 5px; display: block;">Wallet</span>
               </div>
-              <div class="payment-method">
-                <i class="icon icon-dollar-sign"></i>
-                <span>Stripe</span>
+              <div class="payment-method" [class.active]="paymentMethod === 'fawry'" (click)="paymentMethod = 'fawry'" style="cursor: pointer; flex: 1; text-align: center; border: 1px solid #EAE8DF; padding: 15px; border-radius: 8px; transition: 0.2s;">
+                <i class="icon icon-dollar-sign" style="font-size: 1.5em;"></i><br>
+                <span style="font-weight: 600; margin-top: 5px; display: block;">Fawry</span>
               </div>
             </div>
 
-            <div class="alert alert-info">
-              <i class="icon icon-info"></i>
-              <span>Payment integration (Stripe) coming in Week 6.</span>
+            <div class="mb-4" *ngIf="paymentMethod === 'wallet' || paymentMethod === 'fawry'">
+              <label for="mobileNumber" class="form-label">Mobile Number <span class="text-danger">*</span></label>
+              <input type="tel" class="form-control" id="mobileNumber" name="mobileNumber" [(ngModel)]="mobileNumber" placeholder="01xxxxxxxxx" [required]="paymentMethod === 'wallet' || paymentMethod === 'fawry'">
+              <small class="text-muted">Required by Paymob for Mobile Wallet and Fawry billing.</small>
             </div>
 
             <!-- Trust Signals -->

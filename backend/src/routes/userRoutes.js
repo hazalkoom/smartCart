@@ -1,25 +1,29 @@
 const express = require('express');
 const { protect, authorize } = require('../middleware/authMiddleware');
 const {
+  createUser,
   getAllUsers,
   getUserById,
   updateUserRole,
+  updateUser,
   deleteUser,
 } = require('../controllers/userController');
 
 const router = express.Router();
 
-// Apply protection and Owner authorization to ALL routes in this file
+// Apply protection to all routes
 router.use(protect);
-router.use(authorize('owner'));
 
+// GET all users: admin + owner can view
 router.route('/')
-  .get(getAllUsers);
+  .get(authorize('admin', 'owner'), getAllUsers)
+  .post(authorize('owner'), createUser);
 
+// Manage individual users: owner only
 router.route('/:id')
-  .get(getUserById)
-  .put(updateUserRole)
-  .delete(deleteUser);
+  .get(authorize('admin', 'owner'), getUserById)
+  .put(authorize('owner'), updateUser)
+  .delete(authorize('owner'), deleteUser);
 
 module.exports = router;
 

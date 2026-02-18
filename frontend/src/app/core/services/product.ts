@@ -12,7 +12,6 @@ export class ProductService {
 
   constructor(private http: HttpClient) { }
 
-
   getProducts(params?: any): Observable<ProductResponse> {
     let httpParams = new HttpParams();
     
@@ -27,8 +26,19 @@ export class ProductService {
     return this.http.get<ProductResponse>(this.apiUrl, { params: httpParams });
   }
 
-
   getProduct(slug: string): Observable<{ success: boolean, data: Product }> {
     return this.http.get<{ success: boolean, data: Product }>(`${this.apiUrl}/${slug}`);
+  }
+
+  createProduct(productData: any): Observable<{ success: boolean; data: Product }> {
+    return this.http.post<{ success: boolean; data: Product }>(this.apiUrl, productData);
+  }
+
+  updateProduct(id: string, productData: any): Observable<{ success: boolean; data: Product }> {
+    return this.http.put<{ success: boolean; data: Product }>(`${this.apiUrl}/${id}`, productData);
+  }
+
+  deleteProduct(id: string): Observable<{ success: boolean; message: string }> {
+    return this.http.delete<{ success: boolean; message: string }>(`${this.apiUrl}/${id}`);
   }
 }

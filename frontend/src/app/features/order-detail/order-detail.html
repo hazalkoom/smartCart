@@ -158,19 +158,33 @@
           </div>
 
           <!-- Action Buttons -->
-          <div class="action-buttons">
-            <a routerLink="/account" class="btn-action btn-back">
-              <i class="icon icon-arrow-left"></i>
-              <span>Back to Orders</span>
-            </a>
-            <button type="button" class="btn-action btn-print" onclick="window.print()">
-              <i class="icon icon-printer"></i>
-              <span>Print Order</span>
+          <div class="action-buttons" style="display: flex; flex-direction: column; gap: 15px;">
+            
+            <button 
+              *ngIf="order.status === 'Pending'" 
+              type="button" 
+              class="btn btn-primary w-100" 
+              style="padding: 15px; font-weight: bold; font-size: 1.1em; background-color: #28a745; border-color: #28a745;"
+              (click)="payPendingOrder()"
+              [disabled]="isProcessingPayment">
+              <i class="icon icon-credit-card"></i>
+              {{ isProcessingPayment ? 'Connecting to Paymob...' : 'Complete Payment Now' }}
             </button>
-            <a href="mailto:support@booksaw.com" class="btn-action btn-support">
-              <i class="icon icon-message-circle"></i>
-              <span>Contact Support</span>
-            </a>
+            
+            <div style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;">
+              <a routerLink="/account" class="btn-action btn-back">
+                <i class="icon icon-arrow-left"></i>
+                <span>Back to Orders</span>
+              </a>
+              <button type="button" class="btn-action btn-print" onclick="window.print()">
+                <i class="icon icon-printer"></i>
+                <span>Print Order</span>
+              </button>
+              <a href="mailto:support@smartcart.com" class="btn-action btn-support">
+                <i class="icon icon-message-circle"></i>
+                <span>Contact Support</span>
+              </a>
+            </div>
           </div>
 
         </div>

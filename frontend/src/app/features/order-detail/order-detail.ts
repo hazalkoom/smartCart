@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { OrderService } from '../../core/services/order'; // Check path (order.ts)
-import { Order } from '../../core/interfaces/order'; // Check path (order.ts)
+import { ActivatedRoute, Router } from '@angular/router'; // Make sure Router is imported
+import { OrderService } from '../../core/services/order'; 
+import { Order } from '../../core/interfaces/order'; 
 
 @Component({
   selector: 'app-order-detail',
@@ -9,14 +9,16 @@ import { Order } from '../../core/interfaces/order'; // Check path (order.ts)
   templateUrl: './order-detail.html',
   styleUrl: './order-detail.css'
 })
-export class OrderDetailComponent implements OnInit { // Renamed to Component per standard
+export class OrderDetailComponent implements OnInit { 
   
   order: Order | null = null;
   isLoading: boolean = true;
   error: string = '';
+  isProcessingPayment: boolean = false; // <--- ADD THIS
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router, // <--- ADD THIS
     private orderService: OrderService
   ) {}
 
@@ -48,29 +50,57 @@ export class OrderDetailComponent implements OnInit { // Renamed to Component pe
     });
   }
 
-  // Helper to get status color
+  payPendingOrder() {
+    if (!this.order) return;
+    
+    this.isProcessingPayment = true;
+    
+    this.orderService.payOrder(this.order._id, { paymentMethod: 'card' }).subscribe({
+      next: (payRes: any) => {
+        this.isProcessingPayment = false;
+        console.log('🔥 RECOVERY PAYMENT RESPONSE:', payRes);
+        
+        const paymentUrl = payRes?.url || 
+                           payRes?.data?.url || 
+                           payRes?.data?.iframeUrl || 
+                           payRes?.data?.redirectUrl || 
+                           payRes?.iframeUrl || 
+                           payRes?.redirectUrl;
+        
+        if (paymentUrl) {
+          window.location.href = paymentUrl;
+        } else {
+          alert('Failed to extract payment link from backend response. Open Console (F12) to see what your backend actually sent.');
+        }
+      },
+      error: (err) => {
+        this.isProcessingPayment = false;
+        console.error('Recovery Payment Error:', err);
+        alert('Failed to connect to payment provider.');
+      }
+    });
+  }
+  // -------------------------------
+
   getStatusClass(status: string): string {
     switch (status.toLowerCase()) {
       case 'paid': return 'text-success';
       case 'shipped': return 'text-primary';
       case 'delivered': return 'text-success';
       case 'cancelled': return 'text-danger';
-      default: return 'text-warning'; // Pending
+      default: return 'text-warning'; 
     }
   }
+
   getTimelineClass(stage: string): string {
     if (!this.order) return '';
-    
     const status = this.order.status.toLowerCase();
     const stages = ['pending', 'paid', 'shipped', 'delivered'];
-    const currentStageIndex = stages.indexOf(status);
-    const checkStageIndex = stages.indexOf(stage);
+    const currentIndex = stages.indexOf(status);
+    const stageIndex = stages.indexOf(stage);
     
-    if (checkStageIndex < currentStageIndex) {
-      return 'completed';
-    } else if (checkStageIndex === currentStageIndex) {
-      return 'active';
-    }
+    if (stageIndex <= currentIndex) return 'completed';
+    if (stageIndex === currentIndex + 1) return 'active';
     return '';
   }
 }

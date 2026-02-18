@@ -1,0 +1,68 @@
+.card {
+    border-radius: 0.5rem;
+    transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.card-header {
+    padding: 1.25rem !important;
+}
+
+.bg-gradient {
+    background-size: 200% 200%;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(102, 126, 234, 0.05);
+}
+
+.pagination .page-link {
+    color: #667eea;
+    border-color: #ddd;
+}
+
+.pagination .page-link:hover {
+    color: #fff;
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+    color: #fff;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.badge {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+}
+
+.text-muted {
+    font-size: 0.875rem;
+}
+
+.fw-500 {
+    font-weight: 500;
+}
+
+.user-form-card {
+    border-left: 4px solid #667eea;
+}
+
+.user-form-card .card-header {
+    background: #f8f9ff;
+}

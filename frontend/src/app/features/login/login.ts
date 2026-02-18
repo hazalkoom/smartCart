@@ -37,8 +37,12 @@ export class Login implements OnInit {
         // Check if login was successful
         if (response.success && response.data?.token) {
           console.log('Login successful', response);
-          // Navigate to home page after successful login
-          this.router.navigate(['/']);
+          const role = response.data?.role || this.authService.currentUser$.value?.role;
+          if (role === 'admin' || role === 'owner') {
+            this.router.navigate(['/admin']);
+          } else {
+            this.router.navigate(['/']);
+          }
         } else {
           // Login failed but no error was thrown
           this.errorMessage = response.message || 'Login failed. Please check your credentials.';

@@ -15,9 +15,16 @@ export interface OrderItem {
   image?: string;
 }
 
+export interface User {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
 export interface Order {
   _id: string;
-  userId: string;
+  userId: string | User;
   orderNumber: string;
   items: OrderItem[];
   shippingAddress: ShippingAddress;
@@ -36,7 +43,7 @@ export interface Order {
 
 
 export interface PaymentRequest {
-  method: 'card' | 'wallet' | 'fawry';
+  paymentMethod: 'card' | 'wallet' | 'fawry';
   mobileNumber?: string;
 }
 
