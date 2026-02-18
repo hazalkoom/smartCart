@@ -95,10 +95,17 @@ class UserService {
       throw { statusCode: 404, message: 'User not found' };
     }
 
+    // Prevent updating other owner accounts
     if (user.role === 'owner' && user._id.toString() !== currentOwnerId.toString()) {
       throw { statusCode: 400, message: 'Cannot update the Owner account' };
     }
 
+    // Prevent owner from changing their own role
+    if (user.role === 'owner' && user._id.toString() === currentOwnerId.toString() && role && role !== 'owner') {
+      throw { statusCode: 400, message: 'Owner cannot change their own role' };
+    }
+
+    // Prevent assigning owner role
     if (role === 'owner') {
       throw { statusCode: 400, message: 'Cannot assign Owner role' };
     }

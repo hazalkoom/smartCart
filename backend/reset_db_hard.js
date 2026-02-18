@@ -21,13 +21,13 @@ const Cart = require(path.join(__dirname, 'src/models/cartModel'));
 const Review = require(path.join(__dirname, 'src/models/reviewModel'));
 
 // 3. Robust Variable Check
-const DB_URI = 'mongodb://127.0.0.1:27017/smartCart';
+const DB_URI = process.env.MONGODB_URI || process.env.DB_URI || process.env.MONGO_URI;
 
 if (!DB_URI) {
   console.error('\n❌ CRITICAL ERROR: Database connection string is MISSING.');
   console.error('---------------------------------------------------------');
   console.error('1. Check your .env file.');
-  console.error('2. Ensure you have a variable named DB_URI or MONGO_URI.');
+  console.error('2. Ensure you have a variable named MONGODB_URI, DB_URI or MONGO_URI.');
   console.error('3. Debug: Loaded keys start with:', Object.keys(process.env).slice(0, 5));
   console.error('---------------------------------------------------------\n');
   process.exit(1);
