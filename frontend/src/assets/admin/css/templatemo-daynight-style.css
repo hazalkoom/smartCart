@@ -2,7 +2,7 @@
    DayNight Admin - Flat/Minimal Dashboard
    Snow Edition (Light) / Carbon Edition (Dark)
    ======================================== */
-   
+
 /*
 
 TemplateMo 608 DayNight Admin
@@ -22,14 +22,14 @@ https://templatemo.com/tm-608-daynight-admin
 /* ===== CSS Variables - Snow Edition (Default) ===== */
 :root {
     --bg-primary: #FFFFFF;
-    --bg-secondary: #F8FAFC;
-    --bg-surface: #F1F5F9;
-    --border-color: #E2E8F0;
-    --text-primary: #1E293B;
-    --text-secondary: #64748B;
-    --accent: #38BDF8;
-    --accent-hover: #0EA5E9;
-    --accent-light: rgba(56, 189, 248, 0.1);
+    --bg-secondary: #eff6ff;
+    --bg-surface: #dbeafe;
+    --border-color: #bfdbfe;
+    --text-primary: #0f172a;
+    --text-secondary: #334155;
+    --accent: #1d4ed8;
+    --accent-hover: #1e3a8a;
+    --accent-light: rgba(29, 78, 216, 0.12);
     --success: #22C55E;
     --warning: #F59E0B;
     --danger: #EF4444;
@@ -42,15 +42,15 @@ https://templatemo.com/tm-608-daynight-admin
 /* Applied to html for instant load, and body for JS toggle */
 html.carbon,
 body.carbon {
-    --bg-primary: #0F0F0F;
-    --bg-secondary: #171717;
-    --bg-surface: #1F1F1F;
-    --border-color: #2E2E2E;
-    --text-primary: #F5F5F5;
-    --text-secondary: #A3A3A3;
-    --accent: #38BDF8;
-    --accent-hover: #7DD3FC;
-    --accent-light: rgba(56, 189, 248, 0.15);
+    --bg-primary: #020617;
+    --bg-secondary: #0b1220;
+    --bg-surface: #111827;
+    --border-color: #1e3a8a;
+    --text-primary: #e2e8f0;
+    --text-secondary: #93c5fd;
+    --accent: #3b82f6;
+    --accent-hover: #60a5fa;
+    --accent-light: rgba(59, 130, 246, 0.18);
     --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
@@ -86,7 +86,9 @@ button {
     background: none;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
     font-family: inherit;
     font-size: 0.9375rem;
 }
@@ -936,7 +938,8 @@ table {
     border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
@@ -1280,7 +1283,7 @@ tr:hover td {
     display: flex;
     flex-direction: column;
     height: 100%;
-	overflow: auto;
+    overflow: auto;
 }
 
 .message-view-header {
@@ -1475,12 +1478,12 @@ tr:hover td {
     transition: var(--transition);
 }
 
-.toggle input:checked + .toggle-slider {
+.toggle input:checked+.toggle-slider {
     background: var(--accent);
     border-color: var(--accent);
 }
 
-.toggle input:checked + .toggle-slider:before {
+.toggle input:checked+.toggle-slider:before {
     background: white;
     transform: translateX(20px);
 }
@@ -1603,11 +1606,11 @@ tr:hover td {
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .two-col {
         grid-template-columns: 1fr;
     }
-    
+
     .kanban-board {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -1617,20 +1620,20 @@ tr:hover td {
     .nav-container {
         padding: 0 1rem;
     }
-    
+
     .nav-menu {
         display: none;
     }
-    
+
     .main-content {
         padding: 1.5rem;
     }
-    
+
     .inbox-container {
         grid-template-columns: 1fr;
         height: auto;
     }
-    
+
     .inbox-list {
         border-right: none;
         border-bottom: 1px solid var(--border-color);
@@ -1642,19 +1645,19 @@ tr:hover td {
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .kanban-board {
         grid-template-columns: 1fr;
     }
-    
+
     .bar-chart {
         overflow-x: auto;
     }
-    
+
     .date-picker {
         flex-wrap: wrap;
     }
-    
+
     .user-name {
         display: none;
     }

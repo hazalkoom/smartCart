@@ -1,6 +1,6 @@
 import { Component, OnInit, PLATFORM_ID, Inject, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
 import { OrderService } from '../../core/services/order';
@@ -18,6 +18,7 @@ export class Account implements OnInit, OnDestroy {
   orders: Order[] = [];
   isLoading: boolean = true;
   errorMessage: string = '';
+  activeTab: 'profile' | 'orders' | 'addresses' = 'profile';
   
   // --- New Edit State Variables ---
   isEditing: boolean = false;
@@ -31,6 +32,7 @@ export class Account implements OnInit, OnDestroy {
     private authService: AuthService,
     private orderService: OrderService,
     private router: Router,
+    private route: ActivatedRoute,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -53,7 +55,19 @@ export class Account implements OnInit, OnDestroy {
         }
       });
       this.subscriptions.push(userSub);
+
+      const querySub = this.route.queryParamMap.subscribe((params) => {
+        const tab = params.get('tab');
+        if (tab === 'orders' || tab === 'addresses' || tab === 'profile') {
+          this.activeTab = tab;
+        }
+      });
+      this.subscriptions.push(querySub);
     }
+  }
+
+  setActiveTab(tab: 'profile' | 'orders' | 'addresses'): void {
+    this.activeTab = tab;
   }
 
   ngOnDestroy(): void {

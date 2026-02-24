@@ -19,17 +19,20 @@
             </div>
             <span class="progress-step-label">Cart</span>
           </div>
-          <div class="progress-step active">
-            <div class="progress-step-circle">2</div>
+          <div class="progress-step" [class.completed]="orderPlaced" [class.active]="!orderPlaced">
+            <div class="progress-step-circle">
+              <i *ngIf="orderPlaced" class="icon icon-check"></i>
+              <span *ngIf="!orderPlaced">2</span>
+            </div>
             <span class="progress-step-label">Shipping</span>
           </div>
-          <div class="progress-step">
+          <div class="progress-step" [class.active]="orderPlaced">
             <div class="progress-step-circle">3</div>
             <span class="progress-step-label">Payment</span>
           </div>
           <div class="progress-step">
             <div class="progress-step-circle">4</div>
-            <span class="progress-step-label">Review</span>
+            <span class="progress-step-label">Complete</span>
           </div>
         </div>
       </div>
@@ -46,11 +49,71 @@
       <span>{{ error }}</span>
     </div>
 
-    <div class="row" *ngIf="!isLoading && cart">
+    <!-- Order Success State -->
+    <div class="row" *ngIf="orderPlaced && !isLoading">
+      <div class="col-md-8 offset-md-2">
+        <div class="order-success-card">
+          <div class="success-icon">
+            <i class="icon icon-check-circle" style="font-size: 5em; color: #28a745;"></i>
+          </div>
+          <h2 class="text-center mb-3">Order Placed Successfully!</h2>
+          <p class="text-center mb-4" style="font-size: 1.1em; color: #666;">
+            Your order <strong>#{{ placedOrderId.substring(placedOrderId.length - 8) }}</strong> has been created.
+            <br>Complete your payment now to confirm your order.
+          </p>
+          
+          <div class="payment-info mb-4 p-4" style="background: #f8f9fa; border-radius: 8px;">
+            <h5 class="mb-3">
+              <i class="icon icon-credit-card"></i>
+              Selected Payment Method
+            </h5>
+            <div class="d-flex align-items-center">
+              <div class="payment-icon me-3">
+                <i class="icon {{ paymentMethod === 'card' ? 'icon-credit-card' : paymentMethod === 'wallet' ? 'icon-smartphone' : 'icon-dollar-sign' }}" 
+                   style="font-size: 2em; color: #6C5F5B;"></i>
+              </div>
+              <div>
+                <strong style="text-transform: capitalize;">{{ paymentMethod }}</strong>
+                <div *ngIf="mobileNumber" class="text-muted">{{ mobileNumber }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-grid gap-3">
+            <button 
+              type="button" 
+              class="btn btn-success btn-lg" 
+              (click)="completePaymentNow()"
+              [disabled]="isPaymentProcessing"
+              style="background: linear-gradient(135deg, #28a745, #20c997); border: none; font-weight: 600; padding: 15px;">
+              <i class="icon icon-credit-card me-2"></i>
+              {{ isPaymentProcessing ? 'Redirecting to Payment...' : 'Complete Payment Now' }}
+            </button>
+            <button 
+              type="button" 
+              class="btn btn-outline-secondary" 
+              (click)="goToMyOrders()"
+              [disabled]="isPaymentProcessing">
+              <i class="icon icon-package me-2"></i>
+              Pay Later from My Orders
+            </button>
+          </div>
+
+          <div class="text-center mt-4">
+            <small class="text-muted">
+              <i class="icon icon-shield"></i>
+              Secure payment powered by Paymob
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row" *ngIf="!isLoading && cart && !orderPlaced">
 
       <div class="col-md-7">
         <div class="form-wrapper">
-          <form (ngSubmit)="placeOrder()">
+          <form #checkoutForm="ngForm" (ngSubmit)="placeOrder(checkoutForm)">
             <h4>
               <i class="icon icon-map-pin"></i>
               Shipping Address
@@ -82,8 +145,8 @@
                 <input type="text" class="form-control" id="city" name="city" [(ngModel)]="shippingAddress.city" required placeholder="New York">
               </div>
               <div class="col-md-4 mb-3">
-                <label for="zip" class="form-label">Zip Code <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="zip" name="zip" [(ngModel)]="shippingAddress.zip" required placeholder="10001">
+                <label for="zip" class="form-label">Zip Code</label>
+                <input type="text" class="form-control" id="zip" name="zip" [(ngModel)]="shippingAddress.zip" placeholder="10001">
               </div>
             </div>
 
@@ -131,8 +194,8 @@
 
             <div class="mb-4" *ngIf="paymentMethod === 'wallet' || paymentMethod === 'fawry'">
               <label for="mobileNumber" class="form-label">Mobile Number <span class="text-danger">*</span></label>
-              <input type="tel" class="form-control" id="mobileNumber" name="mobileNumber" [(ngModel)]="mobileNumber" placeholder="01xxxxxxxxx" [required]="paymentMethod === 'wallet' || paymentMethod === 'fawry'">
-              <small class="text-muted">Required by Paymob for Mobile Wallet and Fawry billing.</small>
+              <input type="tel" class="form-control" id="mobileNumber" name="mobileNumber" [(ngModel)]="mobileNumber" placeholder="01012345678" [required]="paymentMethod === 'wallet' || paymentMethod === 'fawry'">
+              <small class="text-muted">Egyptian mobile format: 010/011/012/015 followed by 8 digits (e.g., 01012345678)</small>
             </div>
 
             <!-- Trust Signals -->
@@ -155,8 +218,12 @@
               <button 
                 type="submit" 
                 class="btn btn-place-order" 
-                [disabled]="isProcessing">
-                {{ isProcessing ? 'Processing Order...' : 'Place Order' }}
+                [disabled]="isProcessing || !cart || !cart.items || cart.items.length === 0">
+                <span *ngIf="isProcessing">
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Processing Order...
+                </span>
+                <span *ngIf="!isProcessing">Place Order</span>
               </button>
             </div>
           </form>

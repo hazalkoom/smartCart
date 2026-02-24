@@ -91,7 +91,9 @@ def test_payment_setup():
         "shippingAddress": {"street": "123 Pay St", "city": "Cairo", "country": "Egypt"}
     }, headers=user_headers)
     assert res_order.status_code == 201, f"Order creation failed: {res_order.text}"
-    shared_data['pay_order_id'] = res_order.json()['data']['order']['_id'] 
+    order_payload = res_order.json().get('data', {})
+    order_obj = order_payload.get('order', order_payload)
+    shared_data['pay_order_id'] = order_obj['_id']
     
     print(f"Payment Setup Complete. Order ID: {shared_data['pay_order_id']}")
 
@@ -171,7 +173,9 @@ def test_pay_logic_wallet_requirement():
     # Create Order
     res_ord = requests.post(order_url, json={"shippingAddress": {"street": "St", "city": "C", "country": "E"}}, headers=headers)
     assert res_ord.status_code == 201, f"Attacker order creation failed: {res_ord.text}"
-    attacker_order_id = res_ord.json()['data']['order']['_id']
+    attacker_order_payload = res_ord.json().get('data', {})
+    attacker_order_obj = attacker_order_payload.get('order', attacker_order_payload)
+    attacker_order_id = attacker_order_obj['_id']
 
     # 2. Try to pay with wallet (No phone in body, No phone in DB)
     res = requests.post(f"{order_url}/{attacker_order_id}/pay", json={"paymentMethod": "wallet"}, headers=headers)

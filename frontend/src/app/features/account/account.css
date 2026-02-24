@@ -4,7 +4,7 @@
 
 /* Welcome Banner */
 .welcome-banner {
-    background: linear-gradient(135deg, var(--accent-color) 0%, #9A884C 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, #1e3a8a 100%);
     padding: 40px;
     border-radius: 16px;
     color: #fff;
@@ -175,7 +175,7 @@
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent-color) 0%, #9A884C 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, #1e3a8a 100%);
     display: flex;
     align-items: center;
     justify-content: center;

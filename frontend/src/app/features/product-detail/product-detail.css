@@ -140,7 +140,7 @@
 
 /* Enhanced Add to Cart Button */
 #product-detail .add-cart-btn {
-    background: linear-gradient(135deg, var(--accent-color) 0%, #9A884C 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, #1e3a8a 100%);
     border: none;
     color: #fff;
     padding: 15px 40px;
@@ -174,7 +174,7 @@
 }
 
 #product-detail .add-cart-btn:hover {
-    background: linear-gradient(135deg, #9A884C 0%, var(--dark-color) 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, var(--dark-color) 100%);
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(197, 169, 146, 0.4);
 }
@@ -259,7 +259,7 @@ ul.tabs li::after {
     left: 0;
     width: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--accent-color), #9A884C);
+    background: linear-gradient(90deg, var(--accent-color), #1e3a8a);
     transition: width 0.4s ease;
 }
 

@@ -1,21 +1,21 @@
 .table-hover tbody tr:hover {
-    background-color: rgba(102, 126, 234, 0.05);
+    background-color: rgba(29, 78, 216, 0.06);
 }
 
 .pagination .page-link {
-    color: #667eea;
-    border-color: #667eea;
+    color: #1d4ed8;
+    border-color: #1d4ed8;
 }
 
 .pagination .page-link:hover {
     color: #fff;
-    background-color: #667eea;
-    border-color: #667eea;
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
 }
 
 .pagination .page-item.active .page-link {
-    background-color: #667eea;
-    border-color: #667eea;
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
 }
 
 .card {

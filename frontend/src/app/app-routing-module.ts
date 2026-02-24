@@ -20,6 +20,8 @@ import { AdminOrdersComponent } from './features/admin-orders/admin-orders.compo
 import { AdminUsersComponent } from './features/admin-users/admin-users.component';
 import { AdminProductsComponent } from './features/admin-products/admin-products.component';
 import { AdminCategoriesComponent } from './features/admin-categories/admin-categories.component';
+import { AboutComponent } from './features/about/about';
+import { HelpCenterComponent } from './features/help-center/help-center';
 
 const routes: Routes = [
   { path: '', component: Home },
@@ -29,6 +31,8 @@ const routes: Routes = [
   { path: 'checkout', component: CheckoutComponent }, // Fixed
   { path: 'login', component: Login },
   { path: 'register', component: Register },
+  { path: 'about', component: AboutComponent },
+  { path: 'help-center', component: HelpCenterComponent },
   { path: 'account', component: Account },
   { path: 'categories', component: CategoryComponent },
   { path: 'orders/:id', component: OrderDetailComponent },

@@ -1,0 +1,7 @@
+:host {
+  display: block;
+}
+
+.card h4 {
+  color: var(--accent-color);
+}

@@ -63,7 +63,9 @@ def test_create_order_check_cost():
     requests.post(f"{cart_url}/items", json={"productId": shared_data['prod_id'], "quantity": 1}, headers=u_head)
     ord_res = requests.post(ord_url, json={"shippingAddress": {"street": "S", "city": "C", "country": "E"}}, headers=u_head)
     assert ord_res.status_code == 201
-    shared_data['ord_id'] = ord_res.json()['data']['order']['_id']
+    order_payload = ord_res.json().get('data', {})
+    order_obj = order_payload.get('order', order_payload)
+    shared_data['ord_id'] = order_obj['_id']
 
 @pytest.mark.run(order=87)
 def test_privacy_check():

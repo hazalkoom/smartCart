@@ -29,6 +29,8 @@ import { AdminOrdersComponent } from './features/admin-orders/admin-orders.compo
 import { AdminUsersComponent } from './features/admin-users/admin-users.component';
 import { AdminProductsComponent } from './features/admin-products/admin-products.component';
 import { AdminCategoriesComponent } from './features/admin-categories/admin-categories.component';
+import { AboutComponent } from './features/about/about';
+import { HelpCenterComponent } from './features/help-center/help-center';
 
 @NgModule({
   declarations: [
@@ -52,7 +54,9 @@ import { AdminCategoriesComponent } from './features/admin-categories/admin-cate
     AdminOrdersComponent,
     AdminUsersComponent,
     AdminProductsComponent,
-    AdminCategoriesComponent
+    AdminCategoriesComponent,
+    AboutComponent,
+    HelpCenterComponent
   ],
   imports: [
     BrowserModule,

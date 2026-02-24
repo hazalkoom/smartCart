@@ -4,7 +4,7 @@
 
 /* Order Header */
 .order-header {
-    background: linear-gradient(135deg, var(--accent-color) 0%, #9A884C 100%);
+    background: linear-gradient(135deg, var(--accent-color) 0%, #1e3a8a 100%);
     padding: 50px;
     border-radius: 16px;
     color: #fff;

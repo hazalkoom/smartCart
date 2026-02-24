@@ -103,7 +103,9 @@ def setup_data():
         "shippingAddress": {"street": "Web St", "city": "Cairo", "country": "EG"}
     }, headers=user_headers)
     
-    order_id = res_order.json()['data']['order']['_id']
+    order_payload = res_order.json().get('data', {})
+    order_obj = order_payload.get('order', order_payload)
+    order_id = order_obj['_id']
     
     return {
         "order_id": order_id,

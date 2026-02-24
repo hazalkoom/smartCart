@@ -3,11 +3,47 @@
   position: relative;
 }
 
+.brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  height: 34px;
+  overflow: visible;
+}
+
+.brand-logo {
+  width: auto;
+  height: 100px;
+  max-width: 300px;
+  object-fit: contain;
+  display: block;
+  transform: scale(1.9);
+  transform-origin: left center;
+}
+
+@media (max-width: 768px) {
+  .brand-link {
+    height: 28px;
+  }
+
+  .brand-logo {
+    height: 28px;
+    max-width: 240px;
+    transform: scale(1.55);
+  }
+}
+
+#header-wrap,
+#header,
+#navbar {
+  background-color: var(--light-color);
+}
+
 .cart-badge {
   position: absolute;
   top: -8px;
   right: -8px;
-  background-color: #e74c3c;
+  background-color: #1d4ed8;
   color: white;
   border-radius: 50%;
   width: 20px;
@@ -28,5 +64,3 @@
 .btn-logout:hover {
   opacity: 0.7;
 }
-
-

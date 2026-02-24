@@ -20,6 +20,11 @@ export class CheckoutComponent implements OnInit {
   error: string = '';
   shippingCost: number = 5.00;
 
+  // Order Success State
+  orderPlaced: boolean = false;
+  placedOrderId: string = '';
+  isPaymentProcessing: boolean = false;
+
   // Form Data
   shippingAddress: ShippingAddress = {
     street: '',
@@ -52,7 +57,9 @@ export class CheckoutComponent implements OnInit {
         if (res.success && res.data) {
           this.cart = res.data;
           if (!this.cart.items || this.cart.items.length === 0) {
+            // Cart is empty, redirect to cart page
             this.router.navigate(['/cart']);
+            return;
           }
         }
         this.isLoading = false;
@@ -70,8 +77,25 @@ export class CheckoutComponent implements OnInit {
     return this.cart.subtotal + shipping;
   }
 
-  placeOrder() {
-    // 1. Basic Validation
+  placeOrder(form: any) {
+    // 0. Check if cart has items
+    if (!this.cart || !this.cart.items || this.cart.items.length === 0) {
+      this.error = 'Your cart is empty. Please add items before placing an order.';
+      setTimeout(() => this.router.navigate(['/products']), 2000);
+      return;
+    }
+
+    // 1. Check form validity
+    if (form && !form.valid) {
+      this.error = 'Please fill in all required fields correctly.';
+      // Mark all fields as touched to show validation errors
+      Object.keys(form.controls).forEach(key => {
+        form.controls[key].markAsTouched();
+      });
+      return;
+    }
+
+    // 2. Basic Validation
     if (!this.shippingAddress.street || !this.shippingAddress.city || !this.shippingAddress.country) {
       this.error = 'Please fill in all required address fields.';
       return;
@@ -85,62 +109,134 @@ export class CheckoutComponent implements OnInit {
     this.isProcessing = true;
     this.error = '';
 
-    // 2. Create Order
+    // Log what we're sending for debugging
+    console.log('📤 Sending order with shippingAddress:', this.shippingAddress);
+
+    // 3. Create Order Only
     this.orderService.createOrder(this.shippingAddress).subscribe({
       next: (orderRes: any) => {
-        const orderId = orderRes?.data?._id || orderRes?.order?._id || orderRes?._id;
+        console.log('✅ Order response:', orderRes);
+        
+        // Backend returns { success: true, data: {...order} }
+        const orderId = orderRes?.data?._id;
 
         if (orderRes.success && orderId) {
-          // 3. Initiate Paymob Payment
-          this.orderService.payOrder(orderId, {
-            paymentMethod: this.paymentMethod,
-            mobileNumber: this.mobileNumber
-          }).subscribe({
-            next: (payRes: any) => {
-              this.isProcessing = false;
-              this.cartService.getCart().subscribe(); // Refresh cart
-              
-              console.log('🔥 BACKEND PAYMENT RESPONSE:', payRes);
-
-              // Hunt for the URL aggressively
-              const paymentUrl = payRes?.url || 
-                                 payRes?.data?.url || 
-                                 payRes?.data?.iframeUrl || 
-                                 payRes?.data?.redirectUrl || 
-                                 payRes?.iframeUrl || 
-                                 payRes?.redirectUrl;
-
-              const fawryCode = payRes?.billReference || payRes?.data?.billReference;
-
-              if (paymentUrl) {
-                window.location.href = paymentUrl;
-              } else if (fawryCode) {
-                alert(`Your Fawry Reference Code is: ${fawryCode}`);
-                this.router.navigate(['/account']);
-              } else {
-                alert('Order placed successfully, but frontend could not find the payment URL. Check F12 Console.');
-                this.router.navigate(['/account']);
-              }
-            },
-            error: (payErr) => {
-              this.isProcessing = false;
-              console.error('Payment Error:', payErr);
-              this.error = 'Order created, but payment connection failed. You can pay later from your account.';
-              setTimeout(() => this.router.navigate(['/account']), 3000);
+          this.isProcessing = false;
+          this.placedOrderId = orderId;
+          this.orderPlaced = true;
+          
+          console.log('🎉 Order placed successfully! ID:', orderId);
+          
+          // Refresh cart to reflect it's now empty
+          this.cartService.getCart().subscribe({
+            next: (cartRes) => {
+              this.cart = cartRes.data;
             }
           });
         } else {
           this.isProcessing = false;
-          this.cartService.getCart().subscribe();
-          alert('Order placed successfully! Please visit your account to complete payment.');
-          this.router.navigate(['/account']);
+          console.error('❌ Unexpected response format:', orderRes);
+          this.error = 'Failed to create order. Please try again.';
         }
       },
       error: (err) => {
         console.error('Order Creation Error:', err);
+        console.error('Error details:', JSON.stringify(err.error, null, 2));
         this.isProcessing = false;
-        this.error = err.error?.error?.message || err.error?.message || 'Failed to place order.';
+        
+        // Provide helpful error messages
+        if (err.error?.message === 'Cart is empty') {
+          this.error = 'Your cart is empty. Please add items to your cart before placing an order.';
+          setTimeout(() => this.router.navigate(['/products']), 2000);
+        } else {
+          this.error = err.error?.error?.message || 
+                       err.error?.message || 
+                       err.message || 
+                       'Failed to place order. Please check all required fields.';
+        }
       }
     });
+  }
+
+  completePaymentNow() {
+    if (!this.placedOrderId) {
+      this.error = 'Order ID not found. Please try again.';
+      return;
+    }
+
+    // Validate mobile number if wallet or fawry is selected
+    if ((this.paymentMethod === 'wallet' || this.paymentMethod === 'fawry')) {
+      if (!this.mobileNumber || !this.mobileNumber.trim()) {
+        this.error = 'Mobile number is required for Wallet and Fawry payments.';
+        return;
+      }
+      
+      // Validate Egyptian mobile format: 01[0125]XXXXXXXX
+      const mobileRegex = /^01[0125][0-9]{8}$/;
+      if (!mobileRegex.test(this.mobileNumber.trim())) {
+        this.error = 'Invalid mobile number. Must be Egyptian format: 010/011/012/015 followed by 8 digits (e.g., 01012345678)';
+        return;
+      }
+    }
+
+    this.isPaymentProcessing = true;
+    this.error = '';
+
+    // Prepare payment data - only include mobileNumber if it has a value
+    const paymentData: any = {
+      paymentMethod: this.paymentMethod
+    };
+    
+    if (this.mobileNumber && this.mobileNumber.trim()) {
+      paymentData.mobileNumber = this.mobileNumber.trim();
+    }
+
+    console.log('💳 Initiating payment with:', paymentData);
+
+    // Initiate Paymob Payment
+    this.orderService.payOrder(this.placedOrderId, paymentData).subscribe({
+      next: (payRes: any) => {
+        this.isPaymentProcessing = false;
+        
+        console.log('🔥 BACKEND PAYMENT RESPONSE:', payRes);
+
+        // Hunt for the URL aggressively
+        const paymentUrl = payRes?.url || 
+                           payRes?.data?.url || 
+                           payRes?.data?.iframeUrl || 
+                           payRes?.data?.redirectUrl || 
+                           payRes?.iframeUrl || 
+                           payRes?.redirectUrl;
+
+        const fawryCode = payRes?.billReference || payRes?.data?.billReference;
+
+        if (paymentUrl) {
+          window.location.href = paymentUrl;
+        } else if (fawryCode) {
+          alert(`Your Fawry Reference Code is: ${fawryCode}`);
+          this.router.navigate(['/account']);
+        } else {
+          alert('Could not find payment URL. Check console or visit your account.');
+          this.router.navigate(['/account']);
+        }
+      },
+      error: (payErr) => {
+        this.isPaymentProcessing = false;
+        console.error('Payment Error:', payErr);
+        console.error('Payment Error Details:', JSON.stringify(payErr.error, null, 2));
+        
+        // Extract detailed error message
+        const errorMsg = payErr.error?.message || 
+                         payErr.error?.error?.message || 
+                         payErr.message || 
+                         'Payment connection failed';
+        
+        this.error = `${errorMsg}. You can pay later from your account.`;
+      }
+    });
+  }
+
+  goToMyOrders() {
+    this.router.navigate(['/account']);
   }
 }

@@ -20,8 +20,8 @@ const createOrder = asyncHandler(async (req, res) => {
   try {
     const order = await OrderService.createOrder(req.user, req.body.shippingAddress);
     res.status(201).json({
-      status: 'success',
-      data: { order },
+      success: true,
+      data: order,
     });
   } catch (err) {
     console.error("🔥 ORDER CONTROLLER ERROR:", err.message);
