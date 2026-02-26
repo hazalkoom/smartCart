@@ -116,11 +116,42 @@ const updateDetails = asyncHandler(async (req, res) => {
   });
 });
 
+// --- WISHLIST CONTROLLERS ---
+const toggleWishlist = asyncHandler(async (req, res) => {
+  const { productId } = req.body;
+  if (!productId) {
+    res.status(400);
+    throw new Error('Please provide a product ID');
+  }
+  const wishlist = await AuthService.toggleWishlist(req.user.id, productId);
+  res.status(200).json({ success: true, data: wishlist });
+});
+
+const getWishlist = asyncHandler(async (req, res) => {
+  const wishlist = await AuthService.getWishlist(req.user.id);
+  res.status(200).json({ success: true, data: wishlist });
+});
+
+// --- ADDRESS CONTROLLERS ---
+const addAddress = asyncHandler(async (req, res) => {
+  const addresses = await AuthService.addAddress(req.user.id, req.body);
+  res.status(201).json({ success: true, data: addresses, message: 'Address added successfully' });
+});
+
+const deleteAddress = asyncHandler(async (req, res) => {
+  const addresses = await AuthService.deleteAddress(req.user.id, req.params.id);
+  res.status(200).json({ success: true, data: addresses, message: 'Address removed successfully' });
+});
+
 module.exports = {
   registerUser,
   loginUser,
   getMe,
   forgotPassword,
   resetPassword,
-  updateDetails
+  updateDetails,
+  toggleWishlist,
+  getWishlist,
+  addAddress,
+  deleteAddress
 };

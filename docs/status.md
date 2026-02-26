@@ -22,6 +22,8 @@ It distinguishes:
   - Register/login/me
   - Forgot/reset password flows
   - Update user details
+  - Wishlist endpoints (`POST/GET /auth/wishlist`)
+  - Saved address endpoints (`POST /auth/addresses`, `DELETE /auth/addresses/:id`)
 - **RBAC + JWT authorization**
   - Roles: `customer`, `admin`, `owner`
 - **Catalog**

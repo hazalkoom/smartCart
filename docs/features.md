@@ -21,11 +21,14 @@ Customers can:
 - Retrieve their profile
 - Update basic profile details
 - Initiate password reset and set a new password
+- Add/remove products in a personal wishlist
+- Save and delete shipping addresses for faster checkout
 
 Constraints / edge cases:
 
 - Passwords are hashed and never returned.
 - Password reset tokens are generated server-side; **email delivery is not evidenced** in this repo (tokens are returned for testing).
+- Saved addresses are user-scoped and include alias/street/city/postalCode/country (plus optional default flag).
 
 ### Browse catalog
 

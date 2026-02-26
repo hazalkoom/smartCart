@@ -494,6 +494,56 @@
     transform: translateY(-2px);
 }
 
+.address-list {
+    display: grid;
+    gap: 14px;
+}
+
+.address-card {
+    border: 1px solid #ececec;
+    border-radius: 10px;
+    padding: 16px;
+    background: #fff;
+}
+
+.address-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.address-label-wrap {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.default-badge {
+    background: #dbeafe;
+    color: #1e40af;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+}
+
+.address-card-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.address-line {
+    color: #444;
+}
+
+.address-form {
+    border-top: 1px solid #ececec;
+    padding-top: 20px;
+}
+
 /* Quick Actions */
 .quick-actions {
     display: grid;

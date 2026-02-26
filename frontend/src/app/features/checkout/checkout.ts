@@ -3,9 +3,11 @@ import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../core/services/cart';
 import { OrderService } from '../../core/services/order';
+import { AuthService } from '../../core/services/auth';
 import { Cart } from '../../core/interfaces/cart';
 import { Subscription } from 'rxjs';
 import { ShippingAddress } from '../../core/interfaces/order';
+import { User } from '../../core/interfaces/user';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -37,6 +39,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   };
   firstName: string = '';
   lastName: string = '';
+  saveInfo: boolean = true;
+  currentUser: User | null = null;
 
   // --- NEW: Payment Data ---
   paymentMethod: 'card' | 'wallet' | 'fawry' = 'card';
@@ -46,12 +50,104 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   constructor(
     private cartService: CartService,
     private orderService: OrderService,
+    private authService: AuthService,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
+    const profileSub = this.authService.currentUser$.subscribe((user) => {
+      if (user) {
+        this.currentUser = user;
+        this.firstName = user.firstName || '';
+        this.lastName = user.lastName || '';
+        this.applySavedDefaultAddress();
+      }
+    });
+    this.subscriptions.push(profileSub);
+
+    this.authService.getUserProfile().subscribe();
     this.loadCart();
+  }
+
+  private getAddressStorageKey(): string {
+    const userId = this.currentUser?._id || 'guest';
+    return `smartcart_saved_addresses_${userId}`;
+  }
+
+  private applySavedDefaultAddress(): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    try {
+      const raw = localStorage.getItem(this.getAddressStorageKey());
+      if (!raw) {
+        return;
+      }
+
+      const saved = JSON.parse(raw);
+      if (!Array.isArray(saved) || saved.length === 0) {
+        return;
+      }
+
+      const defaultAddress = saved.find((address: any) => address.isDefault) || saved[0];
+      this.shippingAddress = {
+        street: defaultAddress.street || '',
+        city: defaultAddress.city || '',
+        state: defaultAddress.state || '',
+        zip: defaultAddress.zip || '',
+        country: defaultAddress.country || ''
+      };
+    } catch {
+      // ignore malformed localStorage payload
+    }
+  }
+
+  private saveCurrentAddressForNextTime(): void {
+    if (!isPlatformBrowser(this.platformId) || !this.currentUser?._id || !this.saveInfo) {
+      return;
+    }
+
+    const normalizedAddress = {
+      street: this.shippingAddress.street?.trim() || '',
+      city: this.shippingAddress.city?.trim() || '',
+      state: this.shippingAddress.state?.trim() || '',
+      zip: this.shippingAddress.zip?.trim() || '',
+      country: this.shippingAddress.country?.trim() || ''
+    };
+
+    if (!normalizedAddress.street || !normalizedAddress.city || !normalizedAddress.country) {
+      return;
+    }
+
+    try {
+      const key = this.getAddressStorageKey();
+      const raw = localStorage.getItem(key);
+      const existing = raw ? JSON.parse(raw) : [];
+      const list = Array.isArray(existing) ? existing : [];
+
+      const duplicateIndex = list.findIndex((address: any) =>
+        (address.street || '').trim().toLowerCase() === normalizedAddress.street.toLowerCase() &&
+        (address.city || '').trim().toLowerCase() === normalizedAddress.city.toLowerCase() &&
+        (address.state || '').trim().toLowerCase() === normalizedAddress.state.toLowerCase() &&
+        (address.zip || '').trim().toLowerCase() === normalizedAddress.zip.toLowerCase() &&
+        (address.country || '').trim().toLowerCase() === normalizedAddress.country.toLowerCase()
+      );
+
+      if (duplicateIndex === -1) {
+        list.push({
+          id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+          label: `Address ${list.length + 1}`,
+          ...normalizedAddress,
+          isDefault: list.length === 0
+        });
+      }
+
+      localStorage.setItem(key, JSON.stringify(list));
+    } catch {
+      // ignore localStorage persistence errors
+    }
   }
 
   loadCart() {
@@ -111,6 +207,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
     this.isProcessing = true;
     this.error = '';
+    this.saveCurrentAddressForNextTime();
 
     // 3. Create Order Only
     this.orderService.createOrder(this.shippingAddress).subscribe({

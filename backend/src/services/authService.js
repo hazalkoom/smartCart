@@ -92,6 +92,56 @@ class AuthService {
     if (!user) throw new Error('User not found');
     return user;
   }
+
+  async toggleWishlist(userId, productId) {
+    const user = await User.findById(userId);
+    if (!user) throw new Error('User not found');
+    
+    // Check if product is already in wishlist
+    const isLiked = user.wishlist.includes(productId);
+    
+    if (isLiked) {
+      user.wishlist.pull(productId); // Remove it
+    } else {
+      user.wishlist.push(productId); // Add it
+    }
+    
+    await user.save();
+    return user.wishlist;
+  }
+
+  async getWishlist(userId) {
+    // Populate pulls the actual product data instead of just IDs
+    const user = await User.findById(userId).populate('wishlist');
+    if (!user) throw new Error('User not found');
+    return user.wishlist;
+  }
+
+  // --- ADDRESS LOGIC ---
+  async addAddress(userId, addressData) {
+    const user = await User.findById(userId);
+    if (!user) throw new Error('User not found');
+
+    // If they set this as default, unset all other defaults
+    if (addressData.isDefault) {
+      user.addresses.forEach(addr => addr.isDefault = false);
+    }
+
+    user.addresses.push(addressData);
+    await user.save();
+    return user.addresses;
+  }
+
+  async deleteAddress(userId, addressId) {
+    const user = await User.findById(userId);
+    if (!user) throw new Error('User not found');
+
+    user.addresses.pull({ _id: addressId });
+    await user.save();
+    return user.addresses;
+  }
 }
+
+
 
 module.exports = new AuthService();

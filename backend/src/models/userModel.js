@@ -3,6 +3,10 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
 const addressSchema = new mongoose.Schema({
+  alias: {
+    type: String,
+    required: [true, 'Alias (e.g., Home, Work) is required'],
+  },
   street: {
     type: String,
     required: [true, 'Street is required'],
@@ -11,17 +15,20 @@ const addressSchema = new mongoose.Schema({
     type: String,
     required: [true, 'City is required'],
   },
-  state: {
-    type: String, 
-  },
-  zip: {
+  postalCode: {
     type: String,
+    required: [true, 'Postal code is required'],
   },
   country: {
     type: String,
     required: [true, 'Country is required'],
   },
+  isDefault: {
+    type: Boolean,
+    default: false
+  }
 });
+
 
 const userSchema = new mongoose.Schema(
   {
@@ -61,7 +68,14 @@ const userSchema = new mongoose.Schema(
     addresses: [addressSchema],
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+    
+    wishlist: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product'
+    }],
   },
+    
+  
   {
     timestamps: true,
   }

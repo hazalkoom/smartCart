@@ -6,7 +6,14 @@ import { AuthService } from '../../core/services/auth';
 import { OrderService } from '../../core/services/order';
 import { User } from '../../core/interfaces/user';
 import { Order } from '../../core/interfaces/order';
+import { ShippingAddress } from '../../core/interfaces/order';
 import { environment } from '../../../environments/environment';
+
+interface SavedAddress extends ShippingAddress {
+  id: string;
+  label: string;
+  isDefault: boolean;
+}
 
 @Component({
   selector: 'app-account',
@@ -26,6 +33,18 @@ export class Account implements OnInit, OnDestroy {
   editData = { firstName: '', lastName: '', email: '' };
   updateMessage: string = '';
   // --------------------------------
+
+  savedAddresses: SavedAddress[] = [];
+  isAddingAddress: boolean = false;
+  addressErrorMessage: string = '';
+  addressSuccessMessage: string = '';
+  newAddress: ShippingAddress = {
+    street: '',
+    city: '',
+    state: '',
+    zip: '',
+    country: ''
+  };
 
   private subscriptions: Subscription[] = [];
 
@@ -53,6 +72,7 @@ export class Account implements OnInit, OnDestroy {
           this.user = user;
           // Initialize edit form with current data
           this.resetEditData();
+          this.loadSavedAddresses();
         }
       });
       this.subscriptions.push(userSub);
@@ -73,6 +93,101 @@ export class Account implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  private getAddressStorageKey(): string {
+    const userId = this.user?._id || 'guest';
+    return `smartcart_saved_addresses_${userId}`;
+  }
+
+  private loadSavedAddresses(): void {
+    if (!isPlatformBrowser(this.platformId) || !this.user?._id) {
+      this.savedAddresses = [];
+      return;
+    }
+
+    try {
+      const raw = localStorage.getItem(this.getAddressStorageKey());
+      this.savedAddresses = raw ? JSON.parse(raw) : [];
+    } catch {
+      this.savedAddresses = [];
+    }
+  }
+
+  private persistSavedAddresses(): void {
+    if (!isPlatformBrowser(this.platformId) || !this.user?._id) {
+      return;
+    }
+
+    localStorage.setItem(this.getAddressStorageKey(), JSON.stringify(this.savedAddresses));
+  }
+
+  startAddAddress(): void {
+    this.isAddingAddress = true;
+    this.addressErrorMessage = '';
+    this.addressSuccessMessage = '';
+    this.newAddress = {
+      street: '',
+      city: '',
+      state: '',
+      zip: '',
+      country: ''
+    };
+  }
+
+  cancelAddAddress(): void {
+    this.isAddingAddress = false;
+    this.addressErrorMessage = '';
+  }
+
+  saveAddress(): void {
+    this.addressErrorMessage = '';
+    this.addressSuccessMessage = '';
+
+    if (!this.newAddress.street?.trim() || !this.newAddress.city?.trim() || !this.newAddress.country?.trim()) {
+      this.addressErrorMessage = 'Street, city, and country are required.';
+      return;
+    }
+
+    const safeState = this.newAddress.state?.trim() || '';
+    const safeZip = this.newAddress.zip?.trim() || '';
+
+    const nextAddress: SavedAddress = {
+      id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      label: `Address ${this.savedAddresses.length + 1}`,
+      street: this.newAddress.street.trim(),
+      city: this.newAddress.city.trim(),
+      state: safeState,
+      zip: safeZip,
+      country: this.newAddress.country.trim(),
+      isDefault: this.savedAddresses.length === 0
+    };
+
+    this.savedAddresses.push(nextAddress);
+    this.persistSavedAddresses();
+    this.isAddingAddress = false;
+    this.addressSuccessMessage = 'Address saved successfully.';
+  }
+
+  setDefaultAddress(addressId: string): void {
+    this.savedAddresses = this.savedAddresses.map((address) => ({
+      ...address,
+      isDefault: address.id === addressId
+    }));
+    this.persistSavedAddresses();
+    this.addressSuccessMessage = 'Default address updated.';
+  }
+
+  deleteAddress(addressId: string): void {
+    const deleted = this.savedAddresses.find((address) => address.id === addressId);
+    this.savedAddresses = this.savedAddresses.filter((address) => address.id !== addressId);
+
+    if (deleted?.isDefault && this.savedAddresses.length > 0) {
+      this.savedAddresses[0].isDefault = true;
+    }
+
+    this.persistSavedAddresses();
+    this.addressSuccessMessage = 'Address removed.';
   }
 
   // --- New Toggle Function ---
