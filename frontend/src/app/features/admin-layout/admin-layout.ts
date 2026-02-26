@@ -15,6 +15,8 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
   currentUser: User | null = null;
   isOwner: boolean = false;
   userInitial: string = '';
+  adminMobileMenuOpen: boolean = false;
+  adminCurrentYear = new Date().getFullYear();
   private subscription: Subscription | null = null;
 
   constructor(
@@ -52,5 +54,13 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+  }
+
+  toggleAdminMobileMenu(): void {
+    this.adminMobileMenuOpen = !this.adminMobileMenuOpen;
+  }
+
+  closeAdminMobileMenu(): void {
+    this.adminMobileMenuOpen = false;
   }
 }

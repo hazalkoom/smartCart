@@ -585,9 +585,11 @@
         transform: scale(0);
         opacity: 0;
     }
+
     50% {
         transform: scale(1.1);
     }
+
     100% {
         transform: scale(1);
         opacity: 1;
@@ -617,8 +619,78 @@
 
 .payment-info {
     transition: all 0.3s ease;
+    background: #f8f9fa;
+    border-radius: 8px;
 }
 
 .payment-info:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Success icon */
+.success-icon i {
+    font-size: 5em;
+    color: #28a745;
+}
+
+/* Success subtitle */
+.success-subtitle {
+    font-size: 1.1em;
+    color: #666;
+}
+
+/* Payment icon large */
+.payment-icon-lg {
+    font-size: 2em;
+    color: #6C5F5B;
+}
+
+/* Payment method text */
+.payment-method-name {
+    text-transform: capitalize;
+}
+
+/* Complete payment button */
+.btn-complete-payment {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border: none;
+    font-weight: 600;
+    padding: 15px;
+}
+
+.btn-complete-payment:hover {
+    background: linear-gradient(135deg, #218838, #1aa784);
+}
+
+/* Payment method selector */
+.payment-methods {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.payment-method {
+    cursor: pointer;
+    flex: 1;
+    text-align: center;
+    border: 1px solid #EAE8DF;
+    padding: 15px;
+    border-radius: 8px;
+    transition: 0.2s;
+}
+
+.payment-method-icon {
+    font-size: 1.5em;
+}
+
+.payment-method-label {
+    font-weight: 600;
+    margin-top: 5px;
+    display: block;
+}
+
+/* Free shipping badge */
+.free-shipping {
+    color: #28a745;
+    font-weight: 700;
 }

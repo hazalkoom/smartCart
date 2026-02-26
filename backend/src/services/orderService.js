@@ -127,14 +127,25 @@ class OrderService {
 
     const currentStatus = order.status;
 
-    // 1. Strict Flow Rules (Prevent jumping steps)
-    // Admin cannot mark as 'Shipped' unless it is 'Paid'
-    if (newStatus === 'Shipped' && currentStatus !== 'Paid') {
-      throw { statusCode: 400, message: 'Order must be Paid before Shipping.' };
+    const allowedTransitions = {
+      Pending: ['Paid', 'Cancelled'],
+      Paid: ['Shipped', 'Cancelled'],
+      Shipped: ['Delivered'],
+      Delivered: [],
+      Cancelled: [],
+    };
+
+    if (newStatus === currentStatus) {
+      return order;
     }
-    // Admin cannot mark as 'Delivered' unless it is 'Shipped'
-    if (newStatus === 'Delivered' && currentStatus !== 'Shipped') {
-      throw { statusCode: 400, message: 'Order must be Shipped before Delivery.' };
+
+    const allowedNext = allowedTransitions[currentStatus] || [];
+    if (!allowedNext.includes(newStatus)) {
+      const allowedText = allowedNext.length > 0 ? allowedNext.join(' or ') : 'none';
+      throw {
+        statusCode: 400,
+        message: `Invalid status transition from ${currentStatus} to ${newStatus}. Allowed next status: ${allowedText}.`,
+      };
     }
 
     // 2. Cancellation Logic (Restock Items)

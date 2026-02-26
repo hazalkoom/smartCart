@@ -21,6 +21,11 @@ export class ProductListComponent implements OnInit {
   products: Product[] = [];
   isLoading: boolean = true;
   error: string = '';
+  searchTerm: string = '';
+  currentPage: number = 1;
+  totalPages: number = 1;
+  totalItems: number = 0;
+  readonly pageSize = 12;
 
   constructor(
     private productService: ProductService,
@@ -39,18 +44,76 @@ export class ProductListComponent implements OnInit {
 
     // 3. Listen for URL changes (Search & Filters)
     this.route.queryParams.subscribe(params => {
+      this.searchTerm = params['keyword'] || '';
+      this.currentPage = Number(params['page']) > 0 ? Number(params['page']) : 1;
       this.loadProducts(params);
     });
+
+    this.route.fragment.subscribe((fragment) => {
+      if (fragment === 'products-search-input' && isPlatformBrowser(this.platformId)) {
+        setTimeout(() => {
+          const searchInput = document.querySelector('.products-search-input') as HTMLInputElement | null;
+          if (searchInput) {
+            searchInput.focus();
+          }
+        }, 0);
+      }
+    });
+  }
+
+  onSearch(): void {
+    const keyword = this.searchTerm.trim();
+    const queryParams: Record<string, string | number> = { page: 1 };
+
+    if (keyword) {
+      queryParams['keyword'] = keyword;
+    }
+
+    this.router.navigate(['/products'], {
+      queryParams,
+      queryParamsHandling: ''
+    });
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages || page === this.currentPage) {
+      return;
+    }
+
+    const queryParams: Record<string, string | number> = { page };
+    const keyword = this.searchTerm.trim();
+
+    if (keyword) {
+      queryParams['keyword'] = keyword;
+    }
+
+    this.router.navigate(['/products'], {
+      queryParams,
+      queryParamsHandling: ''
+    });
+  }
+
+  get pages(): number[] {
+    return Array.from({ length: this.totalPages }, (_, index) => index + 1);
   }
 
   // 4. Accept params (default to empty object)
   loadProducts(params: any = {}): void {
     this.isLoading = true;
+
+    const queryParams = {
+      page: this.currentPage,
+      limit: this.pageSize,
+      ...params,
+    };
     
     // Pass params to the service (Backend handles ?keyword=...)
-    this.productService.getProducts(params).subscribe({
+    this.productService.getProducts(queryParams).subscribe({
       next: (response) => {
         this.products = response.data;
+        this.currentPage = response.page || this.currentPage;
+        this.totalPages = response.pages || 1;
+        this.totalItems = response.total || response.count || this.products.length;
         this.isLoading = false;
 
         if (isPlatformBrowser(this.platformId) && typeof AOS !== 'undefined') {

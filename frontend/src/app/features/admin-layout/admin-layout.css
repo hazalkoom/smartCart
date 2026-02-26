@@ -1,0 +1,6 @@
+/* Admin logo inline image */
+.admin-logo-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}

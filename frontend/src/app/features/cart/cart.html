@@ -15,7 +15,7 @@
           <div class="shipping-progress-text">
             <i class="icon icon-truck"></i>
             <span *ngIf="cart.subtotal < 100">Add ${{ (100 - cart.subtotal).toFixed(2) }} more to get FREE shipping!</span>
-            <span *ngIf="cart.subtotal >= 100" style="color: #28a745;">🎉 You've qualified for FREE shipping!</span>
+            <span *ngIf="cart.subtotal >= 100" class="free-shipping-text">🎉 You've qualified for FREE shipping!</span>
           </div>
           <div class="progress">
             <div class="progress-bar" [style.width.%]="(cart.subtotal / 100) * 100"></div>
@@ -42,7 +42,7 @@
         </svg>
       </div>
       <h3>Your cart is empty</h3>
-      <p class="text-muted">Looks like you haven't added any books yet.</p>
+      <p class="text-muted">Looks like you haven't added any products yet.</p>
       <button class="btn btn-primary mt-3" (click)="continueShopping()">Start Shopping</button>
     </div>
 
@@ -65,7 +65,7 @@
                   <img [src]="getProductImage(item)" [alt]="getProductName(item)">
                   <div class="product-name">
                     <h5>
-                      <a [routerLink]="['/products', getProductSlug(item)]" style="text-decoration: none; color: inherit;">
+                      <a [routerLink]="['/products', getProductSlug(item)]" class="product-name-link">
                         {{ getProductName(item) }}
                       </a>
                     </h5>
@@ -113,7 +113,7 @@
             </li>
             <li class="list-group-item">
               <span>Shipping</span>
-              <span *ngIf="cart.subtotal >= 100" style="color: #28a745; font-weight: 700;">FREE</span>
+              <span *ngIf="cart.subtotal >= 100" class="free-shipping-badge">FREE</span>
               <span *ngIf="cart.subtotal < 100">$ {{ shippingCost.toFixed(2) }}</span>
             </li>
             <li class="list-group-item">
@@ -134,7 +134,7 @@
             </div>
           </div>
           
-          <button class="btn btn-primary w-100" style="margin-top: 30px; padding: 1em;" (click)="proceedToCheckout()">
+          <button class="btn btn-primary w-100 btn-checkout" (click)="proceedToCheckout()">
             Proceed to Checkout
           </button>
         </div>

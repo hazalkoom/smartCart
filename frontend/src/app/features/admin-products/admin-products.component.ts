@@ -12,7 +12,7 @@ interface Product {
   sku?: string;
   stock: number;
   images?: string[];
-  category?: any;
+  categoryId?: any;
 }
 
 @Component({
@@ -22,7 +22,9 @@ interface Product {
   styleUrl: './admin-products.component.css'
 })
 export class AdminProductsComponent implements OnInit, OnDestroy {
+  Math = Math;
   categories: Category[] = [];
+  allProducts: Product[] = [];
   products: Product[] = [];
 
   productForm = {
@@ -32,7 +34,8 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     costPrice: '',
     sku: '',
     category: '',
-    stock: ''
+    stock: '',
+    imageUrl: ''
   };
 
   isLoading: boolean = true;
@@ -42,6 +45,10 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
   deletingProductId: string | null = null;
   isEditing: boolean = false;
   editingProductId: string | null = null;
+
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalProducts: number = 0;
 
   private subscriptions: Subscription[] = [];
 
@@ -56,6 +63,14 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  get totalPages(): number {
+    return Math.ceil(this.totalProducts / this.pageSize) || 1;
+  }
+
+  get pageNumbers(): number[] {
+    return Array.from({ length: this.totalPages }, (_, index) => index + 1);
   }
 
   loadData(): void {
@@ -74,9 +89,12 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     this.subscriptions.push(catSub);
 
     // Load products
-    const prodSub = this.productService.getProducts().subscribe({
+    const prodSub = this.productService.getProducts({ limit: 200 }).subscribe({
       next: (res: any) => {
-        this.products = res.data || [];
+        this.allProducts = res.data || [];
+        this.totalProducts = this.allProducts.length;
+        this.currentPage = 1;
+        this.applyPagination();
         this.isLoading = false;
       },
       error: (err: any) => {
@@ -110,7 +128,8 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
       costPrice: this.productForm.costPrice ? parseFloat(this.productForm.costPrice) : 0,
       sku: this.productForm.sku.toUpperCase(),
       categoryId: this.productForm.category,
-      stock: parseInt(this.productForm.stock, 10)
+      stock: parseInt(this.productForm.stock, 10),
+      images: this.productForm.imageUrl ? [this.productForm.imageUrl.trim()] : []
     };
 
     const request$ = this.isEditing && this.editingProductId
@@ -163,7 +182,8 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
       costPrice: '',
       sku: '',
       category: '',
-      stock: ''
+      stock: '',
+      imageUrl: ''
     };
     this.isEditing = false;
     this.editingProductId = null;
@@ -178,14 +198,71 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
       price: product.price?.toString() || '',
       costPrice: product.costPrice?.toString() || '',
       sku: product.sku || '',
-      category: product.category?._id || product.category || '',
-      stock: product.stock?.toString() || ''
+      category: this.getCategoryId(product),
+      stock: product.stock?.toString() || '',
+      imageUrl: product.images && product.images.length > 0 ? product.images[0] : ''
     };
     this.scrollToForm();
   }
 
+  getCategoryName(product: Product): string {
+    if (!product.categoryId) {
+      return 'Uncategorized';
+    }
+
+    if (typeof product.categoryId === 'string') {
+      const category = this.categories.find((cat) => cat._id === product.categoryId);
+      return category?.name || 'Uncategorized';
+    }
+
+    return product.categoryId.name || 'Uncategorized';
+  }
+
+  private getCategoryId(product: Product): string {
+    if (!product.categoryId) {
+      return '';
+    }
+
+    if (typeof product.categoryId === 'string') {
+      return product.categoryId;
+    }
+
+    return product.categoryId._id || '';
+  }
+
   cancelEdit(): void {
     this.resetForm();
+  }
+
+  applyPagination(): void {
+    const start = (this.currentPage - 1) * this.pageSize;
+    const end = start + this.pageSize;
+    this.products = this.allProducts.slice(start, end);
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) {
+      return;
+    }
+
+    this.currentPage = page;
+    this.applyPagination();
+  }
+
+  nextPage(): void {
+    this.goToPage(this.currentPage + 1);
+  }
+
+  prevPage(): void {
+    this.goToPage(this.currentPage - 1);
+  }
+
+  getPreviewImage(): string {
+    if (this.productForm.imageUrl && this.productForm.imageUrl.trim()) {
+      return this.productForm.imageUrl.trim();
+    }
+
+    return 'assets/images/placeholder.jpg';
   }
 
   private scrollToForm(): void {

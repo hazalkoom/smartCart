@@ -59,22 +59,37 @@ export default {
   },
   {
     "renderMode": 0,
+    "preload": [
+      "chunk-E37XBZWR.js"
+    ],
     "route": "/admin"
   },
   {
     "renderMode": 0,
+    "preload": [
+      "chunk-E37XBZWR.js"
+    ],
     "route": "/admin/orders"
   },
   {
     "renderMode": 0,
+    "preload": [
+      "chunk-E37XBZWR.js"
+    ],
     "route": "/admin/users"
   },
   {
     "renderMode": 0,
+    "preload": [
+      "chunk-E37XBZWR.js"
+    ],
     "route": "/admin/products"
   },
   {
     "renderMode": 0,
+    "preload": [
+      "chunk-E37XBZWR.js"
+    ],
     "route": "/admin/categories"
   },
   {
@@ -85,8 +100,8 @@ export default {
 ],
   entryPointToBrowserMapping: undefined,
   assets: {
-    'index.csr.html': {size: 4942, hash: 'fd3972723211b7da861797daff926e1a225c96a67c7695946a05afc9fb7b7ae1', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
-    'index.server.html': {size: 2112, hash: '5c39faca2a202c2edf29101d32ca3f349f86127ff7c3439f24454e0c3187c4ea', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
-    'styles-ZDF3KNS4.css': {size: 88306, hash: 'v/Qsj3cytvI', text: () => import('./assets-chunks/styles-ZDF3KNS4_css.mjs').then(m => m.default)}
+    'index.csr.html': {size: 3104, hash: 'ce07816ddd40f5d42f1e5e24d5dc7e4a43df6a7da3a78950545470c09eb3a289', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
+    'index.server.html': {size: 1848, hash: '6c3d965c1e66ea7de95e9b2186694cb265f6312e6f6ee7b4d7609f8084e3d74d', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
+    'styles-HYLH6NO5.css': {size: 81578, hash: 'gtPlpaslqbg', text: () => import('./assets-chunks/styles-HYLH6NO5_css.mjs').then(m => m.default)}
   },
 };

@@ -30,6 +30,11 @@ export class Home implements OnInit {
   heroProducts: Product[] = [];
   currentSlide: number = 0;
 
+  private readonly catalogLimit = 200;
+  private readonly featuredCount = 8;
+  private readonly categoryPreviewCount = 8;
+  private readonly heroCount = 3;
+
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
@@ -54,15 +59,16 @@ export class Home implements OnInit {
       next: (res) => { this.categories = res.data; }
     });
 
-    this.productService.getProducts().subscribe({
+    this.productService.getProducts({ limit: this.catalogLimit }).subscribe({
       next: (res) => {
         this.allProducts = res.data;
-        this.featuredProducts = res.data.slice(0, 4);
-        this.categoryProducts = res.data;
-        this.heroProducts = res.data.slice(0, 3);
+        const shuffledProducts = this.getShuffledProducts(this.allProducts);
+        this.featuredProducts = shuffledProducts.slice(0, this.featuredCount);
+        this.categoryProducts = shuffledProducts.slice(0, this.categoryPreviewCount);
+        this.heroProducts = shuffledProducts.slice(0, this.heroCount);
         
-        if (res.data.length > 0) {
-          this.bestSellingProduct = res.data[0];
+        if (shuffledProducts.length > 0) {
+          this.bestSellingProduct = shuffledProducts[0];
         }
 
         this.isLoading = false;
@@ -79,9 +85,10 @@ export class Home implements OnInit {
     this.selectedCategory = categoryId;
     
     if (categoryId === 'all') {
-      this.categoryProducts = this.allProducts;
+      this.categoryProducts = this.getShuffledProducts(this.allProducts).slice(0, this.categoryPreviewCount);
     } else {
-      this.categoryProducts = this.allProducts.filter(p => p.categoryId && p.categoryId._id === categoryId);
+      const filteredProducts = this.allProducts.filter((product) => this.getCategoryId(product) === categoryId);
+      this.categoryProducts = this.getShuffledProducts(filteredProducts).slice(0, this.categoryPreviewCount);
     }
 
     this.refreshAnimations();
@@ -91,6 +98,29 @@ export class Home implements OnInit {
     if (isPlatformBrowser(this.platformId) && typeof AOS !== 'undefined') {
       setTimeout(() => AOS.refresh(), 100);
     }
+  }
+
+  private getCategoryId(product: Product): string | null {
+    if (!product.categoryId) {
+      return null;
+    }
+
+    if (typeof product.categoryId === 'string') {
+      return product.categoryId;
+    }
+
+    return product.categoryId._id;
+  }
+
+  private getShuffledProducts(products: Product[]): Product[] {
+    const shuffled = [...products];
+
+    for (let index = shuffled.length - 1; index > 0; index--) {
+      const randomIndex = Math.floor(Math.random() * (index + 1));
+      [shuffled[index], shuffled[randomIndex]] = [shuffled[randomIndex], shuffled[index]];
+    }
+
+    return shuffled;
   }
 
   // --- NEW: Slider Logic ---
@@ -154,4 +184,5 @@ export class Home implements OnInit {
       }
     });
   }
+
 }

@@ -1,7 +1,7 @@
 <div class="card shadow-sm border-0">
-  <div class="card-header bg-gradient" style="background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%); border: none;">
+  <div class="card-header bg-gradient orders-header">
     <h5 class="mb-0 text-white d-flex align-items-center">
-      <svg class="me-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 24px; height: 24px;">
+      <svg class="me-2 orders-header-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="9" cy="21" r="1"/>
         <circle cx="20" cy="21" r="1"/>
         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
@@ -68,11 +68,10 @@
               </td>
               <td>
                 <select 
-                  class="form-select form-select-sm"
+                  class="form-select form-select-sm status-select"
                   [value]="order.status"
-                  (change)="onStatusChange($event, order._id)"
-                  style="width: 140px;">
-                  <option *ngFor="let status of statusOptions" [value]="status">
+                  (change)="onStatusChange($event, order)">
+                  <option *ngFor="let status of getAllowedStatusOptions(order.status)" [value]="status">
                     {{ status }}
                   </option>
                 </select>
@@ -104,7 +103,7 @@
 
     <!-- Empty State -->
     <div *ngIf="!isLoading && orders.length === 0" class="text-center py-5">
-      <svg class="mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 48px; height: 48px; color: #ccc;">
+      <svg class="mb-3 empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="9" cy="21" r="1"/>
         <circle cx="20" cy="21" r="1"/>
         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>

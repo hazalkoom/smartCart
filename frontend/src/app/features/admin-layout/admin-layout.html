@@ -1,16 +1,16 @@
 <!-- Mobile Menu Overlay -->
-<div class="mobile-menu-overlay"></div>
+<div class="mobile-menu-overlay" [class.active]="adminMobileMenuOpen" (click)="closeAdminMobileMenu()"></div>
 
 <!-- Mobile Menu -->
-<div class="mobile-menu">
+<div class="mobile-menu" [class.active]="adminMobileMenuOpen">
   <div class="mobile-menu-header">
     <a routerLink="/admin" class="logo">
       <div class="logo-icon">
-        <img src="assets/images/logo.png" alt="Electrofied logo" style="width: 20px; height: 20px; object-fit: contain;" />
+        <img src="assets/images/logo.png" alt="Electrofied logo" class="admin-logo-img" />
       </div>
       Electrofied
     </a>
-    <button class="mobile-menu-close" onclick="closeMobileMenu()">
+    <button class="mobile-menu-close" (click)="closeAdminMobileMenu()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="18" y1="6" x2="6" y2="18"/>
         <line x1="6" y1="6" x2="18" y2="18"/>
@@ -18,7 +18,7 @@
     </button>
   </div>
   <nav class="mobile-menu-nav">
-    <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+    <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeAdminMobileMenu()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <rect x="3" y="3" width="7" height="7" rx="1"/>
         <rect x="14" y="3" width="7" height="7" rx="1"/>
@@ -27,7 +27,7 @@
       </svg>
       Dashboard
     </a>
-    <a routerLink="/admin/orders" routerLinkActive="active">
+    <a routerLink="/admin/orders" routerLinkActive="active" (click)="closeAdminMobileMenu()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="9" cy="21" r="1"/>
         <circle cx="20" cy="21" r="1"/>
@@ -35,7 +35,7 @@
       </svg>
       Orders
     </a>
-    <a routerLink="/admin/users" routerLinkActive="active" *ngIf="isOwner">
+    <a routerLink="/admin/users" routerLinkActive="active" *ngIf="isOwner" (click)="closeAdminMobileMenu()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
         <circle cx="9" cy="7" r="4"/>
@@ -44,13 +44,13 @@
       </svg>
       Users
     </a>
-    <a routerLink="/admin/products" routerLinkActive="active">
+    <a routerLink="/admin/products" routerLinkActive="active" (click)="closeAdminMobileMenu()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M6 9h12M6 9l1 12c0 1 1 2 2 2h10c1 0 2-1 2-2l1-12M6 9l-1-3h14l-1 3M10 4h4c0-1-1-2-2-2s-2 1-2 2Z"/>
       </svg>
       Products
     </a>
-    <a routerLink="/admin/categories" routerLinkActive="active">
+    <a routerLink="/admin/categories" routerLinkActive="active" (click)="closeAdminMobileMenu()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M3 9h18v11c0 1-1 2-2 2H5c-1 0-2-1-2-2V9Z"/>
         <path d="M3 9V6c0-1 1-2 2-2h14c1 0 2 1 2 2v3M9 13h6"/>
@@ -59,7 +59,7 @@
     </a>
   </nav>
   <div class="mobile-menu-footer">
-    <a routerLink="/login" class="mobile-logout-btn">
+    <a routerLink="/login" class="mobile-logout-btn" (click)="closeAdminMobileMenu()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
         <polyline points="16 17 21 12 16 7"/>
@@ -78,7 +78,7 @@
       <div class="nav-left">
         <a routerLink="/admin" class="logo">
           <div class="logo-icon">
-            <img src="assets/images/logo.png" alt="Electrofied logo" style="width: 20px; height: 20px; object-fit: contain;" />
+            <img src="assets/images/logo.png" alt="Electrofied logo" class="admin-logo-img" />
           </div>
           Electrofied
         </a>
@@ -147,7 +147,7 @@
             <line x1="21" y1="12" x2="9" y2="12"/>
           </svg>
         </a>
-        <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <button class="mobile-menu-btn" (click)="toggleAdminMobileMenu()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="3" y1="12" x2="21" y2="12"/>
             <line x1="3" y1="6" x2="21" y2="6"/>
@@ -164,6 +164,6 @@
 
   <!-- Footer -->
   <footer class="footer">
-    <p>&copy; 2026 Electrofied Admin. Designed by <a href="https://www.templatemo.com" target="_blank" rel="nofollow">TemplateMo</a></p>
+    <p>&copy; {{ adminCurrentYear }} Electrofied Admin.</p>
   </footer>
 </div>

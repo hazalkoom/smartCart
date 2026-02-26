@@ -22,6 +22,7 @@ export interface ProductResponse {
   success: boolean;
   count: number;
   data: Product[];
+  total?: number;
   page?: number;
   pages?: number;
 }

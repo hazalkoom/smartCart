@@ -37,7 +37,7 @@
   </div>
 </section>
 
-<section id="featured-books" class="py-5 my-5">
+<section id="featured-products" class="py-5 my-5">
   <div class="container">
     <div class="row">
       <div class="col-md-12">
@@ -46,7 +46,7 @@
           <div class="title">
             <span>Some quality items</span>
           </div>
-          <h2 class="section-title">Featured Books</h2>
+          <h2 class="section-title">Featured Products</h2>
         </div>
 
         <div *ngIf="isLoading" class="text-center py-5">
@@ -142,16 +142,16 @@
   </div>
 </section>
 
-<section id="popular-books" class="bookshelf py-5 my-5">
+<section id="popular-products" class="bookshelf py-5 my-5">
   <div class="container">
     <div class="row">
       <div class="col-md-12">
 
         <div class="section-header align-center">
           <div class="title">
-            <span>Browse by genre</span>
+            <span>Browse by category</span>
           </div>
-          <h2 class="section-title">Popular Books</h2>
+          <h2 class="section-title">Popular Products</h2>
         </div>
 
         <ul class="tabs">
@@ -160,7 +160,7 @@
             [class.active]="selectedCategory === 'all'" 
             class="tab"
           >
-            All Genre
+            All Categories
           </li>
           
           <li 

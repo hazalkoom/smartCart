@@ -70,12 +70,56 @@
 }
 
 .banner-content {
-    /* Adjust text width and spacing */
-    width: 45% !important;
-    margin-right: 50px !important;
-    /* Reduce the huge margin from the template */
-    margin-top: 0 !important;
-    /* Remove top margin so it centers vertically */
+    width: 45%;
+    margin-right: 50px;
+    margin-top: 0;
+}
+
+/* --- Mobile responsive hero --- */
+@media (max-width: 767px) {
+    .slider-item {
+        flex-direction: column;
+        text-align: center;
+        padding: 24px 16px;
+    }
+
+    .banner-content {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 24px;
+        order: 1;
+    }
+
+    .banner-image {
+        width: 200px;
+        height: 200px;
+        order: 2;
+    }
+
+    .banner-content .banner-title {
+        font-size: 1.4rem;
+    }
+
+    .btn-wrap {
+        margin-top: 16px;
+    }
+
+    .slick-arrow.prev,
+    .slick-arrow.next {
+        display: none;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+    .banner-content {
+        width: 50%;
+        margin-right: 24px;
+    }
+
+    .banner-image {
+        width: 250px;
+        height: 250px;
+    }
 }
 
 /* --- 3. Move the "Next/Prev" Buttons --- */

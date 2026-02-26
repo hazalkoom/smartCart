@@ -462,3 +462,9 @@ ul.tabs li:hover::after {
     color: var(--accent-color);
     font-size: 1.3em;
 }
+
+/* Loading/Error state top margin */
+.loading-state,
+.error-state {
+    margin-top: 100px;
+}

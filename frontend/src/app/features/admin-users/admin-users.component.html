@@ -78,11 +78,10 @@
   <!-- Stats Row -->
   <div class="row g-3 mb-4">
     <div class="col-md-6">
-      <div class="card border-0 shadow-sm" style="border-left: 4px solid #1d4ed8 !important;">
+      <div class="card border-0 shadow-sm stat-card-customers">
         <div class="card-body d-flex align-items-center gap-3 py-3">
-          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-               style="width:48px;height:48px;background:linear-gradient(135deg,#1d4ed8,#1e3a8a);">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="width:22px;height:22px;">
+          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 stat-avatar-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" class="icon-sm">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
           </div>
@@ -94,11 +93,10 @@
       </div>
     </div>
     <div class="col-md-6">
-      <div class="card border-0 shadow-sm" style="border-left: 4px solid #2563eb !important;">
+      <div class="card border-0 shadow-sm stat-card-employees">
         <div class="card-body d-flex align-items-center gap-3 py-3">
-          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-               style="width:48px;height:48px;background:linear-gradient(135deg,#2563eb,#1e3a8a);">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" style="width:22px;height:22px;">
+          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 stat-avatar-indigo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" class="icon-sm">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
@@ -114,14 +112,14 @@
 
   <!-- Tabs -->
   <div class="card border-0 shadow-sm">
-    <div class="card-header p-0 border-0" style="background:transparent;">
+    <div class="card-header p-0 border-0 card-header-transparent">
       <ul class="nav nav-tabs border-bottom px-3 pt-2" id="userTabs">
         <li class="nav-item">
           <button class="nav-link fw-semibold px-4 py-2"
                   [class.active]="activeTab === 'customers'"
                   (click)="activeTab = 'customers'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 style="width:16px;height:16px;margin-right:6px;vertical-align:middle;">
+                 class="icon-xs">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
             </svg>
             Customers
@@ -137,7 +135,7 @@
                   [class.active]="activeTab === 'employees'"
                   (click)="activeTab = 'employees'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 style="width:16px;height:16px;margin-right:6px;vertical-align:middle;">
+                 class="icon-xs">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
               <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
@@ -164,13 +162,13 @@
           </div>
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-              <thead style="background:#f8f9ff;">
+              <thead class="thead-customers">
                 <tr>
-                  <th class="ps-4 py-3 border-0 text-uppercase text-muted fw-semibold" style="font-size:11px;letter-spacing:.5px;">#</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold" style="font-size:11px;letter-spacing:.5px;">Name</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold" style="font-size:11px;letter-spacing:.5px;">Email</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold" style="font-size:11px;letter-spacing:.5px;">Joined</th>
-                  <th class="py-3 pe-4 border-0 text-uppercase text-muted fw-semibold text-center" style="font-size:11px;letter-spacing:.5px;">Actions</th>
+                  <th class="ps-4 py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">#</th>
+                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Name</th>
+                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Email</th>
+                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Joined</th>
+                  <th class="py-3 pe-4 border-0 text-uppercase text-muted fw-semibold text-center table-header-cell">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -178,8 +176,7 @@
                   <td class="ps-4 py-3 text-muted small">{{ (currentPageCustomers - 1) * pageSize + i + 1 }}</td>
                   <td class="py-3">
                     <div class="d-flex align-items-center gap-2">
-                      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white"
-                           style="width:36px;height:36px;font-size:13px;background:linear-gradient(135deg,#1d4ed8,#1e3a8a);">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white user-avatar-sm">
                         {{ user.firstName.charAt(0).toUpperCase() }}
                       </div>
                       <div class="fw-semibold text-dark">{{ user.firstName }} {{ user.lastName }}</div>
@@ -224,7 +221,7 @@
           </div>
         </div>
         <div *ngIf="customers.length === 0" class="text-center py-5">
-          <div class="mb-2" style="font-size:48px;">👤</div>
+          <div class="mb-2 empty-emoji">👤</div>
           <p class="text-muted">No customers found.</p>
         </div>
       </div>
@@ -239,14 +236,14 @@
           </div>
           <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-              <thead style="background:#fff5f7;">
+              <thead class="thead-employees">
                 <tr>
-                  <th class="ps-4 py-3 border-0 text-uppercase text-muted fw-semibold" style="font-size:11px;letter-spacing:.5px;">#</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold" style="font-size:11px;letter-spacing:.5px;">Name</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold" style="font-size:11px;letter-spacing:.5px;">Email</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold" style="font-size:11px;letter-spacing:.5px;">Role</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold" style="font-size:11px;letter-spacing:.5px;">Joined</th>
-                  <th class="py-3 pe-4 border-0 text-uppercase text-muted fw-semibold text-center" style="font-size:11px;letter-spacing:.5px;">Actions</th>
+                  <th class="ps-4 py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">#</th>
+                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Name</th>
+                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Email</th>
+                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Role</th>
+                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Joined</th>
+                  <th class="py-3 pe-4 border-0 text-uppercase text-muted fw-semibold text-center table-header-cell">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -254,8 +251,7 @@
                   <td class="ps-4 py-3 text-muted small">{{ (currentPageEmployees - 1) * pageSize + i + 1 }}</td>
                   <td class="py-3">
                     <div class="d-flex align-items-center gap-2">
-                      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white"
-                           style="width:36px;height:36px;font-size:13px;background:linear-gradient(135deg,#f093fb,#f5576c);">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white user-avatar-sm-pink">>
                         {{ user.firstName.charAt(0).toUpperCase() }}
                       </div>
                       <div class="fw-semibold text-dark">{{ user.firstName }} {{ user.lastName }}</div>
@@ -305,7 +301,7 @@
           </div>
         </div>
         <div *ngIf="employees.length === 0" class="text-center py-5">
-          <div class="mb-2" style="font-size:48px;">👥</div>
+          <div class="mb-2 empty-emoji">👥</div>
           <p class="text-muted">No staff members found.</p>
         </div>
       </div>

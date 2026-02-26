@@ -5,42 +5,127 @@
       <p>Everything you need to know about our mission, content, and policies.</p>
     </div>
 
-    <div class="row g-4">
-      <div class="col-md-6">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <h4 id="vision" class="mb-3">Vision</h4>
-            <p class="mb-0">Electrofied exists to make quality electronics accessible with a clean shopping experience, transparent pricing, and dependable support.</p>
-          </div>
-        </div>
-      </div>
+    <!-- Quick Nav -->
+    <div class="about-nav text-center mb-5">
+      <a routerLink="/about" fragment="vision" class="about-nav-link">Vision</a>
+      <a routerLink="/about" fragment="articles" class="about-nav-link">Articles</a>
+      <a routerLink="/about" fragment="careers" class="about-nav-link">Careers</a>
+      <a routerLink="/about" fragment="service-terms" class="about-nav-link">Service Terms</a>
+    </div>
 
-      <div class="col-md-6">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <h4 id="articles" class="mb-3">Articles</h4>
-            <p class="mb-0">We publish practical buying guides, product comparisons, and quick tips to help customers choose the right tech products confidently.</p>
-          </div>
+    <!-- Vision Section -->
+    <div id="vision" class="about-section">
+      <div class="row align-items-center g-4">
+        <div class="col-md-7">
+          <h3 class="about-section-title">Our Vision</h3>
+          <p>
+            Electrofied was born from a simple idea: buying electronics shouldn't be complicated.
+            We believe in making quality tech accessible to everyone through a clean shopping experience,
+            transparent pricing, and dependable customer support.
+          </p>
+          <p>
+            Our goal is to become the most trusted online destination for electronic devices —
+            from smartphones and laptops to gaming gear and smart home essentials. We carefully
+            curate our catalog to ensure every product meets our standards for quality and value.
+          </p>
+          <p>
+            We're committed to continuous improvement, listening to our customers, and staying
+            ahead of tech trends so you always find what you need at the best price.
+          </p>
         </div>
-      </div>
-
-      <div class="col-md-6">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <h4 id="careers" class="mb-3">Careers</h4>
-            <p class="mb-0">We’re building a team focused on customer-first commerce. If you are passionate about retail, logistics, or product operations, we’d love to hear from you.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-6">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <h4 id="service-terms" class="mb-3">Service Terms</h4>
-            <p class="mb-0">By using Electrofied, users agree to standard commerce terms regarding orders, payments, shipping, returns, and account use.</p>
+        <div class="col-md-5 text-center">
+          <div class="about-icon-box">
+            <i class="icon icon-eye"></i>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Articles Section -->
+    <div id="articles" class="about-section">
+      <div class="row align-items-center g-4">
+        <div class="col-md-5 text-center order-md-1 order-2">
+          <div class="about-icon-box about-icon-articles">
+            <i class="icon icon-notebook"></i>
+          </div>
+        </div>
+        <div class="col-md-7 order-md-2 order-1">
+          <h3 class="about-section-title">Articles &amp; Guides</h3>
+          <p>
+            We publish practical buying guides, product comparisons, and quick tips
+            to help you choose the right tech products confidently. Our content team
+            researches thoroughly so you don't have to.
+          </p>
+          <p>Topics we cover include:</p>
+          <ul class="about-list">
+            <li>Smartphone buying guides — comparing specs, cameras, and battery life</li>
+            <li>Laptop recommendations for students, professionals, and gamers</li>
+            <li>Smart home setup tutorials and best practices</li>
+            <li>Tech news and upcoming product releases</li>
+          </ul>
+          <p>
+            Stay tuned — our blog section is coming soon with fresh content weekly.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Careers Section -->
+    <div id="careers" class="about-section">
+      <div class="row align-items-center g-4">
+        <div class="col-md-7">
+          <h3 class="about-section-title">Careers</h3>
+          <p>
+            We're building a team focused on customer-first commerce. If you're passionate
+            about retail, logistics, product operations, or technology — we'd love to hear from you.
+          </p>
+          <p>What we look for:</p>
+          <ul class="about-list">
+            <li>Problem-solvers who think from the customer's perspective</li>
+            <li>Self-starters comfortable in a fast-paced environment</li>
+            <li>Team players who communicate openly and take ownership</li>
+          </ul>
+          <p>
+            We offer competitive compensation, a flexible work culture, and the chance to
+            shape how people discover and buy electronics online. Interested? Reach out
+            through our <a routerLink="/help-center">Help Center</a>.
+          </p>
+        </div>
+        <div class="col-md-5 text-center">
+          <div class="about-icon-box about-icon-careers">
+            <i class="icon icon-people"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service Terms Section -->
+    <div id="service-terms" class="about-section">
+      <div class="row align-items-center g-4">
+        <div class="col-md-5 text-center order-md-1 order-2">
+          <div class="about-icon-box about-icon-terms">
+            <i class="icon icon-docs"></i>
+          </div>
+        </div>
+        <div class="col-md-7 order-md-2 order-1">
+          <h3 class="about-section-title">Service Terms</h3>
+          <p>
+            By using Electrofied, you agree to the following standard commerce terms:
+          </p>
+          <ul class="about-list">
+            <li><strong>Orders:</strong> All orders are subject to product availability and payment confirmation.</li>
+            <li><strong>Payments:</strong> We accept card, mobile wallet, and Fawry payments via secure gateways.</li>
+            <li><strong>Shipping:</strong> Orders over $100 qualify for free shipping. Standard delivery takes 3–7 business days.</li>
+            <li><strong>Returns:</strong> Items may be returned within 14 days of delivery in original condition.</li>
+            <li><strong>Accounts:</strong> Users are responsible for maintaining the confidentiality of their account credentials.</li>
+          </ul>
+          <p>
+            For questions about our policies, please visit our
+            <a routerLink="/help-center">Help Center</a> or contact support.
+          </p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </section>

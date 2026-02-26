@@ -1,0 +1,28 @@
+/* Stat card icon styles */
+.stat-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.stat-icon-success {
+  color: #198754;
+}
+
+.stat-icon-primary {
+  color: #0d6efd;
+}
+
+.stat-icon-info {
+  color: #0dcaf0;
+}
+
+.stat-icon-warning {
+  color: #ffc107;
+}
+
+/* Responsive stat cards */
+@media (max-width: 767px) {
+  .card-body h3 {
+    font-size: 1.3rem;
+  }
+}

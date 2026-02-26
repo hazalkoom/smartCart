@@ -40,22 +40,7 @@
       navMenu.classList.remove("responsive");
   }
 
-  var initScrollNav = function() {
-    var scroll = $(window).scrollTop();
-
-    if (scroll >= 200) {
-      $('#header').addClass("fixed-top");
-    }else{
-      $('#header').removeClass("fixed-top");
-    }
-  }
-
-  $(window).scroll(function() {    
-    initScrollNav();
-  }); 
-
   $(document).ready(function(){
-    initScrollNav();
     
     Chocolat(document.querySelectorAll('.image-link'), {
         imageSize: 'contain',

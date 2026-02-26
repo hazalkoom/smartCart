@@ -540,3 +540,30 @@
 .cart-table tbody tr:nth-child(3) {
   animation-delay: 0.3s;
 }
+
+/* Free shipping text */
+.free-shipping-text {
+  color: #28a745;
+}
+
+/* Product name link */
+.product-name-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.product-name-link:hover {
+  color: var(--accent-color, #1d4ed8);
+}
+
+/* Free shipping badge */
+.free-shipping-badge {
+  color: #28a745;
+  font-weight: 700;
+}
+
+/* Checkout button */
+.btn-checkout {
+  margin-top: 30px;
+  padding: 1em;
+}

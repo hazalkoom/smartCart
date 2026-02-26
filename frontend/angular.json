@@ -40,6 +40,7 @@
               "src/assets/css/normalize.css",
               "src/assets/css/vendor.css",
               "src/assets/css/style.css",
+              "src/assets/css/image-fixes.css",
               "src/assets/icomoon/icomoon.css"
             ],
             "server": "src/main.server.ts",

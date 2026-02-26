@@ -3,7 +3,7 @@ const Category = require('../models/categoryModel');
 
 class ProductService {
   async createProduct(productData) {
-    const { name, description, price, costPrice, sku, stock, categoryId } = productData;
+    const { name, description, price, costPrice, sku, stock, categoryId, images } = productData;
 
     const existingSku = await Product.findOne({ sku: sku.toUpperCase() });
     if (existingSku) {
@@ -23,6 +23,7 @@ class ProductService {
       sku,
       stock,
       categoryId,
+      images: Array.isArray(images) ? images.filter((url) => typeof url === 'string' && url.trim()) : [],
     });
 
     return product;
@@ -78,7 +79,7 @@ class ProductService {
   }
 
   async updateProduct(productId, updateData) {
-    const { name, description, price, costPrice, sku, stock, categoryId } = updateData;
+    const { name, description, price, costPrice, sku, stock, categoryId, images } = updateData;
 
     // --- FIX: Explicitly select '+costPrice' so it doesn't get lost ---
     const product = await Product.findById(productId).select('+costPrice');
@@ -108,6 +109,9 @@ class ProductService {
     product.price = price !== undefined ? price : product.price;
     product.costPrice = costPrice !== undefined ? costPrice : product.costPrice;
     product.stock = stock !== undefined ? stock : product.stock;
+    if (images !== undefined) {
+      product.images = Array.isArray(images) ? images.filter((url) => typeof url === 'string' && url.trim()) : [];
+    }
 
     const updatedProduct = await product.save();
     return updatedProduct;

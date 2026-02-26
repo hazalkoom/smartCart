@@ -66,3 +66,77 @@
 .user-form-card .card-header {
     background: #f8f9ff;
 }
+
+/* Stat card accents */
+.stat-card-customers {
+    border-left: 4px solid #1d4ed8 !important;
+}
+
+.stat-card-employees {
+    border-left: 4px solid #2563eb !important;
+}
+
+/* Stat avatar circles */
+.stat-avatar-blue {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
+}
+
+.stat-avatar-indigo {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #2563eb, #1e3a8a);
+}
+
+/* SVG icon sizing */
+.icon-sm {
+    width: 22px;
+    height: 22px;
+}
+
+.icon-xs {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+/* Table header styles */
+.table-header-cell {
+    font-size: 11px;
+    letter-spacing: 0.5px;
+}
+
+.thead-customers {
+    background: #f8f9ff;
+}
+
+.thead-employees {
+    background: #fff5f7;
+}
+
+/* Card header transparent bg */
+.card-header-transparent {
+    background: transparent;
+}
+
+/* User row avatar */
+.user-avatar-sm {
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+    background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
+}
+
+.user-avatar-sm-pink {
+    width: 36px;
+    height: 36px;
+    font-size: 13px;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+}
+
+/* Empty state emoji */
+.empty-emoji {
+    font-size: 48px;
+}

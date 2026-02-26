@@ -54,26 +54,25 @@
       <div class="col-md-8 offset-md-2">
         <div class="order-success-card">
           <div class="success-icon">
-            <i class="icon icon-check-circle" style="font-size: 5em; color: #28a745;"></i>
+            <i class="icon icon-check-circle"></i>
           </div>
           <h2 class="text-center mb-3">Order Placed Successfully!</h2>
-          <p class="text-center mb-4" style="font-size: 1.1em; color: #666;">
+          <p class="text-center mb-4 success-subtitle">
             Your order <strong>#{{ placedOrderId.substring(placedOrderId.length - 8) }}</strong> has been created.
             <br>Complete your payment now to confirm your order.
           </p>
           
-          <div class="payment-info mb-4 p-4" style="background: #f8f9fa; border-radius: 8px;">
+          <div class="payment-info mb-4 p-4">
             <h5 class="mb-3">
               <i class="icon icon-credit-card"></i>
               Selected Payment Method
             </h5>
             <div class="d-flex align-items-center">
               <div class="payment-icon me-3">
-                <i class="icon {{ paymentMethod === 'card' ? 'icon-credit-card' : paymentMethod === 'wallet' ? 'icon-smartphone' : 'icon-dollar-sign' }}" 
-                   style="font-size: 2em; color: #6C5F5B;"></i>
+                <i class="icon {{ paymentMethod === 'card' ? 'icon-credit-card' : paymentMethod === 'wallet' ? 'icon-smartphone' : 'icon-dollar-sign' }} payment-icon-lg"></i>
               </div>
               <div>
-                <strong style="text-transform: capitalize;">{{ paymentMethod }}</strong>
+                <strong class="payment-method-name">{{ paymentMethod }}</strong>
                 <div *ngIf="mobileNumber" class="text-muted">{{ mobileNumber }}</div>
               </div>
             </div>
@@ -85,7 +84,7 @@
               class="btn btn-success btn-lg" 
               (click)="completePaymentNow()"
               [disabled]="isPaymentProcessing"
-              style="background: linear-gradient(135deg, #28a745, #20c997); border: none; font-weight: 600; padding: 15px;">
+              class="btn btn-success btn-lg btn-complete-payment">
               <i class="icon icon-credit-card me-2"></i>
               {{ isPaymentProcessing ? 'Redirecting to Payment...' : 'Complete Payment Now' }}
             </button>
@@ -177,18 +176,18 @@
             </h4>
             <hr class="my-3">
 
-            <div class="payment-methods" style="display: flex; gap: 10px; margin-bottom: 20px;">
-              <div class="payment-method" [class.active]="paymentMethod === 'card'" (click)="paymentMethod = 'card'" style="cursor: pointer; flex: 1; text-align: center; border: 1px solid #EAE8DF; padding: 15px; border-radius: 8px; transition: 0.2s;">
-                <i class="icon icon-credit-card" style="font-size: 1.5em;"></i><br>
-                <span style="font-weight: 600; margin-top: 5px; display: block;">Card</span>
+            <div class="payment-methods">
+              <div class="payment-method" [class.active]="paymentMethod === 'card'" (click)="paymentMethod = 'card'">
+                <i class="icon icon-credit-card payment-method-icon"></i><br>
+                <span class="payment-method-label">Card</span>
               </div>
-              <div class="payment-method" [class.active]="paymentMethod === 'wallet'" (click)="paymentMethod = 'wallet'" style="cursor: pointer; flex: 1; text-align: center; border: 1px solid #EAE8DF; padding: 15px; border-radius: 8px; transition: 0.2s;">
-                <i class="icon icon-smartphone" style="font-size: 1.5em;"></i><br>
-                <span style="font-weight: 600; margin-top: 5px; display: block;">Wallet</span>
+              <div class="payment-method" [class.active]="paymentMethod === 'wallet'" (click)="paymentMethod = 'wallet'">
+                <i class="icon icon-smartphone payment-method-icon"></i><br>
+                <span class="payment-method-label">Wallet</span>
               </div>
-              <div class="payment-method" [class.active]="paymentMethod === 'fawry'" (click)="paymentMethod = 'fawry'" style="cursor: pointer; flex: 1; text-align: center; border: 1px solid #EAE8DF; padding: 15px; border-radius: 8px; transition: 0.2s;">
-                <i class="icon icon-dollar-sign" style="font-size: 1.5em;"></i><br>
-                <span style="font-weight: 600; margin-top: 5px; display: block;">Fawry</span>
+              <div class="payment-method" [class.active]="paymentMethod === 'fawry'" (click)="paymentMethod = 'fawry'">
+                <i class="icon icon-dollar-sign payment-method-icon"></i><br>
+                <span class="payment-method-label">Fawry</span>
               </div>
             </div>
 
@@ -252,7 +251,7 @@
             </li>
             <li class="list-group-item">
               <span>Shipping</span>
-              <span *ngIf="cart.subtotal >= 100" style="color: #28a745; font-weight: 700;">FREE</span>
+              <span *ngIf="cart.subtotal >= 100" class="free-shipping">FREE</span>
               <span *ngIf="cart.subtotal < 100">$ {{ shippingCost.toFixed(2) }}</span>
             </li>
             <li class="list-group-item">

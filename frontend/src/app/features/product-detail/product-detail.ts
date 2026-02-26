@@ -55,7 +55,7 @@ export class ProductDetail implements OnInit {
         // Set default image safely
         this.selectedImage = (this.product.images && this.product.images.length > 0) 
           ? this.product.images[0] 
-          : 'assets/images/default-book.jpg';
+          : 'assets/images/placeholder.jpg';
         this.isLoading = false;
       },
       error: (err) => {

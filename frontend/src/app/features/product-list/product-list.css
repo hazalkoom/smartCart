@@ -1,0 +1,41 @@
+:host {
+	display: block;
+}
+
+.products-search-wrap {
+	display: flex;
+	justify-content: center;
+}
+
+.products-search-form {
+	width: 100%;
+	max-width: 720px;
+	display: flex;
+	gap: 10px;
+}
+
+.products-search-input {
+	flex: 1;
+	height: 46px;
+	border: 1px solid #bfdbfe;
+	border-radius: 10px;
+	padding: 0 14px;
+	outline: none;
+}
+
+.products-search-input:focus {
+	border-color: var(--accent-color);
+	box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.14);
+}
+
+.products-search-btn {
+	height: 46px;
+	border: 0;
+	border-radius: 10px;
+	padding: 0 18px;
+	background: var(--accent-color);
+	color: #fff;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}

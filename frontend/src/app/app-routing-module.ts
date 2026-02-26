@@ -12,14 +12,6 @@ import { Account } from './features/account/account';
 import { CategoryComponent } from './features/category/category';
 import { OrderDetailComponent } from './features/order-detail/order-detail'; // (Check if CLI named it OrderDetail or OrderDetailComponent)
 import { PaymentCallbackComponent } from './features/payment-callback/payment-callback';
-import { AdminLayoutComponent } from './features/admin-layout/admin-layout';
-import { AdminGuard } from './core/guards/admin.guard';
-import { OwnerGuard } from './core/guards/owner.guard';
-import { AdminDashboardComponent } from './features/admin-dashboard/admin-dashboard';
-import { AdminOrdersComponent } from './features/admin-orders/admin-orders.component';
-import { AdminUsersComponent } from './features/admin-users/admin-users.component';
-import { AdminProductsComponent } from './features/admin-products/admin-products.component';
-import { AdminCategoriesComponent } from './features/admin-categories/admin-categories.component';
 import { AboutComponent } from './features/about/about';
 import { HelpCenterComponent } from './features/help-center/help-center';
 
@@ -37,23 +29,19 @@ const routes: Routes = [
   { path: 'categories', component: CategoryComponent },
   { path: 'orders/:id', component: OrderDetailComponent },
   { path: 'payment-callback', component: PaymentCallbackComponent },
-  { 
-    path: 'admin', 
-    component: AdminLayoutComponent, 
-    canActivate: [AdminGuard],
-    children: [
-      { path: '', component: AdminDashboardComponent },
-      { path: 'orders', component: AdminOrdersComponent },
-      { path: 'users', component: AdminUsersComponent, canActivate: [OwnerGuard] },
-      { path: 'products', component: AdminProductsComponent },
-      { path: 'categories', component: AdminCategoriesComponent }
-    ] 
+  {
+    path: 'admin',
+    loadChildren: () => import('./features/admin/admin.module').then((m) => m.AdminModule),
   },
   { path: '**', redirectTo: '' }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {
+    anchorScrolling: 'enabled',
+    scrollPositionRestoration: 'enabled',
+    scrollOffset: [0, 80]
+  })],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

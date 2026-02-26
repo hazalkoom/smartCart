@@ -2,6 +2,99 @@
   display: block;
 }
 
-.card h4 {
-  color: var(--accent-color);
+/* ── Quick Nav Bar ── */
+.about-nav {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.about-nav-link {
+  display: inline-block;
+  padding: 0.55rem 1.4rem;
+  border: 2px solid var(--accent-color, #F86D72);
+  border-radius: 30px;
+  color: var(--accent-color, #F86D72);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.about-nav-link:hover,
+.about-nav-link:focus {
+  background: var(--accent-color, #F86D72);
+  color: #fff;
+}
+
+/* ── Sections ── */
+.about-section {
+  padding: 3.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.about-section:last-child {
+  border-bottom: none;
+}
+
+.about-section-title {
+  font-size: 1.65rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: var(--dark-color, #272727);
+}
+
+/* ── Icon Boxes ── */
+.about-icon-box {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: var(--accent-color, #F86D72);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.2rem;
+}
+
+.about-icon-articles {
+  background: #5b72ee;
+}
+
+.about-icon-careers {
+  background: #28a745;
+}
+
+.about-icon-terms {
+  background: #6c757d;
+}
+
+/* ── List ── */
+.about-list {
+  padding-left: 1.3rem;
+  margin-top: 0.5rem;
+}
+
+.about-list li {
+  margin-bottom: 0.55rem;
+  line-height: 1.6;
+}
+
+/* ── Responsive ── */
+@media (max-width: 767.98px) {
+  .about-icon-box {
+    width: 100px;
+    height: 100px;
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .about-section {
+    padding: 2rem 0;
+  }
+
+  .about-nav-link {
+    padding: 0.45rem 1rem;
+    font-size: 0.9rem;
+  }
 }

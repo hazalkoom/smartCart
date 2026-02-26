@@ -2,17 +2,17 @@
 
   <header id="header">
     <div class="container-fluid">
-      <div class="row">
+      <div class="row align-items-center">
 
-        <div class="col-md-2">
+        <div class="col-md-2 col-6">
           <div class="main-logo">
-            <a routerLink="/" class="brand-link" style="text-decoration: none;">
+            <a routerLink="/" class="brand-link">
               <img src="assets/images/logo.png" alt="Electrofied logo" class="brand-logo" />
             </a>
           </div>
         </div>
 
-        <div class="col-md-8">
+        <div class="col-md-8 d-none d-md-block">
           <nav id="navbar">
             <div class="main-menu stellarnav">
               <ul class="menu-list">
@@ -23,31 +23,25 @@
                 <li *ngIf="!isLoggedIn" class="menu-item"><a routerLink="/login" routerLinkActive="active" class="nav-link">Login</a></li>
                 <li *ngIf="!isLoggedIn" class="menu-item"><a routerLink="/register" routerLinkActive="active" class="nav-link">Register</a></li>
               </ul>
-
-              <div class="hamburger">
-                <span class="bar"></span>
-                <span class="bar"></span>
-                <span class="bar"></span>
-              </div>
             </div>
           </nav>
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-2 col-6">
           <div class="right-element">
             
-            <a *ngIf="!isLoggedIn" routerLink="/login" class="user-account for-buy">
+            <a *ngIf="!isLoggedIn" routerLink="/login" class="user-account for-buy d-none d-md-inline-block">
               <i class="icon icon-user"></i>
-              <span style="font-size: 14px; margin-left: 5px;">Login</span>
+              <span class="header-label">Login</span>
             </a>
 
-            <div *ngIf="isLoggedIn" class="d-inline-block">
-              <a routerLink="/account" class="user-account for-buy" style="margin-right: 10px;" title="My Account">
+            <div *ngIf="isLoggedIn" class="d-none d-md-inline-block">
+              <a routerLink="/account" class="user-account for-buy header-user-link" title="My Account">
                 <i class="icon icon-user"></i>
-                <span style="font-size: 14px; margin-left: 5px;">Hi, {{ userName || 'User' }}</span>
+                <span class="header-label">Hi, {{ userName || 'User' }}</span>
               </a>
               
-              <a (click)="onLogout()" class="user-account for-buy" style="cursor: pointer;" title="Logout">
+              <a (click)="onLogout()" class="user-account for-buy header-logout" title="Logout" aria-label="Logout">
                 <i class="icon icon-close"></i>
               </a>
             </div>
@@ -57,25 +51,16 @@
               <span *ngIf="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
             </a>
 
-            <div class="action-menu">
-              <div class="search-bar" style="width: 100%; display: flex; align-items: center;">
-                
-                <button type="button" (click)="onSearch(searchInput.value)" class="search-button search-toggle" style="border: none; background: transparent; cursor: pointer;">
-                  <i class="icon icon-search"></i>
-                </button>
-                
-                <form (submit)="onSearch(searchInput.value); $event.preventDefault()" class="search-box" style="width: 100%;">
-                  <input 
-                    #searchInput 
-                    id="global-search-input"
-                    class="search-field text search-input" 
-                    placeholder="Search..." 
-                    type="search"
-                    style="width: 100%;">
-                </form>
-
-              </div>
-            </div>
+            <!-- Mobile hamburger -->
+            <button 
+              class="hamburger d-md-none" 
+              (click)="toggleMobileMenu()" 
+              [attr.aria-expanded]="mobileMenuOpen"
+              aria-label="Toggle navigation menu">
+              <span class="bar"></span>
+              <span class="bar"></span>
+              <span class="bar"></span>
+            </button>
 
           </div>
         </div>
@@ -83,5 +68,36 @@
       </div>
     </div>
   </header>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-overlay" 
+       [class.open]="mobileMenuOpen" 
+       (click)="closeMobileMenu()"></div>
+
+  <!-- Mobile Slide-in Menu -->
+  <nav class="mobile-nav" [class.open]="mobileMenuOpen" aria-label="Mobile navigation">
+    <div class="mobile-nav-header">
+      <span class="mobile-nav-title">Menu</span>
+      <button class="mobile-nav-close" (click)="closeMobileMenu()" aria-label="Close menu">
+        <i class="icon icon-close"></i>
+      </button>
+    </div>
+    
+    <ul class="mobile-nav-list">
+      <li><a routerLink="/" (click)="closeMobileMenu()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
+      <li><a routerLink="/products" (click)="closeMobileMenu()" routerLinkActive="active">All Products</a></li>
+      <li><a routerLink="/categories" (click)="closeMobileMenu()" routerLinkActive="active">Categories</a></li>
+      <li *ngIf="isLoggedIn"><a routerLink="/account" (click)="closeMobileMenu()" routerLinkActive="active">My Account</a></li>
+      <li *ngIf="isLoggedIn"><a routerLink="/cart" (click)="closeMobileMenu()" routerLinkActive="active">Cart <span *ngIf="cartCount > 0" class="cart-badge-inline">{{ cartCount }}</span></a></li>
+      <li *ngIf="!isLoggedIn"><a routerLink="/login" (click)="closeMobileMenu()" routerLinkActive="active">Login</a></li>
+      <li *ngIf="!isLoggedIn"><a routerLink="/register" (click)="closeMobileMenu()" routerLinkActive="active">Register</a></li>
+    </ul>
+
+    <div class="mobile-nav-footer" *ngIf="isLoggedIn">
+      <a (click)="onLogout()" class="mobile-logout-btn">
+        <i class="icon icon-close"></i> Logout
+      </a>
+    </div>
+  </nav>
 
 </div>```

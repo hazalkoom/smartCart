@@ -22,7 +22,13 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
   pageSize: number = 10;
   totalOrders: number = 0;
   
-  statusOptions = ['Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'];
+  private readonly statusTransitions: Record<Order['status'], Order['status'][]> = {
+    Pending: ['Paid', 'Cancelled'],
+    Paid: ['Shipped', 'Cancelled'],
+    Shipped: ['Delivered'],
+    Delivered: [],
+    Cancelled: [],
+  };
   private subscriptions: Subscription[] = [];
 
   constructor(private orderService: OrderService) {}
@@ -73,6 +79,7 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
 
     const sub = this.orderService.updateOrderStatus(orderId, newStatus).subscribe({
       next: () => {
+        this.errorMessage = '';
         this.successMessage = `Order status updated to "${newStatus}"`;
         setTimeout(() => this.successMessage = '', 3000);
         // Update locally without re-fetch
@@ -82,15 +89,44 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Error updating status:', error);
-        this.errorMessage = error?.error?.message || 'Failed to update order status';
+        const backendMessage = error?.error?.message;
+        this.errorMessage = backendMessage || 'Failed to update order status. Please follow Pending → Paid → Shipped → Delivered.';
       }
     });
     this.subscriptions.push(sub);
   }
 
-  onStatusChange(event: Event, orderId: string): void {
+  onStatusChange(event: Event, order: Order): void {
     const target = event.target as HTMLSelectElement;
-    this.changeStatus(orderId, target.value);
+    const requestedStatus = target.value as Order['status'];
+    const validationError = this.getStatusTransitionError(order.status, requestedStatus);
+
+    if (validationError) {
+      this.errorMessage = validationError;
+      target.value = order.status;
+      return;
+    }
+
+    this.changeStatus(order._id, requestedStatus);
+  }
+
+  getAllowedStatusOptions(currentStatus: Order['status']): Order['status'][] {
+    const allowedNext = this.statusTransitions[currentStatus] || [];
+    return [currentStatus, ...allowedNext];
+  }
+
+  private getStatusTransitionError(currentStatus: Order['status'], requestedStatus: Order['status']): string {
+    if (requestedStatus === currentStatus) {
+      return '';
+    }
+
+    const allowedNext = this.statusTransitions[currentStatus] || [];
+    if (allowedNext.includes(requestedStatus)) {
+      return '';
+    }
+
+    const allowedText = allowedNext.length > 0 ? allowedNext.join(' or ') : 'none';
+    return `Invalid status transition from ${currentStatus} to ${requestedStatus}. Allowed next status: ${allowedText}.`;
   }
 
   getCustomerName(order: Order): string {

@@ -15,7 +15,7 @@ export class Header implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   cartCount: number = 0;
   userName: string = '';
-  // Removed 'searchTerm' variable as we now pass the value directly
+  mobileMenuOpen: boolean = false;
 
   private subscriptions: Subscription[] = [];
 
@@ -75,7 +75,16 @@ export class Header implements OnInit, OnDestroy {
   }
 
   onLogout(): void {
+    this.mobileMenuOpen = false;
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
   }
 }
