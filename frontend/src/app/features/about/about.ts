@@ -1,6 +1,7 @@
-import { Component, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, AfterViewInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-about',
@@ -8,7 +9,9 @@ import { isPlatformBrowser } from '@angular/common';
   templateUrl: './about.html',
   styleUrl: './about.css',
 })
-export class AboutComponent implements AfterViewInit {
+export class AboutComponent implements AfterViewInit, OnDestroy {
+  private subscriptions: Subscription[] = [];
+
   constructor(
     private route: ActivatedRoute,
     @Inject(PLATFORM_ID) private platformId: Object
@@ -17,7 +20,7 @@ export class AboutComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     if (!isPlatformBrowser(this.platformId)) return;
 
-    this.route.fragment.subscribe(fragment => {
+    const fragSub = this.route.fragment.subscribe(fragment => {
       if (fragment) {
         setTimeout(() => {
           const el = document.getElementById(fragment);
@@ -27,5 +30,10 @@ export class AboutComponent implements AfterViewInit {
         }, 100);
       }
     });
+    this.subscriptions.push(fragSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }

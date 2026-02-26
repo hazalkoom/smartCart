@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { CartService } from '../../core/services/cart';
 import { AuthService } from '../../core/services/auth';
 import { Cart as CartInterface, CartItem } from '../../core/interfaces/cart';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-cart',
@@ -61,7 +62,7 @@ export class CartComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error('Error loading cart:', err);
+        if (!environment.production) console.error('Error loading cart:', err);
         this.error = err.error?.message || 'Failed to load cart. Please try again.';
         this.isLoading = false;
       }
@@ -102,7 +103,7 @@ export class CartComponent implements OnInit, OnDestroy {
         this.isUpdating[item._id] = false;
       },
       error: (err) => {
-        console.error('Error updating quantity:', err);
+        if (!environment.production) console.error('Error updating quantity:', err);
         this.error = err.error?.message || 'Failed to update quantity. Please try again.';
         this.isUpdating[item._id] = false;
         // Reload cart to get correct state
@@ -130,7 +131,7 @@ export class CartComponent implements OnInit, OnDestroy {
         this.isUpdating[itemId] = false;
       },
       error: (err) => {
-        console.error('Error removing item:', err);
+        if (!environment.production) console.error('Error removing item:', err);
         this.error = err.error?.message || 'Failed to remove item. Please try again.';
         this.isUpdating[itemId] = false;
         // Reload cart to get correct state

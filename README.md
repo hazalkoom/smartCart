@@ -18,14 +18,18 @@ SmartCart is a full‑stack e‑commerce platform: a secure REST API for catalog
 - **How to run tests**: [`docs/testing.md`](docs/testing.md)
  
 ## Documentation index
-- **Architecture**: [`docs/architecture.md`](docs/architecture.md)
-- **API reference & conventions**: [`docs/api.md`](docs/api.md)
-- **Product capabilities (by persona)**: [`docs/features.md`](docs/features.md)
-- **Testing strategy & coverage**: [`docs/testing.md`](docs/testing.md)
-- **Delivery status (verified vs unverified)**: [`docs/status.md`](docs/status.md)
-- **Roadmap**: [`docs/roadmap.md`](docs/roadmap.md)
-- **PRD (inferred from implementation)**: [`docs/prd.md`](docs/prd.md)
+- [`docs/setup.md`](docs/setup.md): onboarding guide, prerequisites, environment variables, local run steps.
+- [`docs/architecture.md`](docs/architecture.md): system design, backend domain boundaries, runtime and data flow.
+- [`docs/api.md`](docs/api.md): endpoint groups, auth rules, request/response conventions.
+- [`docs/features.md`](docs/features.md): user/admin/owner capabilities and business behavior.
+- [`docs/testing.md`](docs/testing.md): testing strategy, suite layout, execution commands, coverage summary.
+- [`docs/security.md`](docs/security.md): security controls and hardening posture (auth, RBAC, HMAC, headers, SSR safety).
+- [`docs/status.md`](docs/status.md): current verified state, constraints, and known risks.
+- [`docs/changelog.md`](docs/changelog.md): complete 42-item hardening audit log and outcomes.
+- [`docs/AGENTS.md`](docs/AGENTS.md): AI agent navigation map for faster codebase analysis and file discovery.
+- [`docs/prd.md`](docs/prd.md): product requirements and expected platform behavior.
+- [`docs/roadmap.md`](docs/roadmap.md): planned milestones and future enhancements.
  
 ## Project status (honest)
 - **Backend API**: implemented and verified via automated tests.
-- **Frontend**: present (Angular SSR scaffolding + services) but not fully verified end‑to‑end as part of this documentation pass.
+- **Frontend**: Angular SSR build is verified; automated E2E UI tests are not yet present.

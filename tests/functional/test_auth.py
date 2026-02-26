@@ -161,13 +161,14 @@ def test_forgot_password_happy_path():
 
 @pytest.mark.run(order=4.2)
 def test_forgot_password_invalid_email():
-    # Test with non-existent email
+    # Test with non-existent email — should return 200 (prevents user enumeration)
     res = requests.post(f"{auth_url}/forgot-password", json={"email": "nonexistent@nowhere.com"})
     
-    # Should fail (400 or 404)
-    success = res.status_code in [400, 404]
-    print_test_result("Forgot Password - 2: Invalid Email (400/404)", success, res)
+    success = res.status_code == 200 and res.json().get('success') == True
+    print_test_result("Forgot Password - 2: Invalid Email Returns 200 (Anti-Enumeration)", success, res)
     assert success
+    # Crucially, no resetToken should be in the response for non-existent email
+    assert res.json().get('resetToken') is None, "Token should NOT be returned for non-existent email"
 
 
 @pytest.mark.run(order=4.3)

@@ -116,4 +116,16 @@
  
  ## What is not claimed here
  - A separate Python ML microservice is **not implemented** in this repository.
- - The Angular frontend exists, but end-to-end UI verification is **not included** in this documentation pass.
+- The Angular frontend builds and compiles successfully; SSR safety, route guards, error handling, and console hygiene were applied during the codebase hardening audit. However, automated E2E UI tests (Cypress/Playwright) are not present.
+
+## Cross-cutting hardening (applied during audit)
+The following improvements span all personas:
+- **Security headers** (helmet), CORS origin whitelist, rate limiting in production.
+- **Input validation** at the route level with ReDoS-safe regex patterns.
+- **HMAC timing-safe comparison** on Paymob webhook callbacks.
+- **Env var validation** on startup with fail-fast.
+- **Graceful shutdown** on SIGTERM/SIGINT.
+- **Frontend SSR guards** preventing Node.js crashes from browser-only APIs.
+- **Error interceptor** for consistent 401/403/5xx handling on the client.
+
+See [`docs/security.md`](security.md) for full security controls and [`docs/changelog.md`](changelog.md) for the complete audit trail.

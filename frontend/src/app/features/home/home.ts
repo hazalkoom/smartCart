@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { ProductService } from '../../core/services/product';
@@ -7,7 +7,9 @@ import { CartService } from '../../core/services/cart';
 import { CartAnimationService } from '../../core/services/cart-animation.service';
 import { AuthService } from '../../core/services/auth';
 import { Product } from '../../core/interfaces/product';
+import { Subscription } from 'rxjs';
 import { Category } from '../../core/interfaces/category';
+import { environment } from '../../../environments/environment';
 
 declare var AOS: any;
 
@@ -17,7 +19,7 @@ declare var AOS: any;
   templateUrl: './home.html',
   styleUrl: './home.css'
 })
-export class Home implements OnInit {
+export class Home implements OnInit, OnDestroy {
   
   allProducts: Product[] = [];
   featuredProducts: Product[] = [];
@@ -34,6 +36,7 @@ export class Home implements OnInit {
   private readonly featuredCount = 8;
   private readonly categoryPreviewCount = 8;
   private readonly heroCount = 3;
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private productService: ProductService,
@@ -55,11 +58,12 @@ export class Home implements OnInit {
   loadData() {
     this.isLoading = true;
 
-    this.categoryService.getCategories().subscribe({
+    const catSub = this.categoryService.getCategories().subscribe({
       next: (res) => { this.categories = res.data; }
     });
+    this.subscriptions.push(catSub);
 
-    this.productService.getProducts({ limit: this.catalogLimit }).subscribe({
+    const prodSub = this.productService.getProducts({ limit: this.catalogLimit }).subscribe({
       next: (res) => {
         this.allProducts = res.data;
         const shuffledProducts = this.getShuffledProducts(this.allProducts);
@@ -75,10 +79,11 @@ export class Home implements OnInit {
         this.refreshAnimations();
       },
       error: (err) => {
-        console.error(err);
+        if (!environment.production) console.error(err);
         this.isLoading = false;
       }
     });
+    this.subscriptions.push(prodSub);
   }
 
   onTabChange(categoryId: string): void {
@@ -140,6 +145,10 @@ export class Home implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
   addToCart(event: Event, product: Product): void {
     event.preventDefault();
     event.stopPropagation();
@@ -175,7 +184,7 @@ export class Home implements OnInit {
         // Animation and cart update handled by service
       },
       error: (err) => {
-        console.error('Error adding to cart:', err);
+        if (!environment.production) console.error('Error adding to cart:', err);
         // Don't redirect - let ErrorInterceptor handle auth errors
         // Only show error if it's not an auth error (ErrorInterceptor will handle logout)
         if (err.status !== 401 && err.status !== 403) {

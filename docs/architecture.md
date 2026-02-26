@@ -19,7 +19,7 @@
  - **Backend** (`backend/`)
    - Authoritative business logic and data access.
  - **Frontend** (`frontend/`)
-   - Angular SSR UI (not fully verified end-to-end in this documentation pass).
+   - Angular 20 SSR UI. Build verified (`ng build` — 0 errors). SSR safety guards, route protection, error handling, and console hygiene applied during codebase audit.
  - **Tests** (`tests/`)
    - External/system tests that treat the backend as a black box HTTP service.
  
@@ -112,21 +112,22 @@
  
  ## 6) Deployment and environment assumptions
  - Backend configuration is provided via environment variables (loaded from `backend/.env` in development).
- - MongoDB must support transactions for the checkout flow.
-   - Constraint: MongoDB transactions typically require a **replica set** configuration.
- - CORS:
-   - The backend uses `cors` dependency. Concrete allowed origins configuration is not described in these docs because it is not shown in the inspected runtime entrypoint.
- 
- ## 7) Observability and operations
+- On startup the server validates that `MONGODB_URI`, `JWT_SECRET`, and `JWT_EXPIRE` are present; missing values cause a fail-fast exit.
+- MongoDB must support transactions for the checkout flow.
+  - Constraint: MongoDB transactions typically require a **replica set** configuration.
+- CORS:
+  - Allowed origins are configured via the `CORS_ORIGIN` environment variable.
+- Graceful shutdown handlers close the HTTP server and Mongoose connection on `SIGTERM`/`SIGINT`.
  - HTTP request logging via `morgan` streamed to a Winston logger.
  - Centralized error handler logs error context and returns stable error envelopes.
  
  ## 8) Verified behavior (this repo)
- The following were verified during this documentation pass:
- - Backend can start and respond to `/api/v1/health`.
- - Pytest system/security suites passed (`138 passed, 2 skipped`).
- - Jest unit tests passed (`9` suites, `39` tests).
- 
- ## 9) Open questions (documented, not guessed)
- - **Frontend E2E verification**: frontend exists, but UI-to-API flows were not validated end-to-end in this pass.
- - **Deployment topology**: no production deployment manifests (Docker Compose/Kubernetes/Terraform) were validated here.
+The following were verified during the documentation and hardening passes:
+- Backend can start and respond to `/api/v1/health`.
+- Pytest system/security suites passed (`138 passed, 2 skipped`).
+- Jest unit tests passed (`10` suites, `60` tests).
+- Angular frontend builds cleanly (`ng build` — 0 errors).
+- 42-item codebase hardening audit completed (see [`docs/changelog.md`](changelog.md)).
+
+## 9) Open questions (documented, not guessed)
+- **Frontend E2E testing**: frontend builds and compiles, but automated Cypress/Playwright tests are not present.

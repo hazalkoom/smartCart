@@ -237,8 +237,31 @@ def test_pay_happy_fawry_code():
 # --- E. STATE & DOUBLE PAYMENT (Order 75) ---
 @pytest.mark.run(order=73)
 def test_pay_prevent_double_payment():
-    # Skipping this logic test as discussed, since we can't mock the Webhook easily here
-    pass
+    """
+    Simulate a paid order by manually updating the order status via the admin
+    endpoint, then attempt to pay again — expect 400 'Order is already paid'.
+    """
+    headers = shared_data['pay_user_headers']
+    admin_headers = {"Authorization": f"Bearer {shared_data['owner_token']}"}
+    order_id = shared_data['pay_order_id']
+
+    # Mark the order as Paid via admin status endpoint
+    patch_res = requests.patch(
+        f"{order_url}/{order_id}/status",
+        json={"status": "Paid"},
+        headers=admin_headers
+    )
+    # Accept 200 (updated) — the order is now in Paid state
+    assert patch_res.status_code == 200, f"Admin status update failed: {patch_res.text}"
+
+    # Now attempt to pay again as the original user
+    res = requests.post(
+        f"{order_url}/{order_id}/pay",
+        json={"paymentMethod": "card"},
+        headers=headers
+    )
+    assert res.status_code == 400, f"Expected 400, got {res.status_code}: {res.text}"
+    assert "already paid" in res.json()['error']['message'].lower()
 
 
 # --- F. CLEANUP (Order 76) ---

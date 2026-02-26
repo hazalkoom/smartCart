@@ -1,6 +1,8 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CategoryService, Category } from '../../core/services/category';
+import { CategoryService } from '../../core/services/category';
+import { Category } from '../../core/interfaces/category';
 import { Subscription } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-categories',
@@ -45,7 +47,7 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (err: any) => {
-        console.error('Error loading categories:', err);
+        if (!environment.production) console.error('Error loading categories:', err);
         this.errorMessage = 'Failed to load categories';
         this.isLoading = false;
       }
@@ -80,7 +82,7 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
         this.isSubmitting = false;
       },
       error: (err: any) => {
-        console.error('Error creating category:', err);
+        if (!environment.production) console.error('Error creating category:', err);
         this.errorMessage = err?.error?.message || 'Failed to create category';
         this.isSubmitting = false;
       }
@@ -102,7 +104,7 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
         this.loadCategories();
       },
       error: (err: any) => {
-        console.error('Error deleting category:', err);
+        if (!environment.production) console.error('Error deleting category:', err);
         this.errorMessage = err?.error?.message || 'Failed to delete category';
         this.deletingCategoryId = null;
       }

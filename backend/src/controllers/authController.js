@@ -60,21 +60,26 @@ const forgotPassword = asyncHandler(async (req, res) => {
   try {
     const resetToken = await AuthService.forgotPassword(email);
 
-    // DEVELOPMENT ONLY: We return the token in the response for testing.
-    // In production, you would send an email here.
     const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/auth/reset-password/${resetToken}`;
 
+    const responseData = {
+      success: true,
+      message: 'If that email is registered, a reset link has been sent.',
+    };
+
+    // Only expose token in non-production (for testing)
+    if (process.env.NODE_ENV !== 'production') {
+      responseData.resetToken = resetToken;
+      responseData.resetUrl = resetUrl;
+    }
+
+    res.status(200).json(responseData);
+  } catch (error) {
+    // Security: Always return 200 with same message to prevent user enumeration
     res.status(200).json({
       success: true,
-      message: 'Reset token generated',
-      resetToken: resetToken,
-      resetUrl: resetUrl
+      message: 'If that email is registered, a reset link has been sent.',
     });
-  } catch (error) {
-    // If user not found, we typically return 200 (for security) or 404. 
-    // For this test suite, we need 404 or 400.
-    res.status(404);
-    throw error;
   }
 });
 

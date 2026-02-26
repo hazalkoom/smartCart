@@ -1,11 +1,13 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router'; // 1. Added ActivatedRoute
 import { isPlatformBrowser } from '@angular/common';
 import { ProductService } from '../../core/services/product';
 import { CartService } from '../../core/services/cart';
 import { CartAnimationService } from '../../core/services/cart-animation.service';
 import { AuthService } from '../../core/services/auth';
+import { Subscription } from 'rxjs';
 import { Product } from '../../core/interfaces/product';
+import { environment } from '../../../environments/environment';
 
 declare var AOS: any;
 
@@ -15,7 +17,7 @@ declare var AOS: any;
   templateUrl: './product-list.html',
   styleUrl: './product-list.css',
 })
-export class ProductListComponent implements OnInit {
+export class ProductListComponent implements OnInit, OnDestroy {
   
   // Data variables
   products: Product[] = [];
@@ -26,6 +28,7 @@ export class ProductListComponent implements OnInit {
   totalPages: number = 1;
   totalItems: number = 0;
   readonly pageSize = 12;
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private productService: ProductService,
@@ -43,13 +46,14 @@ export class ProductListComponent implements OnInit {
     }
 
     // 3. Listen for URL changes (Search & Filters)
-    this.route.queryParams.subscribe(params => {
+    const qpSub = this.route.queryParams.subscribe(params => {
       this.searchTerm = params['keyword'] || '';
       this.currentPage = Number(params['page']) > 0 ? Number(params['page']) : 1;
       this.loadProducts(params);
     });
+    this.subscriptions.push(qpSub);
 
-    this.route.fragment.subscribe((fragment) => {
+    const fragSub = this.route.fragment.subscribe((fragment) => {
       if (fragment === 'products-search-input' && isPlatformBrowser(this.platformId)) {
         setTimeout(() => {
           const searchInput = document.querySelector('.products-search-input') as HTMLInputElement | null;
@@ -59,6 +63,11 @@ export class ProductListComponent implements OnInit {
         }, 0);
       }
     });
+    this.subscriptions.push(fragSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   onSearch(): void {
@@ -125,7 +134,7 @@ export class ProductListComponent implements OnInit {
       error: (err) => {
         this.error = 'Failed to load products. Please try again later.';
         this.isLoading = false;
-        console.error(err);
+        if (!environment.production) console.error(err);
       }
     });
   }
@@ -164,7 +173,7 @@ export class ProductListComponent implements OnInit {
         // Animation and cart update handled by service
       },
       error: (err) => {
-        console.error('Error adding to cart:', err);
+        if (!environment.production) console.error('Error adding to cart:', err);
         if (err.status !== 401 && err.status !== 403) {
           alert('Failed to add item to cart. Please try again.');
         }

@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { OrderService } from '../../core/services/order';
 import { UserService } from '../../core/services/user';
 import { forkJoin, Subscription } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 interface Order {
   _id: string;
@@ -76,7 +77,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error: any) => {
-        console.error('Error loading dashboard data:', error);
+        if (!environment.production) console.error('Error loading dashboard data:', error);
         this.errorMessage = error?.error?.message || 'Failed to load dashboard data';
         this.isLoading = false;
       }

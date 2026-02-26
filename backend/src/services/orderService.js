@@ -148,16 +148,32 @@ class OrderService {
       };
     }
 
-    // 2. Cancellation Logic (Restock Items)
+    // 2. Cancellation Logic (Restock Items) — wrapped in a transaction
     // If cancelling a non-cancelled order, give items back to inventory
     if (newStatus === 'Cancelled' && currentStatus !== 'Cancelled') {
-      const bulkOps = order.items.map(item => ({
-        updateOne: {
-          filter: { _id: item.productId },
-          update: { $inc: { stock: item.quantity, purchases: -item.quantity } }
-        }
-      }));
-      await Product.bulkWrite(bulkOps);
+      const session = await mongoose.startSession();
+      try {
+        session.startTransaction();
+
+        const bulkOps = order.items.map(item => ({
+          updateOne: {
+            filter: { _id: item.productId },
+            update: { $inc: { stock: item.quantity, purchases: -item.quantity } }
+          }
+        }));
+        await Product.bulkWrite(bulkOps, { session });
+
+        order.status = newStatus;
+        await order.save({ session });
+
+        await session.commitTransaction();
+        return order;
+      } catch (error) {
+        await session.abortTransaction();
+        throw error;
+      } finally {
+        session.endSession();
+      }
     }
 
     // 3. Update Status & Timestamps

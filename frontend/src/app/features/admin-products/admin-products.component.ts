@@ -1,7 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ProductService } from '../../core/services/product';
-import { CategoryService, Category } from '../../core/services/category';
+import { CategoryService } from '../../core/services/category';
+import { Category } from '../../core/interfaces/category';
 import { Subscription } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 interface Product {
   _id: string;
@@ -83,7 +85,7 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
         this.categories = res.data || [];
       },
       error: (err: any) => {
-        console.error('Error loading categories:', err);
+        if (!environment.production) console.error('Error loading categories:', err);
       }
     });
     this.subscriptions.push(catSub);
@@ -98,7 +100,7 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (err: any) => {
-        console.error('Error loading products:', err);
+        if (!environment.production) console.error('Error loading products:', err);
         this.errorMessage = 'Failed to load products';
         this.isLoading = false;
       }
@@ -144,7 +146,7 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
         this.isSubmitting = false;
       },
       error: (err: any) => {
-        console.error('Error creating product:', err);
+        if (!environment.production) console.error('Error creating product:', err);
         this.errorMessage = err?.error?.message || 'Failed to create product';
         this.isSubmitting = false;
       }
@@ -166,7 +168,7 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
         this.loadData();
       },
       error: (err: any) => {
-        console.error('Error deleting product:', err);
+        if (!environment.production) console.error('Error deleting product:', err);
         this.errorMessage = err?.error?.message || 'Failed to delete product';
         this.deletingProductId = null;
       }

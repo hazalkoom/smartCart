@@ -1,10 +1,12 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../core/services/cart';
 import { OrderService } from '../../core/services/order';
 import { Cart } from '../../core/interfaces/cart';
+import { Subscription } from 'rxjs';
 import { ShippingAddress } from '../../core/interfaces/order';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-checkout',
@@ -12,7 +14,7 @@ import { ShippingAddress } from '../../core/interfaces/order';
   templateUrl: './checkout.html',
   styleUrl: './checkout.css'
 })
-export class CheckoutComponent implements OnInit {
+export class CheckoutComponent implements OnInit, OnDestroy {
   
   cart: Cart | null = null;
   isLoading: boolean = true;
@@ -39,6 +41,7 @@ export class CheckoutComponent implements OnInit {
   // --- NEW: Payment Data ---
   paymentMethod: 'card' | 'wallet' | 'fawry' = 'card';
   mobileNumber: string = '';
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private cartService: CartService,
@@ -109,14 +112,9 @@ export class CheckoutComponent implements OnInit {
     this.isProcessing = true;
     this.error = '';
 
-    // Log what we're sending for debugging
-    console.log('📤 Sending order with shippingAddress:', this.shippingAddress);
-
     // 3. Create Order Only
     this.orderService.createOrder(this.shippingAddress).subscribe({
       next: (orderRes: any) => {
-        console.log('✅ Order response:', orderRes);
-        
         // Backend returns { success: true, data: {...order} }
         const orderId = orderRes?.data?._id;
 
@@ -124,8 +122,6 @@ export class CheckoutComponent implements OnInit {
           this.isProcessing = false;
           this.placedOrderId = orderId;
           this.orderPlaced = true;
-          
-          console.log('🎉 Order placed successfully! ID:', orderId);
           
           // Refresh cart to reflect it's now empty
           this.cartService.getCart().subscribe({
@@ -135,13 +131,10 @@ export class CheckoutComponent implements OnInit {
           });
         } else {
           this.isProcessing = false;
-          console.error('❌ Unexpected response format:', orderRes);
           this.error = 'Failed to create order. Please try again.';
         }
       },
       error: (err) => {
-        console.error('Order Creation Error:', err);
-        console.error('Error details:', JSON.stringify(err.error, null, 2));
         this.isProcessing = false;
         
         // Provide helpful error messages
@@ -191,14 +184,10 @@ export class CheckoutComponent implements OnInit {
       paymentData.mobileNumber = this.mobileNumber.trim();
     }
 
-    console.log('💳 Initiating payment with:', paymentData);
-
     // Initiate Paymob Payment
     this.orderService.payOrder(this.placedOrderId, paymentData).subscribe({
       next: (payRes: any) => {
         this.isPaymentProcessing = false;
-        
-        console.log('🔥 BACKEND PAYMENT RESPONSE:', payRes);
 
         // Hunt for the URL aggressively
         const paymentUrl = payRes?.url || 
@@ -211,7 +200,9 @@ export class CheckoutComponent implements OnInit {
         const fawryCode = payRes?.billReference || payRes?.data?.billReference;
 
         if (paymentUrl) {
-          window.location.href = paymentUrl;
+          if (isPlatformBrowser(this.platformId)) {
+            window.location.href = paymentUrl;
+          }
         } else if (fawryCode) {
           alert(`Your Fawry Reference Code is: ${fawryCode}`);
           this.router.navigate(['/account']);
@@ -222,8 +213,6 @@ export class CheckoutComponent implements OnInit {
       },
       error: (payErr) => {
         this.isPaymentProcessing = false;
-        console.error('Payment Error:', payErr);
-        console.error('Payment Error Details:', JSON.stringify(payErr.error, null, 2));
         
         // Extract detailed error message
         const errorMsg = payErr.error?.message || 
@@ -234,6 +223,10 @@ export class CheckoutComponent implements OnInit {
         this.error = `${errorMsg}. You can pay later from your account.`;
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   goToMyOrders() {

@@ -1,7 +1,6 @@
 const ProductService = require('../services/productService');
 const asyncHandler = require('../utils/asyncHandler');
 const mongoose = require('mongoose'); // Needed to check if ID is valid
-const Product = require('../models/productModel');
 
 const createProduct = asyncHandler(async (req, res) => {
   const productData = req.body;
@@ -35,6 +34,10 @@ const getProduct = asyncHandler(async (req, res) => {
     try {
         product = await ProductService.getProductById(param);
     } catch (err) {
+        // Only swallow "not found" — rethrow real DB errors
+        if (err.name !== 'CastError' && !err.message?.includes('not found')) {
+          throw err;
+        }
     }
   }
 

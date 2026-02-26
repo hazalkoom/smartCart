@@ -43,7 +43,11 @@ PORT=5000
 MONGODB_URI=mongodb+srv://... OR mongodb://...
 JWT_SECRET=... 
 JWT_EXPIRE=7d
+BCRYPT_ROUNDS=12
+CORS_ORIGIN=http://localhost:4200
 ```
+
+> **Startup validation**: the server checks that `MONGODB_URI`, `JWT_SECRET`, and `JWT_EXPIRE` are set. If any are missing, the process exits immediately with a clear error message.
 
 Required for Paymob payment initiation and webhook verification:
 
@@ -125,6 +129,11 @@ npm start -- --proxy-config proxy.conf.json
 Proxy behavior:
 - Requests to `/api/*` are forwarded to `http://localhost:5000`.
 
+Environment files:
+- `frontend/src/environments/environment.ts` — default (dev) config.
+- `frontend/src/environments/environment.prod.ts` — production config (`production: true`).
+- Angular CLI swaps these files automatically via `fileReplacements` in `angular.json` when building for production.
+
 ## 7) Common failure modes (and how to diagnose)
 
 - **“Cannot find module …” when starting backend**
@@ -136,3 +145,10 @@ Proxy behavior:
   - Validate `MONGODB_URI` and network access.
 - **Order creation errors related to transactions**
   - Ensure MongoDB supports transactions (replica set/cluster).
+
+## 8) Related documentation
+- [`docs/security.md`](security.md) — security controls and hardening measures
+- [`docs/changelog.md`](changelog.md) — 42-item codebase audit trail
+- [`docs/AGENTS.md`](AGENTS.md) — AI agent navigation guide
+- [`docs/testing.md`](testing.md) — test strategy, coverage, and run instructions
+- [`docs/api.md`](api.md) — endpoint reference

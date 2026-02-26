@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CategoryService } from '../../core/services/category';
 import { Category } from '../../core/interfaces/category';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-category',
@@ -47,7 +48,7 @@ export class CategoryComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error(err);
+        if (!environment.production) console.error(err);
         this.errorMessage = 'Failed to load categories. Please try again.';
         this.isLoading = false;
       }

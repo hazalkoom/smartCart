@@ -1,6 +1,7 @@
 const rateLimit = require('express-rate-limit');
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const connectDB = require('./config/mongoDataBaseConnection');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -19,7 +20,14 @@ const swaggerSpec = require('./config/swagger');
 
 dotenv.config({ path: '.env' });
 
-connectDB();
+// Fix #8: Validate critical env vars at startup — fail fast instead of cryptic runtime errors
+const requiredEnvVars = ['JWT_SECRET', 'JWT_EXPIRE', 'MONGODB_URI'];
+for (const envVar of requiredEnvVars) {
+  if (!process.env[envVar]) {
+    logger.error(`FATAL: Environment variable ${envVar} is not set. Exiting.`);
+    process.exit(1);
+  }
+}
 
 const app = express();
 
@@ -31,6 +39,13 @@ app.use(
   })
 );
 app.use(helmet());
+
+// Fix #7: CORS — allow frontend origin
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
+  credentials: true,
+}));
+
 app.use(express.json({ limit: '10kb' })); // Body parser with payload limit
 
 if (process.env.NODE_ENV === 'production') {
@@ -43,8 +58,10 @@ if (process.env.NODE_ENV === 'production') {
   app.use('/api', limiter); 
 }
 
-// our routers
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Fix #10: Only expose API docs in non-production
+if (process.env.NODE_ENV !== 'production') {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+}
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use('/api/v1/products', productRoutes);
@@ -61,6 +78,32 @@ app.get('/api/v1/health', (req, res) => {
 app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  logger.info(`Server running in ${process.env.NODE_ENV} mode at: http://localhost:${PORT}`);
-});
+// Fix #6: Await DB connection before accepting requests
+const startServer = async () => {
+  await connectDB();
+
+  const server = app.listen(PORT, () => {
+    logger.info(`Server running in ${process.env.NODE_ENV} mode at: http://localhost:${PORT}`);
+  });
+
+  // Fix #9: Graceful shutdown — close connections cleanly on termination
+  const shutdown = async (signal) => {
+    logger.info(`${signal} received. Shutting down gracefully...`);
+    server.close(async () => {
+      const mongoose = require('mongoose');
+      await mongoose.disconnect();
+      logger.info('MongoDB disconnected. Process exiting.');
+      process.exit(0);
+    });
+    // Force exit if graceful shutdown takes too long
+    setTimeout(() => {
+      logger.error('Forced shutdown — could not close connections in time.');
+      process.exit(1);
+    }, 10000);
+  };
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
+};
+
+startServer();

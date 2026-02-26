@@ -31,6 +31,21 @@ This structure is intentional:
 Coverage focus:
 - services (auth/cart/order/payments/reviews/users/products/categories)
 - model behavior (e.g., password hashing)
+- controllers (webhook HMAC verification, idempotency)
+
+Test files:
+| File | Tests | Focus |
+|------|------:|-------|
+| `authService.test.js` | 8 | register, login, token gen, password hash |
+| `cartService.test.js` | 14 | add/get/remove/clear cart, validation |
+| `categoryService.test.js` | 4 | CRUD |
+| `orderService.test.js` | 5 | checkout, status transitions |
+| `paymentService.test.js` | 3 | initiation flows |
+| `productService.test.js` | 9 | CRUD, soft delete, createProduct validation |
+| `reviewService.test.js` | 5 | create/update/delete, rating recalc |
+| `userModel.test.js` | 3 | bcrypt hook, schema |
+| `userService.test.js` | 3 | listing, role update, deletion |
+| `webhookController.test.js` | 6 | HMAC verify, idempotency, timing-safe |
 
 ### System + security tests (Pytest)
 - Location:
@@ -82,7 +97,8 @@ npm test
 
 ## 5) Verified results (latest documented run)
 - Pytest: **138 passed, 2 skipped**
-- Jest: **9** suites passed, **39** tests passed
+- Jest: **10** suites passed, **60** tests passed
+- Angular build: **0 errors** (2 pre-existing bundle-budget warnings)
 
 ## 6) Extending tests safely
 
@@ -99,3 +115,4 @@ npm test
 ## 7) Environment and dependencies
 - Pytest uses a fixed base URL: `http://localhost:5000/api/v1` (see `tests/test_config.py`).
 - Order creation uses MongoDB transactions; MongoDB must support transactions for full checkout coverage.
+- **Test data isolation**: `tests/test_config.py` exports an `ensure_test_data()` function that guarantees at least one admin user, one customer, one category, and one product exist before system tests run. Import and call it in conftest or at module top if your tests need seed data.

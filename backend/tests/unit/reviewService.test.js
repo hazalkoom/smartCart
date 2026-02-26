@@ -93,11 +93,7 @@ describe('ReviewService', () => {
 
       await expect(
         reviewService.updateReview('attacker-user', 'rev-1', { rating: 5 })
-      ).rejects.toMatchObject({ statusCode: 403 });
-
-      await expect(
-        reviewService.updateReview('attacker-user', 'rev-1', { rating: 5 })
-      ).rejects.toThrow('Not authorized to update this review');
+      ).rejects.toMatchObject({ statusCode: 403, message: 'Not authorized to update this review' });
 
       expect(Review.calcAverageRatings).not.toHaveBeenCalled();
     });
@@ -114,11 +110,7 @@ describe('ReviewService', () => {
 
       await expect(
         reviewService.deleteReview('attacker-user', 'customer', 'rev-1')
-      ).rejects.toMatchObject({ statusCode: 403 });
-
-      await expect(
-        reviewService.deleteReview('attacker-user', 'customer', 'rev-1')
-      ).rejects.toThrow('Not authorized to delete this review');
+      ).rejects.toMatchObject({ statusCode: 403, message: 'Not authorized to delete this review' });
 
       expect(Review.findByIdAndDelete).not.toHaveBeenCalled();
     });

@@ -17,20 +17,11 @@ const sanitizeOrderForAdmin = (order) => {
 };
 
 const createOrder = asyncHandler(async (req, res) => {
-  try {
-    const order = await OrderService.createOrder(req.user, req.body.shippingAddress);
-    res.status(201).json({
-      success: true,
-      data: order,
-    });
-  } catch (err) {
-    console.error("🔥 ORDER CONTROLLER ERROR:", err.message);
-    const statusCode = err.statusCode || 500;
-    res.status(statusCode).json({
-      success: false,
-      message: err.message || 'Server Error',
-    });
-  }
+  const order = await OrderService.createOrder(req.user, req.body.shippingAddress);
+  res.status(201).json({
+    success: true,
+    data: order,
+  });
 });
 
 const getMyOrders = asyncHandler(async (req, res) => {

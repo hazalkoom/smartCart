@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { UserService, User } from '../../core/services/user';
 import { AuthService } from '../../core/services/auth';
 import { Subscription } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-users',
@@ -85,7 +86,7 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
         this.updateLoadingState();
       },
       error: (error) => {
-        console.error('Error fetching customers:', error);
+        if (!environment.production) console.error('Error fetching customers:', error);
         this.errorMessage = error?.error?.message || 'Failed to load users';
         this.isLoadingCustomers = false;
         this.updateLoadingState();
@@ -109,7 +110,7 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
         this.updateLoadingState();
       },
       error: (error) => {
-        console.error('Error fetching employees:', error);
+        if (!environment.production) console.error('Error fetching employees:', error);
         this.errorMessage = error?.error?.message || 'Failed to load users';
         this.isLoadingEmployees = false;
         this.updateLoadingState();
@@ -132,7 +133,7 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
         this.loadAllUsers();
       },
       error: (error) => {
-        console.error('Error deleting user:', error);
+        if (!environment.production) console.error('Error deleting user:', error);
         this.errorMessage = error?.error?.message || 'Failed to delete user';
         this.deletingUserId = null;
       }
@@ -205,7 +206,7 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
         this.loadAllUsers();
       },
       error: (error) => {
-        console.error('Error saving user:', error);
+        if (!environment.production) console.error('Error saving user:', error);
         this.errorMessage = error?.error?.message || 'Failed to save user';
         this.isSubmitting = false;
       }

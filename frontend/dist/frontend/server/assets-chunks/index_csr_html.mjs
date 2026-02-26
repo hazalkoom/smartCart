@@ -18,5 +18,5 @@ export default `<!doctype html>
   <script defer="" src="assets/js/plugins.js"></script>
   <script defer="" src="assets/js/script.js"></script>
   <script defer="" src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<link rel="modulepreload" href="chunk-IH5Y3RFZ.js"><script src="polyfills-5CFQRCPP.js" type="module"></script><script src="main-IGGXYGWW.js" type="module"></script></body>
+<link rel="modulepreload" href="chunk-FAUXUZGV.js"><script src="polyfills-5CFQRCPP.js" type="module"></script><script src="main-4ML5YHKZ.js" type="module"></script></body>
 </html>`;

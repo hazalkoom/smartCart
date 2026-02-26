@@ -48,7 +48,7 @@ class CategoryService {
 
     // The 'pre-save' hook will auto-update the slug if name changes
     category.name = name || category.name;
-    category.description = description;
+    category.description = description !== undefined ? description : category.description;
 
     const updatedCategory = await category.save();
     return updatedCategory;

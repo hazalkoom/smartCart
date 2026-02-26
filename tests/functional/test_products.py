@@ -265,7 +265,10 @@ def test_delete_product_happy_path():
 def test_delete_product_logic_not_found():
     product_id = shared_data['product_id']
     res = requests.delete(f"{product_url}/{product_id}", headers=owner_headers)
-    assert res.status_code in [200, 404]
+    # The product was soft-deleted in the previous test, so it should either
+    # return 404 (not found) or 200 with a 'already deleted' idempotent response.
+    # We assert 404 specifically — a second delete of a trashed product should fail.
+    assert res.status_code == 404, f"Expected 404 for double-delete, got {res.status_code}: {res.text}"
 
 @pytest.mark.run(order=36)
 def test_product_cleanup_category():

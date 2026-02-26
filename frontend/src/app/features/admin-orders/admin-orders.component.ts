@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { OrderService } from '../../core/services/order';
 import { Order } from '../../core/interfaces/order';
 import { Subscription } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-admin-orders',
@@ -60,7 +61,7 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error fetching orders:', error);
+        if (!environment.production) console.error('Error fetching orders:', error);
         this.errorMessage = error?.error?.message || 'Failed to load orders';
         this.isLoading = false;
       }
@@ -88,7 +89,7 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
         this.applyPagination();
       },
       error: (error) => {
-        console.error('Error updating status:', error);
+        if (!environment.production) console.error('Error updating status:', error);
         const backendMessage = error?.error?.message;
         this.errorMessage = backendMessage || 'Failed to update order status. Please follow Pending → Paid → Shipped → Delivered.';
       }

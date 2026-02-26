@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router'; // Make sure Router is imported
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 import { OrderService } from '../../core/services/order'; 
 import { Order } from '../../core/interfaces/order'; 
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-order-detail',
@@ -18,8 +20,9 @@ export class OrderDetailComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private router: Router, // <--- ADD THIS
-    private orderService: OrderService
+    private router: Router,
+    private orderService: OrderService,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
@@ -43,7 +46,7 @@ export class OrderDetailComponent implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error(err);
+        if (!environment.production) console.error(err);
         this.error = 'Order not found or you do not have permission to view it.';
         this.isLoading = false;
       }
@@ -58,7 +61,6 @@ export class OrderDetailComponent implements OnInit {
     this.orderService.payOrder(this.order._id, { paymentMethod: 'card' }).subscribe({
       next: (payRes: any) => {
         this.isProcessingPayment = false;
-        console.log('🔥 RECOVERY PAYMENT RESPONSE:', payRes);
         
         const paymentUrl = payRes?.url || 
                            payRes?.data?.url || 
@@ -68,14 +70,16 @@ export class OrderDetailComponent implements OnInit {
                            payRes?.redirectUrl;
         
         if (paymentUrl) {
-          window.location.href = paymentUrl;
+          if (isPlatformBrowser(this.platformId)) {
+            window.location.href = paymentUrl;
+          }
         } else {
           alert('Failed to extract payment link from backend response. Open Console (F12) to see what your backend actually sent.');
         }
       },
       error: (err) => {
         this.isProcessingPayment = false;
-        console.error('Recovery Payment Error:', err);
+        if (!environment.production) console.error('Recovery Payment Error:', err);
         alert('Failed to connect to payment provider.');
       }
     });

@@ -2,6 +2,7 @@ import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../core/services/auth';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -36,7 +37,6 @@ export class Login implements OnInit {
       next: (response) => {
         // Check if login was successful
         if (response.success && response.data?.token) {
-          console.log('Login successful', response);
           const role = response.data?.role || this.authService.currentUser$.value?.role;
           if (role === 'admin' || role === 'owner') {
             this.router.navigate(['/admin']);
@@ -50,7 +50,7 @@ export class Login implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Login failed', error);
+        if (!environment.production) console.error('Login failed', error);
         // Handle different error formats
         const errorMsg = error.error?.message || 
                         error.error?.error?.message || 

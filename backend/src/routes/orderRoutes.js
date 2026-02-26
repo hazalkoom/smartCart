@@ -27,10 +27,9 @@ router.route('/').get(authorize('admin', 'owner'), getAllOrders);
 router.route('/:id/status').patch(authorize('admin', 'owner'), orderStatusValidationRules, validate, updateOrderStatus);
 router.post(
   '/:id/pay',
-  protect,                   // 1. Check Auth
-  payOrderValidationRules,   // 2. Check Input Rules
-  validate,                  // 3. Check for Validation Errors
-  payOrder                   // 4. Execute Logic
+  payOrderValidationRules,   // 1. Check Input Rules
+  validate,                  // 2. Check for Validation Errors
+  payOrder                   // 3. Execute Logic
 );
 
 module.exports = router;

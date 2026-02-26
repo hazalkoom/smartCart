@@ -1,6 +1,9 @@
 const Product = require('../models/productModel');
 const Category = require('../models/categoryModel');
 
+// Escape special regex characters to prevent ReDoS
+const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 class ProductService {
   async createProduct(productData) {
     const { name, description, price, costPrice, sku, stock, categoryId, images } = productData;
@@ -35,9 +38,10 @@ class ProductService {
     let dbQuery = { isDeleted: { $ne: true } };
 
     if (keyword) {
+      const safeKeyword = escapeRegex(keyword);
       dbQuery.$or = [
-        { name: { $regex: keyword, $options: 'i' } },
-        { sku: { $regex: keyword, $options: 'i' } },
+        { name: { $regex: safeKeyword, $options: 'i' } },
+        { sku: { $regex: safeKeyword, $options: 'i' } },
       ];
     }
 

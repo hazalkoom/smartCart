@@ -52,17 +52,10 @@ export class Header implements OnInit, OnDestroy {
       this.cartCount = count;
     });
     this.subscriptions.push(cartSub);
-
-    // 4. Initial Check
-    if (this.authService.isAuthenticated()) {
-      this.cartService.getCart().subscribe();
-    }
   }
 
   // Search logic: Receives the value directly from the HTML
   onSearch(term: string): void {
-    console.log('Search clicked. Term:', term); 
-    
     if (term && term.trim()) {
       this.router.navigate(['/products'], { 
         queryParams: { keyword: term.trim() } 

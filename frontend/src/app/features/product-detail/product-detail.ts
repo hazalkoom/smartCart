@@ -1,11 +1,13 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { ProductService } from '../../core/services/product';
 import { CartService } from '../../core/services/cart';
 import { CartAnimationService } from '../../core/services/cart-animation.service';
 import { AuthService } from '../../core/services/auth';
+import { Subscription } from 'rxjs';
 import { Product } from '../../core/interfaces/product';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-product-detail',
@@ -13,7 +15,7 @@ import { Product } from '../../core/interfaces/product';
   templateUrl: './product-detail.html',
   styleUrl: './product-detail.css'
 })
-export class ProductDetail implements OnInit {
+export class ProductDetail implements OnInit, OnDestroy {
 
   product: Product | null = null;
   
@@ -26,6 +28,7 @@ export class ProductDetail implements OnInit {
   isAddingToCart: boolean = false;
   error: string = '';
   showLoginPrompt: boolean = false;
+  private subscriptions: Subscription[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -39,12 +42,17 @@ export class ProductDetail implements OnInit {
 
   ngOnInit(): void {
     // Listen to URL changes
-    this.route.paramMap.subscribe(params => {
+    const paramSub = this.route.paramMap.subscribe(params => {
       const slug = params.get('slug');
       if (slug) {
         this.loadProduct(slug);
       }
     });
+    this.subscriptions.push(paramSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   loadProduct(slug: string) {
@@ -59,7 +67,7 @@ export class ProductDetail implements OnInit {
         this.isLoading = false;
       },
       error: (err) => {
-        console.error(err);
+        if (!environment.production) console.error(err);
         this.error = 'Product not found';
         this.isLoading = false;
       }
@@ -89,8 +97,12 @@ export class ProductDetail implements OnInit {
     this.showLoginPrompt = false;
 
     // Get button position for animation if event is provided
-    let startX = window.innerWidth / 2;
-    let startY = window.innerHeight / 2;
+    let startX = 0;
+    let startY = 0;
+    if (isPlatformBrowser(this.platformId)) {
+      startX = window.innerWidth / 2;
+      startY = window.innerHeight / 2;
+    }
     
     if (event) {
       const button = event.target as HTMLElement;
@@ -116,7 +128,7 @@ export class ProductDetail implements OnInit {
         // Animation is handled by CartAnimationService
       },
       error: (err) => {
-        console.error(err);
+        if (!environment.production) console.error(err);
         this.isAddingToCart = false;
         
         // Check if it's an authentication error

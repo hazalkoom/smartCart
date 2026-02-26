@@ -58,25 +58,45 @@ Evidence:
 
 ## 3) Frontend (Angular SSR)
 
-### Present but not fully verified
-- Angular SSR project scaffolding exists.
+### Verified
+- Angular 20 SSR project builds cleanly (`ng build` — 0 errors, 2 pre-existing bundle-budget warnings).
 - API base URL is configured to `/api/v1` and local proxy forwards `/api` to `http://localhost:5000`.
+- `environment.ts` / `environment.prod.ts` are wired via Angular `fileReplacements`.
+- SSR-safe guards (`isPlatformBrowser`) applied to all browser-API-dependent components.
+- Route guards (`authGuard`, `adminGuard`, `ownerGuard`) protect restricted routes.
+- Error interceptor handles 401/403/5xx with appropriate redirects and dev-only logging.
+- All debug `console.log` statements removed; `console.error` gated behind `!environment.production`.
 
-Unverified items:
-- End-to-end UI workflows (browse → cart → checkout) were not validated in this documentation pass.
-- Frontend build/test pipeline was not executed in this documentation pass.
+### Not verified
+- End-to-end UI workflows (browse → cart → checkout) have not been validated via automated E2E tests.
 
 ## 4) Tests and quality
 
 ### Verified
 - **Pytest**: `138 passed, 2 skipped` (functional + security)
-- **Jest**: `9` suites passed, `39` tests passed
+- **Jest**: `10` suites passed, `60` tests passed
+- **Angular build**: `ng build` completes with 0 errors
 
 ### Available but not executed here
 - **Performance tests**: Locust scripts exist under `tests/performance/`.
 
-## 5) Known constraints and risks
+## 5) Codebase hardening audit
+
+A 42-item hardening audit was completed covering backend security, startup safety, data integrity, frontend lifecycle/SSR, and test quality. See [`docs/changelog.md`](changelog.md) for the full item list and [`docs/security.md`](security.md) for the consolidated security posture.
+
+Highlights:
+- HMAC timing-safe comparison for Paymob webhooks
+- Environment variable validation on startup with fail-fast
+- Graceful shutdown handlers (SIGTERM/SIGINT)
+- ReDoS-safe email regex across model + middleware
+- Angular SSR `isPlatformBrowser` guards
+- Jest coverage grew from 39 → 60 tests (new webhook, cart, product suites)
+- Python test isolation via `ensure_test_data()` fixture
+
+## 6) Known constraints and risks
 - **Secrets and configuration**
   - `backend/.env` is gitignored; contributors need an out-of-band way to obtain configuration or a non-secret template.
 - **MongoDB transactions**
   - Order creation uses MongoDB transactions; MongoDB must support them (usually replica set/cluster).
+- **No frontend E2E tests**
+  - Cypress/Playwright tests are not present; UI workflows are only manually verified.

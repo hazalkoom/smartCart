@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-payment-callback',
@@ -7,15 +8,16 @@ import { ActivatedRoute } from '@angular/router';
   templateUrl: './payment-callback.html',
   styleUrl: './payment-callback.css'
 })
-export class PaymentCallbackComponent implements OnInit {
+export class PaymentCallbackComponent implements OnInit, OnDestroy {
   isLoading: boolean = true;
   isSuccess: boolean = false;
+  private subscriptions: Subscription[] = [];
 
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
     // Paymob sends parameters like: ?success=true&pending=false
-    this.route.queryParams.subscribe(params => {
+    const qpSub = this.route.queryParams.subscribe(params => {
       const success = params['success'];
       const pending = params['pending'];
 
@@ -26,5 +28,10 @@ export class PaymentCallbackComponent implements OnInit {
         this.isLoading = false;
       }, 1000);
     });
+    this.subscriptions.push(qpSub);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }

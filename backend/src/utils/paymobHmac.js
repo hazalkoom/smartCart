@@ -52,15 +52,20 @@ const validateHmac = (data, hmacSent, secret) => {
     .update(concatenatedString)
     .digest('hex');
 
-  // --- DEBUG LOGGING (Remove this in production) ---
-  console.log('--- HMAC DEBUG ---');
-  console.log('Backend Concatenated String:', concatenatedString);
-  console.log('Backend Calculated HMAC:    ', calculatedHmac);
-  console.log('Received HMAC from Test:    ', hmacSent);
-  console.log('Match Status:               ', calculatedHmac === hmacSent);
-  console.log('------------------');
+  // Debug logging — only in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('--- HMAC DEBUG ---');
+    console.log('Backend Concatenated String:', concatenatedString);
+    console.log('Backend Calculated HMAC:    ', calculatedHmac);
+    console.log('Received HMAC from Test:    ', hmacSent);
+    console.log('------------------');
+  }
 
-  return calculatedHmac === hmacSent;
+  // Timing-safe comparison to prevent side-channel attacks
+  const a = Buffer.from(calculatedHmac, 'hex');
+  const b = Buffer.from(hmacSent, 'hex');
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
 };
 
 module.exports = { validateHmac };

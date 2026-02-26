@@ -20,6 +20,71 @@ describe('ProductService', () => {
     jest.clearAllMocks();
   });
 
+  // --- #38: createProduct unit tests ---
+  describe('createProduct', () => {
+    const validProductData = {
+      name: 'Test Laptop',
+      description: 'A fine laptop',
+      price: 999,
+      costPrice: 500,
+      sku: 'LAP-001',
+      stock: 50,
+      categoryId: 'cat-1',
+      images: ['https://img.example.com/laptop.jpg'],
+    };
+
+    it('creates a product when SKU is unique and category exists', async () => {
+      Product.findOne.mockResolvedValue(null); // no duplicate SKU
+      Category.findById.mockResolvedValue({ _id: 'cat-1', name: 'Laptops' });
+
+      const created = { _id: 'prod-new', ...validProductData };
+      Product.create.mockResolvedValue(created);
+
+      const result = await productService.createProduct(validProductData);
+
+      expect(Product.findOne).toHaveBeenCalledWith({ sku: 'LAP-001' });
+      expect(Category.findById).toHaveBeenCalledWith('cat-1');
+      expect(Product.create).toHaveBeenCalled();
+      expect(result).toBe(created);
+    });
+
+    it('throws when SKU already exists', async () => {
+      Product.findOne.mockResolvedValue({ _id: 'existing', sku: 'LAP-001' });
+
+      await expect(productService.createProduct(validProductData)).rejects.toThrow(
+        'A product with this SKU already exists'
+      );
+
+      expect(Category.findById).not.toHaveBeenCalled();
+      expect(Product.create).not.toHaveBeenCalled();
+    });
+
+    it('throws when category is not found', async () => {
+      Product.findOne.mockResolvedValue(null);
+      Category.findById.mockResolvedValue(null);
+
+      await expect(productService.createProduct(validProductData)).rejects.toThrow(
+        'Category not found'
+      );
+
+      expect(Product.create).not.toHaveBeenCalled();
+    });
+
+    it('filters out invalid image URLs', async () => {
+      Product.findOne.mockResolvedValue(null);
+      Category.findById.mockResolvedValue({ _id: 'cat-1' });
+
+      const created = { _id: 'prod-filtered' };
+      Product.create.mockResolvedValue(created);
+
+      const data = { ...validProductData, images: ['valid.jpg', '', '  ', null, 42] };
+      await productService.createProduct(data);
+
+      const createCall = Product.create.mock.calls[0][0];
+      expect(createCall.images).toEqual(['valid.jpg']);
+    });
+  });
+
   describe('getAllProducts (filters)', () => {
     it("constructs low-stock query when stockStatus is 'low'", async () => {
       Product.countDocuments.mockResolvedValue(0);

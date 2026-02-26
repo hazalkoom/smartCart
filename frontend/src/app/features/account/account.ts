@@ -6,6 +6,7 @@ import { AuthService } from '../../core/services/auth';
 import { OrderService } from '../../core/services/order';
 import { User } from '../../core/interfaces/user';
 import { Order } from '../../core/interfaces/order';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-account',
@@ -133,7 +134,7 @@ export class Account implements OnInit, OnDestroy {
         }
       },
       error: (error) => {
-        console.error('Error fetching user profile:', error);
+        if (!environment.production) console.error('Error fetching user profile:', error);
         const errorMsg = error.error?.message || 'Failed to load user profile';
         this.errorMessage = errorMsg;
       }
@@ -148,7 +149,7 @@ export class Account implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error fetching orders:', error);
+        if (!environment.production) console.error('Error fetching orders:', error);
         this.isLoading = false;
         // We don't block the page if orders fail, just log it
       }

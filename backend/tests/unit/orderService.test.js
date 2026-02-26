@@ -213,7 +213,7 @@ describe('OrderService', () => {
 
       await expect(orderService.updateOrderStatus('order-1', 'Shipped')).rejects.toEqual({
         statusCode: 400,
-        message: 'Order must be Paid before Shipping.',
+        message: 'Invalid status transition from Pending to Shipped. Allowed next status: Paid or Cancelled.',
       });
 
       expect(Order.findById).toHaveBeenCalledWith('order-1');
