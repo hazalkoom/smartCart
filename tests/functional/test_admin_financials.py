@@ -99,15 +99,47 @@ def test_strict_flow_enforcement():
 
 @pytest.mark.run(order=89)
 def test_cancel_restores_stock():
-    oid = shared_data['ord_id']
     h = shared_data['admin_head']
-    
-    # Cancel
-    requests.patch(f"{ord_url}/{oid}/status", json={"status": "Cancelled"}, headers=h)
-    
-    # Verify Stock (10 again)
+
+    # Create a fresh customer + fresh order that is still Pending
+    email = f"cancel_{get_unique_id()}@t.com"
+    requests.post(f"{BASE_URL}/auth/register", json={
+        "email": email, "password": "password123", "firstName": "C", "lastName": "C"
+    })
+
+    res = requests.post(f"{BASE_URL}/auth/login", json={"email": email, "password": "password123"})
+    assert res.status_code == 200, f"Cancel-path buyer login failed: {res.text}"
+    u_head = {"Authorization": f"Bearer {res.json()['data']['token']}"}
+
+    add_res = requests.post(
+        f"{cart_url}/items",
+        json={"productId": shared_data['prod_id'], "quantity": 1},
+        headers=u_head
+    )
+    assert add_res.status_code in [200, 201], f"Add to cart failed: {add_res.text}"
+
+    ord_res = requests.post(
+        ord_url,
+        json={"shippingAddress": {"street": "S", "city": "C", "country": "E"}},
+        headers=u_head
+    )
+    assert ord_res.status_code == 201, f"Order creation failed: {ord_res.text}"
+    cancel_order_payload = ord_res.json().get('data', {})
+    cancel_order_obj = cancel_order_payload.get('order', cancel_order_payload)
+    cancel_order_id = cancel_order_obj['_id']
+
+    # Stock after order creation (before cancel)
+    p_before_cancel = requests.get(f"{prod_url}/{shared_data['prod_id']}")
+    assert p_before_cancel.status_code == 200
+    stock_before_cancel = p_before_cancel.json()['data']['stock']
+
+    # Cancel while status is Pending -> should restock +1
+    cancel_res = requests.patch(f"{ord_url}/{cancel_order_id}/status", json={"status": "Cancelled"}, headers=h)
+    assert cancel_res.status_code == 200, f"Cancel failed: {cancel_res.text}"
+
     p_after = requests.get(f"{prod_url}/{shared_data['prod_id']}")
-    assert p_after.json()['data']['stock'] == 10
+    assert p_after.status_code == 200
+    assert p_after.json()['data']['stock'] == stock_before_cancel + 1
 
 @pytest.mark.run(order=90)
 def test_cleanup_financials():

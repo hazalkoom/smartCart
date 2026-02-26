@@ -11,12 +11,17 @@
 	width: 100%;
 	max-width: 720px;
 	display: flex;
+	align-items: stretch;
+	flex-wrap: nowrap;
 	gap: 10px;
+	margin-bottom: 0;
 }
 
 .products-search-input {
 	flex: 1;
-	height: 46px;
+	min-width: 0;
+	height: 48px;
+	box-sizing: border-box;
 	border: 1px solid #bfdbfe;
 	border-radius: 10px;
 	padding: 0 14px;
@@ -29,13 +34,25 @@
 }
 
 .products-search-btn {
-	height: 46px;
+	height: 48px;
+	box-sizing: border-box;
 	border: 0;
 	border-radius: 10px;
-	padding: 0 18px;
+	padding: 0 20px;
+	margin-top: 0;
 	background: var(--accent-color);
 	color: #fff;
 	display: inline-flex;
 	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	white-space: nowrap;
+	line-height: 1;
 	gap: 8px;
+	cursor: pointer;
+	transition: background-color 0.2s ease-in-out;
+}
+
+.products-search-btn:hover {
+	background: var(--primary-color);
 }

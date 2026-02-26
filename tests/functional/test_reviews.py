@@ -103,10 +103,10 @@ def test_create_review_happy_path():
     
     res = requests.post(review_url, json=payload, headers=headers)
     assert res.status_code == 201
-    assert res.json()['data']['review']['rating'] == 5
+    assert res.json()['data']['rating'] == 5
     
     # Save Review ID
-    shared_data['review_id'] = res.json()['data']['review']['_id']
+    shared_data['review_id'] = res.json()['data']['_id']
 
 @pytest.mark.run(order=78)
 def test_prevent_duplicate_reviews():
@@ -161,7 +161,7 @@ def test_update_review_happy_path():
     payload = {"rating": 3, "title": "It is okay"}
     res = requests.patch(f"{review_url}/{review_id}", json=payload, headers=headers)
     assert res.status_code == 200
-    assert res.json()['data']['review']['rating'] == 3
+    assert res.json()['data']['rating'] == 3
 
 @pytest.mark.run(order=82)
 def test_verify_stats_after_update():

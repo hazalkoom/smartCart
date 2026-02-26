@@ -16,6 +16,7 @@ For setup prerequisites, see [`docs/setup.md`](setup.md).
   - Locust scripts exist for load simulations; they are not part of the default CI execution path in this repo.
 
 This structure is intentional:
+
 - unit tests catch regressions quickly
 - system tests protect API contracts and business workflows
 - security tests prevent accidental regression in critical controls
@@ -23,12 +24,14 @@ This structure is intentional:
 ## 2) What’s covered
 
 ### Backend unit tests (Jest)
+
 - Location: `backend/tests/unit/`
 - Command: run from `backend/`
   - `npm test`
 - Config: `backend/jest.config.js`
 
 Coverage focus:
+
 - services (auth/cart/order/payments/reviews/users/products/categories)
 - model behavior (e.g., password hashing)
 - controllers (webhook HMAC verification, idempotency)
@@ -48,6 +51,7 @@ Test files:
 | `webhookController.test.js` | 6 | HMAC verify, idempotency, timing-safe |
 
 ### System + security tests (Pytest)
+
 - Location:
   - `tests/functional/`
   - `tests/security/`
@@ -57,10 +61,12 @@ Test files:
   - security properties: RBAC enforcement, injection defenses, webhook HMAC validation, hardening headers
 
 ### Performance tests (Locust)
+
 - Location: `tests/performance/`
 - Intended for load and scenario tests (e.g., checkout flows).
 
 ## 3) What’s not covered (explicit)
+
 - **Frontend end-to-end UI tests** are not present.
 - **Production deployment validation** (infra manifests, runtime SLO enforcement) is not present.
 - Performance scripts exist but are not automatically executed as part of the standard test run.
@@ -68,6 +74,7 @@ Test files:
 ## 4) How to run tests (verified)
 
 ### 4.1 Start the backend
+
 From `backend/`:
 
 ```powershell
@@ -81,6 +88,7 @@ GET http://localhost:5000/api/v1/health
 ```
 
 ### 4.2 Run system + security tests
+
 From repo root:
 
 ```powershell
@@ -89,6 +97,7 @@ pytest tests\functional tests\security -v
 ```
 
 ### 4.3 Run backend unit tests
+
 From `backend/`:
 
 ```powershell
@@ -96,6 +105,7 @@ npm test
 ```
 
 ## 5) Verified results (latest documented run)
+
 - Pytest: **138 passed, 2 skipped**
 - Jest: **10** suites passed, **60** tests passed
 - Angular build: **0 errors** (2 pre-existing bundle-budget warnings)
@@ -103,16 +113,19 @@ npm test
 ## 6) Extending tests safely
 
 ### Adding a new endpoint
+
 - Add/extend unit tests in `backend/tests/unit/` to cover service-level rules.
 - Add/extend system tests in `tests/functional/` to cover the HTTP contract.
 - If the endpoint affects authorization, add/extend tests in `tests/security/`.
 
 ### Avoiding flaky tests
+
 - Prefer asserting on stable response fields (`success`, `data` shape, `error.code`).
 - Avoid relying on ordering unless the API explicitly sorts.
 - Keep tests isolated by creating their own users/products where appropriate.
 
 ## 7) Environment and dependencies
+
 - Pytest uses a fixed base URL: `http://localhost:5000/api/v1` (see `tests/test_config.py`).
 - Order creation uses MongoDB transactions; MongoDB must support transactions for full checkout coverage.
 - **Test data isolation**: `tests/test_config.py` exports an `ensure_test_data()` function that guarantees at least one admin user, one customer, one category, and one product exist before system tests run. Import and call it in conftest or at module top if your tests need seed data.
