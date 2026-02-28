@@ -97,8 +97,7 @@ class AuthService {
     const user = await User.findById(userId);
     if (!user) throw new Error('User not found');
     
-    // Check if product is already in wishlist
-    const isLiked = user.wishlist.includes(productId);
+    const isLiked = user.wishlist.some(id => id.toString() === productId.toString());
     
     if (isLiked) {
       user.wishlist.pull(productId); // Remove it

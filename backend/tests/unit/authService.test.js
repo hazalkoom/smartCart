@@ -222,4 +222,126 @@ describe('AuthService', () => {
       });
     });
   });
+
+  describe('Wishlist Logic', () => {
+    it('toggleWishlist throws if user is not found', async () => {
+      User.findById.mockResolvedValue(null);
+      await expect(authService.toggleWishlist('bad-id', 'prod-1')).rejects.toThrow('User not found');
+    });
+
+    it('toggleWishlist adds product if it is not in the wishlist', async () => {
+      // Mock an array with Mongoose-like push/pull methods
+      const mockWishlist = ['prod-other'];
+      mockWishlist.pull = jest.fn();
+      mockWishlist.push = jest.fn();
+
+      const mockUser = {
+        _id: 'user-1',
+        wishlist: mockWishlist,
+        save: jest.fn().mockResolvedValue(true)
+      };
+
+      User.findById.mockResolvedValue(mockUser);
+
+      const result = await authService.toggleWishlist('user-1', 'prod-new');
+
+      expect(mockWishlist.push).toHaveBeenCalledWith('prod-new');
+      expect(mockWishlist.pull).not.toHaveBeenCalled();
+      expect(mockUser.save).toHaveBeenCalled();
+      expect(result).toBe(mockWishlist);
+    });
+
+    it('toggleWishlist removes product if it is already in the wishlist', async () => {
+      const mockWishlist = ['prod-existing'];
+      mockWishlist.pull = jest.fn();
+      mockWishlist.push = jest.fn();
+
+      const mockUser = {
+        _id: 'user-1',
+        wishlist: mockWishlist,
+        save: jest.fn().mockResolvedValue(true)
+      };
+
+      User.findById.mockResolvedValue(mockUser);
+
+      await authService.toggleWishlist('user-1', 'prod-existing');
+
+      expect(mockWishlist.pull).toHaveBeenCalledWith('prod-existing');
+      expect(mockWishlist.push).not.toHaveBeenCalled();
+      expect(mockUser.save).toHaveBeenCalled();
+    });
+
+    it('getWishlist returns populated wishlist', async () => {
+      const mockUser = { wishlist: [{ _id: 'prod-1', name: 'Populated Product' }] };
+      const populateMock = jest.fn().mockResolvedValue(mockUser);
+      User.findById.mockReturnValue({ populate: populateMock });
+
+      const result = await authService.getWishlist('user-1');
+
+      expect(User.findById).toHaveBeenCalledWith('user-1');
+      expect(populateMock).toHaveBeenCalledWith('wishlist');
+      expect(result).toEqual(mockUser.wishlist);
+    });
+  });
+
+  describe('Address Logic', () => {
+    it('addAddress adds a new address to the array', async () => {
+      const mockAddresses = [];
+      mockAddresses.push = jest.fn();
+
+      const mockUser = {
+        _id: 'user-1',
+        addresses: mockAddresses,
+        save: jest.fn().mockResolvedValue(true)
+      };
+
+      User.findById.mockResolvedValue(mockUser);
+
+      const newAddress = { street: '123 Test St', isDefault: false };
+      await authService.addAddress('user-1', newAddress);
+
+      expect(mockAddresses.push).toHaveBeenCalledWith(newAddress);
+      expect(mockUser.save).toHaveBeenCalled();
+    });
+
+    it('addAddress unsets previous defaults if the new address is default', async () => {
+      const oldDefaultAddr = { street: 'Old', isDefault: true };
+      const mockAddresses = [oldDefaultAddr];
+      mockAddresses.push = jest.fn();
+
+      const mockUser = {
+        _id: 'user-1',
+        addresses: mockAddresses,
+        save: jest.fn().mockResolvedValue(true)
+      };
+
+      User.findById.mockResolvedValue(mockUser);
+
+      const newAddress = { street: 'New', isDefault: true };
+      await authService.addAddress('user-1', newAddress);
+
+      // The old address should have been mutated to false
+      expect(oldDefaultAddr.isDefault).toBe(false);
+      expect(mockAddresses.push).toHaveBeenCalledWith(newAddress);
+      expect(mockUser.save).toHaveBeenCalled();
+    });
+
+    it('deleteAddress pulls the address by id', async () => {
+      const mockAddresses = [];
+      mockAddresses.pull = jest.fn();
+
+      const mockUser = {
+        _id: 'user-1',
+        addresses: mockAddresses,
+        save: jest.fn().mockResolvedValue(true)
+      };
+
+      User.findById.mockResolvedValue(mockUser);
+
+      await authService.deleteAddress('user-1', 'addr-123');
+
+      expect(mockAddresses.pull).toHaveBeenCalledWith({ _id: 'addr-123' });
+      expect(mockUser.save).toHaveBeenCalled();
+    });
+  });
 });

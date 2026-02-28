@@ -47,13 +47,13 @@ const PRODUCT_IMAGE_LINKS = {
   'Elgato Thunderbolt 4 Dock': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098068/Elgato_Thunderbolt_4_Dock_an9tcz.jpg',
   
   'Sony WH-1000XM5': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098127/Sony_WH-1000XM5_hzqs3h.jpg',
-  'Apple AirPods Pro (2nd Gen)': '',
-  'Sennheiser Momentum 4': '',
-  'Beats Studio Pro': '',
-  'Audio-Technica ATH-M50x': '',
+  'Apple AirPods Pro (2nd Gen)': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772097898/Apple_AirPods_Pro_2nd_Gen_ciqryu.jpg',
+  'Sennheiser Momentum 4': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098126/Sennheiser_Momentum_4_edbubq.jpg',
+  'Beats Studio Pro': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098058/Beats_Studio_Pro_rtplq5.jpg',
+  'Audio-Technica ATH-M50x': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098058/Audio-Technica_ATH-M50x_prcruf.jpg',
   'Samsung Galaxy Buds 2 Pro': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098121/Samsung_Galaxy_Buds_2_Pro_utotcx.jpg',
-  'Jabra Evolve2 85': '',
-  'Bowers & Wilkins Px8': '',
+  'Jabra Evolve2 85': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098077/Jabra_Evolve2_85_iwnidu.jpg',
+  'Bowers & Wilkins Px8': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098059/Bowers_Wilkins_Px8_rfkkxp.jpg',
   'Sony LinkBuds S': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098126/Sony_LinkBuds_S_fwz5a1.jpg',
   
   'Apple Watch Ultra 2': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772097896/Apple_Watch_Ultra_2_steaqb.jpg',
@@ -63,22 +63,22 @@ const PRODUCT_IMAGE_LINKS = {
   'Google Nest Hub Max': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098087/Google_Nest_Hub_Max_izpkoa.jpg',
   'Ring Video Doorbell Pro 2': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098116/Ring_Video_Doorbell_Pro_2_oqnl6t.png',
   'Ecobee Smart Thermostat Premium': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098064/Ecobee_Smart_Thermostat_Premium_pim73b.jpg',
-  'Fitbit Charge 6': '',
-  'Arlo Pro 5 Security Camera': '',
+  'Fitbit Charge 6': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098066/Fitbit_Charge_6_ir70iu.jpg',
+  'Arlo Pro 5 Security Camera': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772097903/Arlo_Pro_5_Security_Camera_pskg2q.jpg',
   'Withings Body+ Smart Scale': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098137/Withings_Body_Smart_Scale_mqlnxt.jpg',
   
   'PlayStation 5 Slim Console': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098106/PlayStation_5_Slim_Console_uzqtvx.jpg',
   'Xbox Series X': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098131/Xbox_Series_X_r3ctoh.jpg',
-  'Nintendo Switch OLED': '',
+  'Nintendo Switch OLED': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098126/Nintendo_Switch_OLED_hrfwxr.jpg',
   'Valve Steam Deck OLED': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098128/Valve_Steam_Deck_OLED_hloi6z.jpg',
-  'Meta Quest 3 VR Headset': '',
-  'DualSense Wireless Controller': '',
+  'Meta Quest 3 VR Headset': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098082/Meta_Quest_3_VR_Headset_lewc9a.jpg',
+  'DualSense Wireless Controller': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098063/DualSense_Wireless_Controller_mz3itx.jpg',
   'Xbox Elite Wireless Controller S2': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098136/Xbox_Elite_Wireless_Controller_S2_biv6hn.jpg',
   'Razer DeathAdder V3 Pro': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098113/Razer_DeathAdder_V3_Pro_hqhgoy.jpg',
-  'Elgato Stream Deck MK.2': '',
-  'ASUS ROG Ally Gaming Handheld': '',
-  'Corsair K100 RGB Keyboard': '',
-  'Secretlab TITAN Evo Chair': ''
+  'Elgato Stream Deck MK.2': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098069/Elgato_Stream_Deck_MK.2_fnlpqn.jpg',
+  'ASUS ROG Ally Gaming Handheld': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772097982/ASUS_ROG_Ally_Gaming_Handheld_inwppf.webp',
+  'Corsair K100 RGB Keyboard': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098060/Corsair_K100_RGB_Keyboard_cqbwmm.jpg',
+  'Secretlab TITAN Evo Chair': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098125/Secretlab_TITAN_Evo_Chair_unfhut.jpg'
 };
 
 // Fallback just in case you miss one
