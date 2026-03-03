@@ -111,6 +111,54 @@ export class AuthService {
       })
     );
   }
+
+  toggleWishlist(productId: string): Observable<any> {
+    return this.http.post<{success: boolean, data: any[]}>(`${this.apiUrl}/wishlist`, { productId }).pipe(
+      tap(res => {
+        if (res.success) {
+          const user = this.currentUser$.value;
+          if (user) {
+            // Update state silently so UI reacts
+            this.currentUser$.next({ ...user, wishlist: res.data });
+          }
+        }
+      })
+    );
+  }
+
+  getWishlist(): Observable<any> {
+    return this.http.get<{success: boolean, data: any[]}>(`${this.apiUrl}/wishlist`);
+  }
+
+  // Addresses
+  addAddress(addressData: any): Observable<any> {
+    return this.http.post<{success: boolean, data: any[]}>(`${this.apiUrl}/addresses`, addressData).pipe(
+      tap(res => {
+        if (res.success && res.data) {
+          const user = this.currentUser$.value;
+          if (user) {
+            // Immediately update the user state with the new addresses array
+            this.currentUser$.next({ ...user, addresses: res.data });
+          }
+        }
+      })
+    );
+  }
+
+  deleteAddress(addressId: string): Observable<any> {
+    return this.http.delete<{success: boolean, data: any[]}>(`${this.apiUrl}/addresses/${addressId}`).pipe(
+      tap(res => {
+        if (res.success && res.data) {
+          const user = this.currentUser$.value;
+          if (user) {
+             // Immediately update the user state with the filtered array
+            this.currentUser$.next({ ...user, addresses: res.data });
+          }
+        }
+      })
+    );
+  }
+
   saveToken(token: string): void {
     if (isPlatformBrowser(this.platformId)) {
       localStorage.setItem('token', token);

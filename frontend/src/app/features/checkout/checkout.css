@@ -694,3 +694,59 @@
     color: #28a745;
     font-weight: 700;
 }
+.saved-addresses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.address-card {
+  border: 2px solid var(--border-color, #e0e0e0);
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: #fff;
+  position: relative;
+  min-height: 120px;
+}
+
+.address-card:hover {
+  border-color: var(--primary-color, #007bff);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.address-card.active {
+  border-color: var(--primary-color, #007bff);
+  background-color: rgba(0, 123, 255, 0.03);
+}
+
+.address-card-new {
+  border-style: dashed;
+}
+
+.address-card-new:hover, .address-card-new.active {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.active-indicator {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.address-form-section input[readonly] {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.address-form-section input:not([readonly]) {
+  background-color: #fff;
+}
+

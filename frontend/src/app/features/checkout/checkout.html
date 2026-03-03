@@ -9,7 +9,6 @@
       </div>
     </div>
 
-    <!-- Progress Indicator -->
     <div class="row" *ngIf="!isLoading">
       <div class="col-md-12">
         <div class="checkout-progress">
@@ -49,7 +48,6 @@
       <span>{{ error }}</span>
     </div>
 
-    <!-- Order Success State -->
     <div class="row" *ngIf="orderPlaced && !isLoading">
       <div class="col-md-8 offset-md-2">
         <div class="order-success-card">
@@ -113,60 +111,94 @@
       <div class="col-md-7">
         <div class="form-wrapper">
           <form #checkoutForm="ngForm" (ngSubmit)="placeOrder(checkoutForm)">
-            <h4>
-              <i class="icon icon-map-pin"></i>
-              Shipping Address
-            </h4>
-            <hr class="my-3">
             
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="firstName" name="firstName" [(ngModel)]="firstName" required placeholder="John">
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="lastName" name="lastName" [(ngModel)]="lastName" required placeholder="Doe">
-              </div>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h4>
+                <i class="icon icon-map-pin"></i>
+                Shipping Address
+              </h4>
+              <a routerLink="/account" fragment="addresses" class="btn btn-sm btn-outline-primary">Manage Addresses</a>
             </div>
 
-            <div class="mb-3">
-              <label for="street" class="form-label">Street Address <span class="text-danger">*</span></label>
-              <div class="input-with-icon">
-                <input type="text" class="form-control" id="street" name="street" [(ngModel)]="shippingAddress.street" required placeholder="123 Main Street">
-                <i class="icon icon-home"></i>
+            <div class="saved-addresses-grid mb-5" *ngIf="savedAddresses.length > 0">
+              <div 
+                *ngFor="let addr of savedAddresses"
+                class="address-card" 
+                [class.active]="selectedAddressId === addr._id"
+                (click)="selectAddress(addr._id || '')"
+              >
+                <div class="address-header d-flex justify-content-between">
+                  <strong class="text-primary"><i class="icon icon-map-pin me-1"></i> {{ addr.alias }}</strong>
+                  <span class="badge bg-soft-primary text-primary" *ngIf="addr.isDefault">Default</span>
+                </div>
+                <div class="address-body mt-2 text-muted small">
+                  <div>{{ addr.street }}</div>
+                  <div>{{ addr.city }}<span *ngIf="addr.state">, {{ addr.state }}</span> {{ addr.postalCode }}</div>
+                  <div>{{ addr.country }}</div>
+                </div>
+                <div class="active-indicator" *ngIf="selectedAddressId === addr._id">
+                  <i class="icon icon-check-circle text-primary"></i> Selected
+                </div>
+              </div>
+
+              <div 
+                class="address-card address-card-new d-flex flex-column align-items-center justify-content-center" 
+                [class.active]="selectedAddressId === 'new'"
+                (click)="selectAddress('new')"
+              >
+                <i class="icon icon-plus fs-3 mb-2 text-muted"></i>
+                <span class="text-muted fw-bold">Enter New Address</span>
+                <div class="active-indicator" *ngIf="selectedAddressId === 'new'">
+                  <i class="icon icon-check-circle text-primary"></i> Selected
+                </div>
               </div>
             </div>
+            
+            <div class="address-form-section p-4 rounded bg-light mb-5">
+              <h5 class="mb-4 d-flex align-items-center">
+                <i class="icon icon-edit-3 me-2 text-primary"></i>
+                <span *ngIf="selectedAddressId === 'new'">New Address Details</span>
+                <span *ngIf="selectedAddressId !== 'new'">Selected Address Details</span>
+              </h5>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="firstName" name="firstName" [(ngModel)]="firstName" required placeholder="John">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="lastName" name="lastName" [(ngModel)]="lastName" required placeholder="Doe">
+                </div>
+              </div>
 
-            <div class="row">
-              <div class="col-md-8 mb-3">
-                <label for="city" class="form-label">City <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="city" name="city" [(ngModel)]="shippingAddress.city" required placeholder="New York">
+              <div class="mb-3">
+                <label for="street" class="form-label">Street Address <span class="text-danger">*</span></label>
+                <div class="input-with-icon">
+                  <input type="text" class="form-control" id="street" name="street" [(ngModel)]="shippingAddress.street" required placeholder="123 Main Street" [readonly]="selectedAddressId !== 'new'" [class.bg-white]="selectedAddressId === 'new'">
+                  <i class="icon icon-home"></i>
+                </div>
               </div>
-              <div class="col-md-4 mb-3">
-                <label for="zip" class="form-label">Zip Code</label>
-                <input type="text" class="form-control" id="zip" name="zip" [(ngModel)]="shippingAddress.zip" placeholder="10001">
-              </div>
-            </div>
 
-            <div class="row">
-              <div class="col-md-6 mb-3">
-                <label for="state" class="form-label">State</label>
-                <input type="text" class="form-control" id="state" name="state" [(ngModel)]="shippingAddress.state" placeholder="New York">
+              <div class="row">
+                <div class="col-md-8 mb-3">
+                  <label for="city" class="form-label">City <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="city" name="city" [(ngModel)]="shippingAddress.city" required placeholder="New York" [readonly]="selectedAddressId !== 'new'" [class.bg-white]="selectedAddressId === 'new'">
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="postalCode" class="form-label">Postal Code <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="postalCode" name="postalCode" [(ngModel)]="shippingAddress.postalCode" required placeholder="10001" [readonly]="selectedAddressId !== 'new'" [class.bg-white]="selectedAddressId === 'new'">
+                </div>
               </div>
-              <div class="col-md-6 mb-3">
-                <label for="country" class="form-label">Country <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="country" name="country" [(ngModel)]="shippingAddress.country" required placeholder="United States">
-              </div>
-            </div>
 
-            <!-- Save Info Checkbox -->
-            <div class="save-info-wrapper">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" id="saveInfo" name="saveInfo" [(ngModel)]="saveInfo">
-                <label class="form-check-label" for="saveInfo">
-                  Save this information for next time
-                </label>
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="state" class="form-label">State</label>
+                  <input type="text" class="form-control" id="state" name="state" [(ngModel)]="shippingAddress.state" placeholder="New York" [readonly]="selectedAddressId !== 'new'" [class.bg-white]="selectedAddressId === 'new'">
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="country" class="form-label">Country <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="country" name="country" [(ngModel)]="shippingAddress.country" required placeholder="United States" [readonly]="selectedAddressId !== 'new'" [class.bg-white]="selectedAddressId === 'new'">
+                </div>
               </div>
             </div>
 
@@ -197,7 +229,6 @@
               <small class="text-muted">Egyptian mobile format: 010/011/012/015 followed by 8 digits (e.g., 01012345678)</small>
             </div>
 
-            <!-- Trust Signals -->
             <div class="trust-signals">
               <div class="trust-signal">
                 <i class="icon icon-shield"></i>
@@ -233,7 +264,6 @@
         <div class="order-summary">
           <h4>Order Summary</h4>
           
-          <!-- Order Items -->
           <div class="order-item" *ngFor="let item of cart.items">
             <img [src]="item.productId.images[0]" [alt]="item.productId.name" class="order-item-image">
             <div class="order-item-details">
@@ -243,7 +273,6 @@
             <span class="order-item-price">$ {{ (item.price * item.quantity).toFixed(2) }}</span>
           </div>
 
-          <!-- Price Summary -->
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
               <span>Subtotal</span>
@@ -260,21 +289,6 @@
             </li>
           </ul>
 
-          <!-- Promo Code Section -->
-          <div class="promo-code-section">
-            <button type="button" class="promo-code-toggle">
-              <i class="icon icon-tag"></i>
-              Have a promo code?
-            </button>
-            <!-- Uncomment when implementing promo codes
-            <div class="promo-code-input-wrapper">
-              <input type="text" placeholder="Enter code" class="form-control">
-              <button type="button">Apply</button>
-            </div>
-            -->
-          </div>
-
-          <!-- Security Badge -->
           <div class="security-badge">
             <i class="icon icon-shield-check"></i>
             <p>Your payment information is secure and encrypted</p>

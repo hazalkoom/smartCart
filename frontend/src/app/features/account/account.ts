@@ -6,14 +6,6 @@ import { AuthService } from '../../core/services/auth';
 import { OrderService } from '../../core/services/order';
 import { User } from '../../core/interfaces/user';
 import { Order } from '../../core/interfaces/order';
-import { ShippingAddress } from '../../core/interfaces/order';
-import { environment } from '../../../environments/environment';
-
-interface SavedAddress extends ShippingAddress {
-  id: string;
-  label: string;
-  isDefault: boolean;
-}
 
 @Component({
   selector: 'app-account',
@@ -28,22 +20,24 @@ export class Account implements OnInit, OnDestroy {
   errorMessage: string = '';
   activeTab: 'profile' | 'orders' | 'addresses' = 'profile';
   
-  // --- New Edit State Variables ---
+  // --- Edit State Variables ---
   isEditing: boolean = false;
   editData = { firstName: '', lastName: '', email: '' };
   updateMessage: string = '';
-  // --------------------------------
 
-  savedAddresses: SavedAddress[] = [];
+  // --- REAL ADDRESS STATE ---
   isAddingAddress: boolean = false;
   addressErrorMessage: string = '';
   addressSuccessMessage: string = '';
-  newAddress: ShippingAddress = {
+  
+  newAddress: any = {
+    alias: 'Home',
     street: '',
     city: '',
     state: '',
-    zip: '',
-    country: ''
+    postalCode: '',
+    country: '',
+    isDefault: false
   };
 
   private subscriptions: Subscription[] = [];
@@ -51,235 +45,127 @@ export class Account implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private orderService: OrderService,
-    private router: Router,
     private route: ActivatedRoute,
+    private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  ngOnInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      const authSub = this.authService.isLoggedIn$.subscribe(isLoggedIn => {
-        if (!isLoggedIn) {
-          this.router.navigate(['/login']);
-          return;
-        }
-        this.loadUserData();
-      });
-      this.subscriptions.push(authSub);
+  ngOnInit(): void {
+    const routeSub = this.route.fragment.subscribe(frag => {
+      if (frag === 'orders') this.activeTab = 'orders';
+      else if (frag === 'addresses') this.activeTab = 'addresses';
+      else this.activeTab = 'profile';
+    });
+    this.subscriptions.push(routeSub);
 
-      const userSub = this.authService.currentUser$.subscribe(user => {
-        if (user) {
-          this.user = user;
-          // Initialize edit form with current data
-          this.resetEditData();
-          this.loadSavedAddresses();
-        }
-      });
-      this.subscriptions.push(userSub);
-
-      const querySub = this.route.queryParamMap.subscribe((params) => {
-        const tab = params.get('tab');
-        if (tab === 'orders' || tab === 'addresses' || tab === 'profile') {
-          this.activeTab = tab;
-        }
-      });
-      this.subscriptions.push(querySub);
-    }
-  }
-
-  setActiveTab(tab: 'profile' | 'orders' | 'addresses'): void {
-    this.activeTab = tab;
-  }
-
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
-  private getAddressStorageKey(): string {
-    const userId = this.user?._id || 'guest';
-    return `smartcart_saved_addresses_${userId}`;
-  }
-
-  private loadSavedAddresses(): void {
-    if (!isPlatformBrowser(this.platformId) || !this.user?._id) {
-      this.savedAddresses = [];
-      return;
-    }
-
-    try {
-      const raw = localStorage.getItem(this.getAddressStorageKey());
-      this.savedAddresses = raw ? JSON.parse(raw) : [];
-    } catch {
-      this.savedAddresses = [];
-    }
-  }
-
-  private persistSavedAddresses(): void {
-    if (!isPlatformBrowser(this.platformId) || !this.user?._id) {
-      return;
-    }
-
-    localStorage.setItem(this.getAddressStorageKey(), JSON.stringify(this.savedAddresses));
-  }
-
-  startAddAddress(): void {
-    this.isAddingAddress = true;
-    this.addressErrorMessage = '';
-    this.addressSuccessMessage = '';
-    this.newAddress = {
-      street: '',
-      city: '',
-      state: '',
-      zip: '',
-      country: ''
-    };
-  }
-
-  cancelAddAddress(): void {
-    this.isAddingAddress = false;
-    this.addressErrorMessage = '';
-  }
-
-  saveAddress(): void {
-    this.addressErrorMessage = '';
-    this.addressSuccessMessage = '';
-
-    if (!this.newAddress.street?.trim() || !this.newAddress.city?.trim() || !this.newAddress.country?.trim()) {
-      this.addressErrorMessage = 'Street, city, and country are required.';
-      return;
-    }
-
-    const safeState = this.newAddress.state?.trim() || '';
-    const safeZip = this.newAddress.zip?.trim() || '';
-
-    const nextAddress: SavedAddress = {
-      id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      label: `Address ${this.savedAddresses.length + 1}`,
-      street: this.newAddress.street.trim(),
-      city: this.newAddress.city.trim(),
-      state: safeState,
-      zip: safeZip,
-      country: this.newAddress.country.trim(),
-      isDefault: this.savedAddresses.length === 0
-    };
-
-    this.savedAddresses.push(nextAddress);
-    this.persistSavedAddresses();
-    this.isAddingAddress = false;
-    this.addressSuccessMessage = 'Address saved successfully.';
-  }
-
-  setDefaultAddress(addressId: string): void {
-    this.savedAddresses = this.savedAddresses.map((address) => ({
-      ...address,
-      isDefault: address.id === addressId
-    }));
-    this.persistSavedAddresses();
-    this.addressSuccessMessage = 'Default address updated.';
-  }
-
-  deleteAddress(addressId: string): void {
-    const deleted = this.savedAddresses.find((address) => address.id === addressId);
-    this.savedAddresses = this.savedAddresses.filter((address) => address.id !== addressId);
-
-    if (deleted?.isDefault && this.savedAddresses.length > 0) {
-      this.savedAddresses[0].isDefault = true;
-    }
-
-    this.persistSavedAddresses();
-    this.addressSuccessMessage = 'Address removed.';
-  }
-
-  // --- New Toggle Function ---
-  toggleEdit() {
-    this.isEditing = !this.isEditing;
-    this.updateMessage = '';
-    this.errorMessage = '';
-    
-    // If canceling, revert data back to original user data
-    if (!this.isEditing) {
-      this.resetEditData();
-    }
-  }
-
-  // --- New Helper to Reset Form Data ---
-  private resetEditData() {
-    if (this.user) {
-      this.editData = {
-        firstName: this.user.firstName,
-        lastName: this.user.lastName,
-        email: this.user.email
-      };
-    }
-  }
-
-  // --- New Update Function ---
-  onUpdateProfile() {
-    this.updateMessage = '';
-    this.errorMessage = '';
-
-    this.authService.updateProfile(this.editData).subscribe({
-      next: (res) => {
-        if (res.success) {
-          this.isEditing = false; // Exit edit mode
-          this.updateMessage = 'Profile updated successfully!';
-          
-          // Clear message after 3 seconds
-          setTimeout(() => this.updateMessage = '', 3000);
+    const authSub = this.authService.currentUser$.subscribe({
+      next: (userData) => {
+        this.user = userData;
+        if (this.user) {
+          this.editData = { 
+            firstName: this.user.firstName, 
+            lastName: this.user.lastName, 
+            email: this.user.email 
+          };
+          this.fetchOrders();
+        } else {
+          this.isLoading = false;
         }
       },
       error: (err) => {
-        const errorMsg = err.error?.message || 'Failed to update profile';
-        this.errorMessage = errorMsg;
+        this.errorMessage = 'Failed to load user profile.';
+        this.isLoading = false;
       }
     });
+    this.subscriptions.push(authSub);
   }
 
-  private loadUserData(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
-
-    const profileSub = this.authService.getUserProfile().subscribe({
-      next: (user) => {
-        if (user) {
-          this.user = user;
-          this.resetEditData(); // Ensure form is ready
-        } else {
-          this.errorMessage = 'Failed to load user profile';
-        }
-      },
-      error: (error) => {
-        if (!environment.production) console.error('Error fetching user profile:', error);
-        const errorMsg = error.error?.message || 'Failed to load user profile';
-        this.errorMessage = errorMsg;
-      }
-    });
-    this.subscriptions.push(profileSub);
-
+  fetchOrders(): void {
     const ordersSub = this.orderService.getMyOrders().subscribe({
-      next: (response) => {
+      next: (response: any) => {
         if (response.success && response.data) {
           this.orders = response.data;
         }
         this.isLoading = false;
       },
       error: (error) => {
-        if (!environment.production) console.error('Error fetching orders:', error);
+        console.error('Error fetching orders:', error);
         this.isLoading = false;
-        // We don't block the page if orders fail, just log it
       }
     });
     this.subscriptions.push(ordersSub);
   }
 
+  // --- PROFILE METHODS ---
+  toggleEdit(): void {
+    this.isEditing = !this.isEditing;
+    this.updateMessage = '';
+    if (!this.isEditing && this.user) {
+      this.editData = { 
+        firstName: this.user.firstName, 
+        lastName: this.user.lastName, 
+        email: this.user.email 
+      };
+    }
+  }
+
+  saveProfile(): void {
+    this.authService.updateProfile(this.editData).subscribe({
+      next: (res) => {
+        this.updateMessage = 'Profile updated successfully!';
+        this.isEditing = false;
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to update profile.';
+      }
+    });
+  }
+
+  logout(): void {
+    this.authService.logout();
+  }
+
+  // --- ADDRESS METHODS ---
+  saveAddress(): void {
+    this.addressErrorMessage = '';
+    this.addressSuccessMessage = '';
+
+    if (!this.newAddress.street || !this.newAddress.city || !this.newAddress.country || !this.newAddress.postalCode || !this.newAddress.alias) {
+      this.addressErrorMessage = 'Please fill out all required fields (*).';
+      return;
+    }
+
+    this.authService.addAddress(this.newAddress).subscribe({
+      next: (res) => {
+        this.addressSuccessMessage = 'Address successfully saved to database!';
+        this.isAddingAddress = false;
+        // Reset form
+        this.newAddress = { alias: 'Home', street: '', city: '', state: '', postalCode: '', country: '', isDefault: false };
+      },
+      error: (err) => {
+        this.addressErrorMessage = err.error?.message || 'Failed to save address.';
+      }
+    });
+  }
+
+  deleteAddress(addressId: string): void {
+    if (confirm('Are you sure you want to delete this address?')) {
+      this.authService.deleteAddress(addressId).subscribe({
+        next: () => {
+          this.addressSuccessMessage = 'Address removed.';
+        },
+        error: (err) => {
+          this.addressErrorMessage = 'Failed to delete address.';
+        }
+      });
+    }
+  }
+
+  // --- HELPER METHODS ---
   formatDate(dateString: string): string {
     if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
-    });
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
   getOrderStatusClass(status: string): string {
@@ -300,20 +186,14 @@ export class Account implements OnInit, OnDestroy {
   }
 
   getDeliveredOrdersCount(): number {
-    return this.orders.filter(order => 
-      order.status.toLowerCase() === 'delivered'
-    ).length;
+    return this.orders.filter(order => order.status.toLowerCase() === 'delivered').length;
   }
 
   getPendingOrdersCount(): number {
-    return this.orders.filter(order => 
-      order.status.toLowerCase() === 'pending' || 
-      order.status.toLowerCase() === 'paid'
-    ).length;
+    return this.orders.filter(order => order.status.toLowerCase() === 'pending' || order.status.toLowerCase() === 'paid').length;
   }
 
-  getTotalSpent(): string {
-    const total = this.orders.reduce((sum, order) => sum + order.total, 0);
-    return total.toFixed(2);
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }
