@@ -37,6 +37,7 @@ export class Home implements OnInit, OnDestroy {
   private readonly categoryPreviewCount = 8;
   private readonly heroCount = 3;
   private subscriptions: Subscription[] = [];
+  private wishlistIds: Set<string> = new Set<string>();
 
   constructor(
     private productService: ProductService,
@@ -52,6 +53,14 @@ export class Home implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId) && typeof AOS !== 'undefined') {
       AOS.init();
     }
+    const userSub = this.authService.currentUser$.subscribe((user: any) => {
+      const rawWishlist = user?.wishlist || [];
+      const normalized = rawWishlist
+        .map((item: any) => (typeof item === 'string' ? item : item?._id))
+        .filter((id: string | undefined) => !!id);
+      this.wishlistIds = new Set<string>(normalized);
+    });
+    this.subscriptions.push(userSub);
     this.loadData();
   }
 
@@ -190,6 +199,34 @@ export class Home implements OnInit, OnDestroy {
         if (err.status !== 401 && err.status !== 403) {
           alert('Failed to add item to cart. Please try again.');
         }
+      }
+    });
+  }
+
+  isInWishlist(product: Product): boolean {
+    return !!product?._id && this.wishlistIds.has(product._id);
+  }
+
+  toggleWishlist(event: Event, product: Product): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.authService.toggleWishlist(product._id).subscribe({
+      next: (res) => {
+        const updatedWishlist = res?.data || [];
+        const normalized = updatedWishlist
+          .map((item: any) => (typeof item === 'string' ? item : item?._id))
+          .filter((id: string | undefined) => !!id);
+        this.wishlistIds = new Set<string>(normalized);
+      },
+      error: (err) => {
+        if (!environment.production) console.error('Error toggling wishlist:', err);
+        alert('Failed to update wishlist. Please try again.');
       }
     });
   }

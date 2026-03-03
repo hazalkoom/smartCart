@@ -137,3 +137,101 @@
 .btn-wrap {
     margin-top: 30px;
 }
+
+/* ===== Product image sizing hierarchy (Home) =====
+   small cards  -> featured/popular sections
+   big card     -> best selling section
+*/
+#featured-products .product-image-container,
+#popular-products .product-image-container {
+    height: 210px;
+    overflow: hidden;
+    border-radius: 10px;
+}
+
+#featured-products .product-image,
+#popular-products .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+}
+
+#best-selling .products-thumb {
+    height: 460px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+#best-selling .single-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+}
+
+#featured-products .product-card,
+#popular-products .product-card {
+    position: relative;
+}
+
+#featured-products .wishlist-btn,
+#popular-products .wishlist-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    transition: all 0.2s ease;
+}
+
+#featured-products .wishlist-btn:hover,
+#popular-products .wishlist-btn:hover {
+    border-color: #ef4444;
+    transform: translateY(-1px);
+}
+
+#featured-products .wishlist-btn span,
+#popular-products .wishlist-btn span {
+    font-size: 18px;
+    line-height: 1;
+    color: #9ca3af;
+}
+
+#featured-products .wishlist-btn span.in-wishlist,
+#popular-products .wishlist-btn span.in-wishlist {
+    color: #ef4444;
+}
+
+@media (max-width: 991px) {
+    #featured-products .product-image-container,
+    #popular-products .product-image-container {
+        height: 190px;
+    }
+
+    #best-selling .products-thumb {
+        height: 360px;
+    }
+}
+
+@media (max-width: 576px) {
+    #featured-products .product-image-container,
+    #popular-products .product-image-container {
+        height: 175px;
+    }
+
+    #best-selling .products-thumb {
+        height: 300px;
+    }
+}

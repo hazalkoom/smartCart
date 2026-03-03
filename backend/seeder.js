@@ -78,7 +78,12 @@ const PRODUCT_IMAGE_LINKS = {
   'Elgato Stream Deck MK.2': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098069/Elgato_Stream_Deck_MK.2_fnlpqn.jpg',
   'ASUS ROG Ally Gaming Handheld': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772097982/ASUS_ROG_Ally_Gaming_Handheld_inwppf.webp',
   'Corsair K100 RGB Keyboard': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098060/Corsair_K100_RGB_Keyboard_cqbwmm.jpg',
-  'Secretlab TITAN Evo Chair': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098125/Secretlab_TITAN_Evo_Chair_unfhut.jpg'
+  'Secretlab TITAN Evo Chair': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772098125/Secretlab_TITAN_Evo_Chair_unfhut.jpg',
+  'Sony Xperia 1 V': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772543002/Sony_Xperia_1_V_oz4tlc.png',
+  'Apple Mac Mini M2': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772543001/Apple_Mac_Mini_M2_kcnjec.jpg',
+  'Bose QuietComfort Ultra': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772543001/Bose_QuietComfort_Ultra_heyl0m.jpg',
+  'Philips Hue Starter Kit': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772543016/Philips_Hue_Starter_Kit_vdvjbq.png',
+  'Nintendo Switch Pro Controller': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772543005/Nintendo_Switch_Pro_Controller_e3py6v.jpg'
 };
 
 // Fallback just in case you miss one
@@ -124,6 +129,7 @@ const seedDatabase = async () => {
       { name: 'OtterBox Defender Case', description: 'Rugged drop protection for flagship phones.', price: 55, stock: 60, categoryId: phoneId, images: img('OtterBox Defender Case') },
       { name: 'Belkin USB-C Hub 7-in-1', description: 'Expand your ports with 4K HDMI and power delivery.', price: 65, stock: 40, categoryId: phoneId, images: img('Belkin USB-C Hub 7-in-1') },
       { name: 'Baseus 20000mAh Power Bank', description: 'High-capacity portable charger with 65W fast output.', price: 59, stock: 55, categoryId: phoneId, images: img('Baseus 20000mAh Power Bank') },
+      { name: 'Sony Xperia 1 V', description: 'Pro-level camera phone with 4K OLED display.', price: 1199, stock: 15, categoryId: phoneId, images: img('Sony Xperia 1 V') },
 
       { name: 'MacBook Pro 16-inch (M3 Max)', description: 'Mind-blowing speed. The ultimate pro laptop.', price: 3499, stock: 12, categoryId: laptopId, images: img('MacBook Pro 16-inch (M3 Max)') },
       { name: 'Dell XPS 15 OLED', description: 'Stunning 3.5K OLED display, Intel Core i7, compact powerhouse.', price: 1899, stock: 18, categoryId: laptopId, images: img('Dell XPS 15 OLED') },
@@ -136,7 +142,8 @@ const seedDatabase = async () => {
       { name: 'Razer Blade 16 Gaming Laptop', description: 'Dual-mode mini-LED display, RTX 4090.', price: 3999, stock: 5, categoryId: laptopId, images: img('Razer Blade 16 Gaming Laptop') },
       { name: 'WD Black 2TB NVMe SSD', description: 'High-speed NVMe SSD for gaming and creative workloads.', price: 149, stock: 70, categoryId: laptopId, images: img('WD Black 2TB NVMe SSD') },
       { name: 'Elgato Thunderbolt 4 Dock', description: '11-port Thunderbolt 4 hub for a clean, powerful desktop setup.', price: 299, stock: 20, categoryId: laptopId, images: img('Elgato Thunderbolt 4 Dock') },
-
+      { name: 'Apple Mac Mini M2', description: 'Compact desktop powerhouse.', price: 599, stock: 30, categoryId: laptopId, images: img('Apple Mac Mini M2') },
+      
       { name: 'Sony WH-1000XM5', description: 'Industry leading noise canceling wireless headphones.', price: 398, stock: 55, categoryId: audioId, images: img('Sony WH-1000XM5') },
       { name: 'Apple AirPods Pro (2nd Gen)', description: 'Richer audio experience, 2x more ANC.', price: 249, stock: 120, categoryId: audioId, images: img('Apple AirPods Pro (2nd Gen)') },
       { name: 'Sennheiser Momentum 4', description: 'Audiophile-inspired sound with 60h battery life.', price: 349, stock: 25, categoryId: audioId, images: img('Sennheiser Momentum 4') },
@@ -146,6 +153,7 @@ const seedDatabase = async () => {
       { name: 'Jabra Evolve2 85', description: 'Enterprise-grade wireless headset with supreme ANC.', price: 449, stock: 15, categoryId: audioId, images: img('Jabra Evolve2 85') },
       { name: 'Bowers & Wilkins Px8', description: 'Luxury over-ear headphones with premium craftsmanship.', price: 699, stock: 8, categoryId: audioId, images: img('Bowers & Wilkins Px8') },
       { name: 'Sony LinkBuds S', description: 'Featherlight earbuds with ANC and ambient sound mode.', price: 149, stock: 60, categoryId: audioId, images: img('Sony LinkBuds S') },
+      { name: 'Bose QuietComfort Ultra', description: 'World-class noise cancellation.', price: 429, stock: 40, categoryId: audioId, images: img('Bose QuietComfort Ultra') },
 
       { name: 'Apple Watch Ultra 2', description: 'The most rugged and capable Apple Watch.', price: 799, stock: 18, categoryId: homeId, images: img('Apple Watch Ultra 2') },
       { name: 'Samsung Galaxy Watch 6 Classic', description: 'Timeless design with rotating bezel.', price: 399, stock: 25, categoryId: homeId, images: img('Samsung Galaxy Watch 6 Classic') },
@@ -157,6 +165,7 @@ const seedDatabase = async () => {
       { name: 'Fitbit Charge 6', description: 'Advanced fitness and health tracker.', price: 159, stock: 50, categoryId: homeId, images: img('Fitbit Charge 6') },
       { name: 'Arlo Pro 5 Security Camera', description: 'Wire-free outdoor 4K camera with color night vision.', price: 199, stock: 30, categoryId: homeId, images: img('Arlo Pro 5 Security Camera') },
       { name: 'Withings Body+ Smart Scale', description: 'Full body composition analysis synced to your phone.', price: 99, stock: 45, categoryId: homeId, images: img('Withings Body+ Smart Scale') },
+      { name: 'Philips Hue Starter Kit', description: 'Smart ambient lighting for your entire room.', price: 199, stock: 25, categoryId: homeId, images: img('Philips Hue Starter Kit') },
 
       { name: 'PlayStation 5 Slim Console', description: 'Next-gen gaming with lightning-fast SSD.', price: 499, stock: 45, categoryId: gamingId, images: img('PlayStation 5 Slim Console') },
       { name: 'Xbox Series X', description: 'The fastest, most powerful Xbox ever.', price: 499, stock: 40, categoryId: gamingId, images: img('Xbox Series X') },
@@ -170,6 +179,7 @@ const seedDatabase = async () => {
       { name: 'ASUS ROG Ally Gaming Handheld', description: 'Windows 11 handheld with AMD Z1 Extreme for PC gaming on the go.', price: 699, stock: 12, categoryId: gamingId, images: img('ASUS ROG Ally Gaming Handheld') },
       { name: 'Corsair K100 RGB Keyboard', description: 'Flagship mechanical keyboard with OPX optical switches.', price: 229, stock: 22, categoryId: gamingId, images: img('Corsair K100 RGB Keyboard') },
       { name: 'Secretlab TITAN Evo Chair', description: 'Award-winning ergonomic gaming chair for long sessions.', price: 549, stock: 10, categoryId: gamingId, images: img('Secretlab TITAN Evo Chair') },
+      { name: 'Nintendo Switch Pro Controller', description: 'Premium wireless pad for intense gaming.', price: 69, stock: 80, categoryId: gamingId, images: img('Nintendo Switch Pro Controller') }
     ];
 
     const productsWithSlugs = productsData.map((prod, index) => ({ 

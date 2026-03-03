@@ -10,12 +10,12 @@
 
 #product-detail .main-product-image {
     width: 100%;
-    height: auto;
+    height: 520px;
     max-height: 600px;
-    border: 1px solid #EAE8DF;
-    padding: 30px;
+    border: none;
+    padding: 0;
     object-fit: contain;
-    background: #fff;
+    background: transparent;
     border-radius: 8px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: zoom-in;
@@ -184,6 +184,38 @@
     cursor: not-allowed;
     transform: none;
     box-shadow: none;
+}
+
+#product-detail .detail-wishlist-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 42px;
+    height: 42px;
+    border: 1px solid #e5e7eb;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.96);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 3;
+    transition: all 0.2s ease;
+}
+
+#product-detail .detail-wishlist-btn:hover {
+    border-color: #ef4444;
+    transform: translateY(-1px);
+}
+
+#product-detail .detail-wishlist-btn span {
+    font-size: 20px;
+    line-height: 1;
+    color: #9ca3af;
+}
+
+#product-detail .detail-wishlist-btn span.in-wishlist {
+    color: #ef4444;
 }
 
 /* 4. Stock Badge */
@@ -394,6 +426,10 @@ ul.tabs li:hover::after {
     #product-detail .add-cart-btn {
         width: 100%;
         padding: 15px;
+    }
+
+    #product-detail .main-product-image {
+        height: 360px;
     }
 
     #product-detail .product-info {

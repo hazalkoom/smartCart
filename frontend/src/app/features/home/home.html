@@ -60,6 +60,16 @@
             
             <div class="col-md-3" *ngFor="let product of featuredProducts">
               <div class="product-card">
+                <button
+                  type="button"
+                  class="wishlist-btn"
+                  (click)="toggleWishlist($event, product)"
+                  [attr.aria-label]="isInWishlist(product) ? 'Remove from wishlist' : 'Add to wishlist'"
+                >
+                  <span [class.in-wishlist]="isInWishlist(product)">
+                    {{ isInWishlist(product) ? '♥' : '♡' }}
+                  </span>
+                </button>
                 <figure class="product-image-container">
                   <img [src]="product.images[0] || 'assets/images/tab-item1.jpg'" 
                        [alt]="product.name" 
@@ -179,6 +189,16 @@
               
               <div class="col-md-3 mb-4" *ngFor="let product of categoryProducts">
                 <div class="product-card">
+                  <button
+                    type="button"
+                    class="wishlist-btn"
+                    (click)="toggleWishlist($event, product)"
+                    [attr.aria-label]="isInWishlist(product) ? 'Remove from wishlist' : 'Add to wishlist'"
+                  >
+                    <span [class.in-wishlist]="isInWishlist(product)">
+                      {{ isInWishlist(product) ? '♥' : '♡' }}
+                    </span>
+                  </button>
                   <figure class="product-image-container">
                     <img [src]="product.images[0] || 'assets/images/tab-item2.jpg'" 
                          [alt]="product.name" 

@@ -43,6 +43,10 @@ export default {
   },
   {
     "renderMode": 0,
+    "route": "/wishlist"
+  },
+  {
+    "renderMode": 0,
     "route": "/account"
   },
   {
@@ -100,8 +104,8 @@ export default {
 ],
   entryPointToBrowserMapping: undefined,
   assets: {
-    'index.csr.html': {size: 3104, hash: '380ef262621460ab0ecc513c0096149c9f2c6802e85865b68d2431ce747a2301', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
-    'index.server.html': {size: 1848, hash: '73198014bc542444e99a6a58f485acfaf7afee52dea2e2b60ad2532cb2354add', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
+    'index.csr.html': {size: 3104, hash: 'b260e4f0e6196857268cbccdf18274dc1f318ca3bba08da2c6cf1345837fad20', text: () => import('./assets-chunks/index_csr_html.mjs').then(m => m.default)},
+    'index.server.html': {size: 1848, hash: '918a748d04aafece38c76a0709cdc49446398e898491e1caad97b9db09de03bf', text: () => import('./assets-chunks/index_server_html.mjs').then(m => m.default)},
     'styles-HYLH6NO5.css': {size: 81578, hash: 'gtPlpaslqbg', text: () => import('./assets-chunks/styles-HYLH6NO5_css.mjs').then(m => m.default)}
   },
 };

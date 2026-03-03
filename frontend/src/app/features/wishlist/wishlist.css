@@ -1,0 +1,122 @@
+:host {
+  display: block;
+}
+
+.wishlist-header {
+  margin-bottom: 2rem;
+}
+
+.wishlist-card {
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wishlist-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.wishlist-image-wrap {
+  position: relative;
+  display: block;
+  height: 250px;
+  overflow: hidden;
+  border-radius: 10px;
+  margin: 12px 12px 0;
+}
+
+.wishlist-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+.wishlist-body {
+  padding: 14px;
+}
+
+.wishlist-title {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.wishlist-title a {
+  color: var(--dark-color);
+  text-decoration: none;
+}
+
+.wishlist-price {
+  font-weight: 700;
+  color: var(--accent-color);
+}
+
+.empty-icon {
+  font-size: 48px;
+  line-height: 1;
+  color: #dc3545;
+  margin-bottom: 8px;
+}
+
+.product-card {
+  position: relative;
+}
+
+.wishlist-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #e5e7eb;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 4;
+  transition: all 0.2s ease;
+}
+
+.wishlist-btn:hover {
+  border-color: #ef4444;
+  transform: translateY(-1px);
+}
+
+.wishlist-btn span {
+  font-size: 18px;
+  line-height: 1;
+  color: #ef4444;
+}
+
+.actions-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: rgba(17, 24, 39, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.wishlist-image-wrap:hover .actions-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+.action-btn {
+  background: #fff;
+  color: var(--dark-color);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  text-decoration: none;
+}

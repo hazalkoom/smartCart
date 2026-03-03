@@ -1,0 +1,67 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { AuthService } from '../../core/services/auth';
+import { Product } from '../../core/interfaces/product';
+import { environment } from '../../../environments/environment';
+
+@Component({
+  selector: 'app-wishlist',
+  standalone: false,
+  templateUrl: './wishlist.html',
+  styleUrl: './wishlist.css'
+})
+export class WishlistComponent implements OnInit, OnDestroy {
+  wishlistItems: Product[] = [];
+  isLoading: boolean = true;
+  error: string = '';
+
+  private subscriptions: Subscription[] = [];
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.loadWishlist();
+  }
+
+  loadWishlist(): void {
+    this.isLoading = true;
+    this.error = '';
+
+    const sub = this.authService.getWishlist().subscribe({
+      next: (res) => {
+        const data = res?.data || [];
+        this.wishlistItems = data.filter((item: any) => item && typeof item === 'object' && item._id);
+        this.isLoading = false;
+      },
+      error: (err) => {
+        if (!environment.production) console.error('Error loading wishlist:', err);
+        this.error = 'Failed to load wishlist. Please try again.';
+        this.isLoading = false;
+      }
+    });
+
+    this.subscriptions.push(sub);
+  }
+
+  removeFromWishlist(productId: string): void {
+    const sub = this.authService.toggleWishlist(productId).subscribe({
+      next: () => {
+        this.wishlistItems = this.wishlistItems.filter((item) => item._id !== productId);
+      },
+      error: (err) => {
+        if (!environment.production) console.error('Error removing wishlist item:', err);
+        alert('Could not update wishlist. Please try again.');
+      }
+    });
+
+    this.subscriptions.push(sub);
+  }
+
+  trackByProductId(index: number, product: Product): string {
+    return product._id;
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+}

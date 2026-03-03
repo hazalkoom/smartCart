@@ -15,6 +15,7 @@ import { OrderDetailComponent } from './features/order-detail/order-detail'; // 
 import { PaymentCallbackComponent } from './features/payment-callback/payment-callback';
 import { AboutComponent } from './features/about/about';
 import { HelpCenterComponent } from './features/help-center/help-center';
+import { WishlistComponent } from './features/wishlist/wishlist';
 
 const routes: Routes = [
   { path: '', component: Home },
@@ -26,6 +27,7 @@ const routes: Routes = [
   { path: 'register', component: Register },
   { path: 'about', component: AboutComponent },
   { path: 'help-center', component: HelpCenterComponent },
+  { path: 'wishlist', component: WishlistComponent, canActivate: [authGuard] },
   { path: 'account', component: Account, canActivate: [authGuard] },
   { path: 'categories', component: CategoryComponent },
   { path: 'orders/:id', component: OrderDetailComponent, canActivate: [authGuard] },

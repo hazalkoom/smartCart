@@ -1,0 +1,62 @@
+<section id="wishlist-page" class="py-5 my-5">
+  <div class="container">
+    <div class="wishlist-header">
+      <h2 class="section-title">My Wishlist</h2>
+      <p class="text-muted">Products you saved for later</p>
+    </div>
+
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3">Loading wishlist...</p>
+    </div>
+
+    <div *ngIf="!isLoading && error" class="alert alert-danger text-center" role="alert">
+      {{ error }}
+    </div>
+
+    <div *ngIf="!isLoading && !error && wishlistItems.length === 0" class="empty-state text-center py-5">
+      <div class="empty-icon">♡</div>
+      <h4>Your wishlist is empty</h4>
+      <p class="text-muted">Save products you like and they will appear here.</p>
+      <a routerLink="/products" class="btn btn-primary">Go to Shop</a>
+    </div>
+
+    <div *ngIf="!isLoading && !error && wishlistItems.length > 0" class="row g-4">
+      <div class="col-sm-6 col-lg-4 col-xl-3" *ngFor="let product of wishlistItems; trackBy: trackByProductId">
+        <div class="wishlist-card product-card h-100">
+          <button
+            type="button"
+            class="wishlist-btn"
+            (click)="removeFromWishlist(product._id)"
+            aria-label="Remove from wishlist"
+          >
+            <span class="in-wishlist">♥</span>
+          </button>
+
+          <figure class="wishlist-image-wrap product-image-container">
+            <img
+              [src]="product.images && product.images.length > 0 ? product.images[0] : 'assets/images/placeholder.jpg'"
+              [alt]="product.name"
+              class="wishlist-image product-image"
+            />
+
+            <div class="actions-overlay">
+              <a [routerLink]="['/products', product.slug]" class="action-btn view-btn">
+                <i class="icon icon-search"></i> View
+              </a>
+            </div>
+          </figure>
+
+          <div class="wishlist-body product-details">
+            <h5 class="wishlist-title product-title">
+              <a [routerLink]="['/products', product.slug]">{{ product.name }}</a>
+            </h5>
+            <div class="wishlist-price product-price">$ {{ product.price.toFixed(2) }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

@@ -29,6 +29,7 @@ export class ProductDetail implements OnInit, OnDestroy {
   error: string = '';
   showLoginPrompt: boolean = false;
   private subscriptions: Subscription[] = [];
+  private wishlistIds: Set<string> = new Set<string>();
 
   constructor(
     private route: ActivatedRoute,
@@ -41,6 +42,15 @@ export class ProductDetail implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    const userSub = this.authService.currentUser$.subscribe((user: any) => {
+      const rawWishlist = user?.wishlist || [];
+      const normalized = rawWishlist
+        .map((item: any) => (typeof item === 'string' ? item : item?._id))
+        .filter((id: string | undefined) => !!id);
+      this.wishlistIds = new Set<string>(normalized);
+    });
+    this.subscriptions.push(userSub);
+
     // Listen to URL changes
     const paramSub = this.route.paramMap.subscribe(params => {
       const slug = params.get('slug');
@@ -151,5 +161,35 @@ export class ProductDetail implements OnInit, OnDestroy {
   dismissLoginPrompt() {
     this.showLoginPrompt = false;
     this.error = '';
+  }
+
+  isInWishlist(): boolean {
+    return !!this.product?._id && this.wishlistIds.has(this.product._id);
+  }
+
+  toggleWishlist(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!this.product) return;
+
+    if (!this.authService.isAuthenticated()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.authService.toggleWishlist(this.product._id).subscribe({
+      next: (res) => {
+        const updatedWishlist = res?.data || [];
+        const normalized = updatedWishlist
+          .map((item: any) => (typeof item === 'string' ? item : item?._id))
+          .filter((id: string | undefined) => !!id);
+        this.wishlistIds = new Set<string>(normalized);
+      },
+      error: (err) => {
+        if (!environment.production) console.error('Error toggling wishlist:', err);
+        alert('Failed to update wishlist. Please try again.');
+      }
+    });
   }
 }

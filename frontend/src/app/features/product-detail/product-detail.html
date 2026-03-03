@@ -17,6 +17,16 @@
         
         <div class="col-md-6">
           <div class="product-image">
+            <button
+              type="button"
+              class="detail-wishlist-btn"
+              (click)="toggleWishlist($event)"
+              [attr.aria-label]="isInWishlist() ? 'Remove from wishlist' : 'Add to wishlist'"
+            >
+              <span [class.in-wishlist]="isInWishlist()">
+                {{ isInWishlist() ? '♥' : '♡' }}
+              </span>
+            </button>
             <img [src]="selectedImage" [alt]="product.name" class="img-fluid main-product-image">
             
             <div class="product-thumbnails d-flex justify-content-start mt-3" *ngIf="product.images.length > 1">
