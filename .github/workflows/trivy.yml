@@ -31,12 +31,13 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Run Trivy vulnerability scan (filesystem)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.30.0
         with:
+          trivy-version: "0.56.1"
           scan-type: fs
           scan-ref: .
           format: sarif
@@ -44,10 +45,11 @@ jobs:
           severity: HIGH,CRITICAL
           ignore-unfixed: true
           vuln-type: os,library
-          exit-code: '0'
+          cache: true
+          exit-code: "0"
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-results.sarif
 
@@ -57,16 +59,18 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Generate SBOM with Trivy
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@0.30.0
         with:
+          trivy-version: "0.56.1"
           scan-type: fs
           scan-ref: .
           format: cyclonedx
           output: trivy-sbom.cdx.json
+          cache: true
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
