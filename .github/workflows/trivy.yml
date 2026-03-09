@@ -13,7 +13,7 @@ on:
       - "docs/**"
       - "**/*.md"
   schedule:
-    - cron: "0 4 * * 1" # Every Monday at 04:00 UTC
+    - cron: "0 4 * * 1"
 
 permissions:
   contents: read
@@ -34,10 +34,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run Trivy vulnerability scan (filesystem)
+      - name: Run Trivy vulnerability scan
         uses: aquasecurity/trivy-action@0.30.0
         with:
-          trivy-version: "0.56.1"
+          version: "0.60.0"
           scan-type: fs
           scan-ref: .
           format: sarif
@@ -48,7 +48,7 @@ jobs:
           cache: true
           exit-code: "0"
 
-      - name: Upload Trivy scan results to GitHub Security tab
+      - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-results.sarif
@@ -62,10 +62,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate SBOM with Trivy
+      - name: Generate SBOM
         uses: aquasecurity/trivy-action@0.30.0
         with:
-          trivy-version: "0.56.1"
+          version: "0.60.0"
           scan-type: fs
           scan-ref: .
           format: cyclonedx
@@ -77,5 +77,4 @@ jobs:
         with:
           name: trivy-sbom-cyclonedx
           path: trivy-sbom.cdx.json
-          if-no-files-found: error
           retention-days: 30
