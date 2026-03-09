@@ -69,3 +69,5 @@ $RECYCLE.BIN/
 /backend/coverage
 /tests/coverage
 /tests/.pytest_cache
+coverage/
+/coverage

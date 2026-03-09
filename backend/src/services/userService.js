@@ -1,10 +1,15 @@
+const mongoose = require('mongoose');
 const User = require('../models/userModel');
 
 class UserService {
   async createUser(userData, currentOwnerId) {
     const { email, password, firstName, lastName, role } = userData;
 
-    const existing = await User.findOne({ email });
+    if (typeof email !== 'string') {
+      throw { statusCode: 400, message: 'Invalid email format' };
+    }
+
+    const existing = await User.findOne({ email: { $eq: email } });
     if (existing) {
       throw { statusCode: 400, message: 'User already exists' };
     }
@@ -60,14 +65,23 @@ class UserService {
   }
 
   async getUserById(id) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw { statusCode: 400, message: 'Invalid user ID' };
+    }
+
     const user = await User.findById(id).select('-password');
     if (!user) {
       throw { statusCode: 404, message: 'User not found' };
     }
+
     return user;
   }
 
   async updateUserRole(id, role, currentOwnerId) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw { statusCode: 400, message: 'Invalid user ID' };
+    }
+
     const user = await User.findById(id);
 
     if (!user) {
@@ -88,6 +102,10 @@ class UserService {
   }
 
   async updateUser(id, userData, currentOwnerId) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw { statusCode: 400, message: 'Invalid user ID' };
+    }
+
     const { email, firstName, lastName, role, password } = userData;
     const user = await User.findById(id).select('+password');
 
@@ -101,7 +119,12 @@ class UserService {
     }
 
     // Prevent owner from changing their own role
-    if (user.role === 'owner' && user._id.toString() === currentOwnerId.toString() && role && role !== 'owner') {
+    if (
+      user.role === 'owner' &&
+      user._id.toString() === currentOwnerId.toString() &&
+      role &&
+      role !== 'owner'
+    ) {
       throw { statusCode: 400, message: 'Owner cannot change their own role' };
     }
 
@@ -111,10 +134,19 @@ class UserService {
     }
 
     if (email) {
-      const existing = await User.findOne({ email, _id: { $ne: id } });
+      if (typeof email !== 'string') {
+        throw { statusCode: 400, message: 'Invalid email format' };
+      }
+
+      const existing = await User.findOne({
+        email: { $eq: email },
+        _id: { $ne: id }
+      });
+
       if (existing) {
         throw { statusCode: 400, message: 'Email already in use' };
       }
+
       user.email = email;
     }
 
@@ -126,10 +158,15 @@ class UserService {
     const updatedUser = await user.save();
     const safeUser = updatedUser.toObject();
     delete safeUser.password;
+
     return safeUser;
   }
 
   async deleteUser(id, currentOwnerId) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw { statusCode: 400, message: 'Invalid user ID' };
+    }
+
     const user = await User.findById(id);
 
     if (!user) {
