@@ -215,6 +215,7 @@
 }
 
 @media (max-width: 991px) {
+
     #featured-products .product-image-container,
     #popular-products .product-image-container {
         height: 190px;
@@ -226,6 +227,7 @@
 }
 
 @media (max-width: 576px) {
+
     #featured-products .product-image-container,
     #popular-products .product-image-container {
         height: 175px;

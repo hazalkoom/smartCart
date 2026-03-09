@@ -15,7 +15,7 @@ describe('UserService', () => {
 
   describe('updateUserRole', () => {
     it('throws 400 when id === currentOwnerId (owner cannot change their own role here)', async () => {
-      const ownerId = 'owner-id-1';
+      const ownerId = '507f1f77bcf86cd799439011';
 
       User.findById.mockResolvedValue({
         _id: { toString: () => ownerId },
@@ -32,12 +32,15 @@ describe('UserService', () => {
     });
 
     it('throws 400 when trying to change the role of the Owner account', async () => {
+      const targetUserId = '507f1f77bcf86cd799439012';
+      const ownerId = '507f1f77bcf86cd799439013';
+
       User.findById.mockResolvedValue({
-        _id: { toString: () => 'some-user' },
+        _id: { toString: () => targetUserId },
         role: 'owner',
       });
 
-      await expect(userService.updateUserRole('some-user', 'admin', 'owner-id')).rejects.toEqual({
+      await expect(userService.updateUserRole(targetUserId, 'admin', ownerId)).rejects.toEqual({
         statusCode: 400,
         message: 'Cannot change the role of the Owner',
       });
@@ -46,21 +49,23 @@ describe('UserService', () => {
 
   describe('getUserById', () => {
     it("calls select('-password') to exclude the password field", async () => {
-      const selectMock = jest.fn().mockResolvedValue({ _id: 'u1', email: 'a@b.com' });
+      const userId = '507f1f77bcf86cd799439014';
+      const selectMock = jest.fn().mockResolvedValue({ _id: userId, email: 'a@b.com' });
       User.findById.mockReturnValue({ select: selectMock });
 
-      const result = await userService.getUserById('u1');
+      const result = await userService.getUserById(userId);
 
-      expect(User.findById).toHaveBeenCalledWith('u1');
+      expect(User.findById).toHaveBeenCalledWith(userId);
       expect(selectMock).toHaveBeenCalledWith('-password');
-      expect(result).toEqual({ _id: 'u1', email: 'a@b.com' });
+      expect(result).toEqual({ _id: userId, email: 'a@b.com' });
     });
 
     it('throws 404 when user is not found', async () => {
+      const missingUserId = '507f1f77bcf86cd799439015';
       const selectMock = jest.fn().mockResolvedValue(null);
       User.findById.mockReturnValue({ select: selectMock });
 
-      await expect(userService.getUserById('missing')).rejects.toEqual({
+      await expect(userService.getUserById(missingUserId)).rejects.toEqual({
         statusCode: 404,
         message: 'User not found',
       });
