@@ -34,19 +34,27 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run Trivy vulnerability scan
-        uses: aquasecurity/trivy-action@0.30.0
+      - name: Cache Trivy database
+        uses: actions/cache@v4
         with:
-          version: "v0.60.0"
-          scan-type: fs
-          scan-ref: .
-          format: sarif
-          output: trivy-results.sarif
-          severity: HIGH,CRITICAL
-          ignore-unfixed: true
-          vuln-type: os,library
-          cache: true
-          exit-code: "0"
+          path: ~/.cache/trivy
+          key: trivy-db-${{ runner.os }}
+          restore-keys: |
+            trivy-db-${{ runner.os }}
+
+      - name: Run Trivy vulnerability scan (Docker)
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -v "$HOME/.cache/trivy:/root/.cache" \
+            aquasec/trivy:0.60.0 fs \
+            --scanners vuln \
+            --vuln-type os,library \
+            --severity HIGH,CRITICAL \
+            --ignore-unfixed \
+            --format sarif \
+            --output /workspace/trivy-results.sarif \
+            /workspace
 
       - name: Upload Trivy results to GitHub Security
         uses: github/codeql-action/upload-sarif@v4
@@ -62,15 +70,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate SBOM
-        uses: aquasecurity/trivy-action@0.30.0
+      - name: Cache Trivy database
+        uses: actions/cache@v4
         with:
-          version: "v0.60.0"
-          scan-type: fs
-          scan-ref: .
-          format: cyclonedx
-          output: trivy-sbom.cdx.json
-          cache: true
+          path: ~/.cache/trivy
+          key: trivy-db-${{ runner.os }}
+          restore-keys: |
+            trivy-db-${{ runner.os }}
+
+      - name: Generate SBOM (Docker)
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/workspace" \
+            -v "$HOME/.cache/trivy:/root/.cache" \
+            aquasec/trivy:0.60.0 fs \
+            --format cyclonedx \
+            --output /workspace/trivy-sbom.cdx.json \
+            /workspace
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
