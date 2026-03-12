@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { guestGuard } from './core/guards/guest.guard';
 
 import { Home } from './features/home/home';
 import { ProductListComponent } from './features/product-list/product-list';
@@ -16,6 +17,7 @@ import { PaymentCallbackComponent } from './features/payment-callback/payment-ca
 import { AboutComponent } from './features/about/about';
 import { HelpCenterComponent } from './features/help-center/help-center';
 import { WishlistComponent } from './features/wishlist/wishlist';
+import { GiftFinderComponent } from './features/gift-finder/gift-finder';
 
 const routes: Routes = [
   { path: '', component: Home },
@@ -23,8 +25,8 @@ const routes: Routes = [
   { path: 'products/:slug', component: ProductDetail },
   { path: 'cart', component: CartComponent, canActivate: [authGuard] },
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard] },
-  { path: 'login', component: Login },
-  { path: 'register', component: Register },
+  { path: 'login', component: Login, canActivate: [guestGuard] },
+  { path: 'register', component: Register, canActivate: [guestGuard] },
   { path: 'about', component: AboutComponent },
   { path: 'help-center', component: HelpCenterComponent },
   { path: 'wishlist', component: WishlistComponent, canActivate: [authGuard] },
@@ -32,6 +34,7 @@ const routes: Routes = [
   { path: 'categories', component: CategoryComponent },
   { path: 'orders/:id', component: OrderDetailComponent, canActivate: [authGuard] },
   { path: 'payment-callback', component: PaymentCallbackComponent },
+  { path: 'gift-finder', component: GiftFinderComponent },
   {
     path: 'admin',
     loadChildren: () => import('./features/admin/admin.module').then((m) => m.AdminModule),

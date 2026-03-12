@@ -83,7 +83,17 @@ const PRODUCT_IMAGE_LINKS = {
   'Apple Mac Mini M2': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772543001/Apple_Mac_Mini_M2_kcnjec.jpg',
   'Bose QuietComfort Ultra': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772543001/Bose_QuietComfort_Ultra_heyl0m.jpg',
   'Philips Hue Starter Kit': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772543016/Philips_Hue_Starter_Kit_vdvjbq.png',
-  'Nintendo Switch Pro Controller': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772543005/Nintendo_Switch_Pro_Controller_e3py6v.jpg'
+  'Nintendo Switch Pro Controller': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1772543005/Nintendo_Switch_Pro_Controller_e3py6v.jpg',
+  'Logitech G Pro X Superlight Mouse': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316371/Logitech_G_Pro_X_Superlight_Mouse_ytescq.webp',
+  'SteelSeries Arctis Nova Pro': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316371/SteelSeries_Arctis_Nova_Pro_w28rka.jpg',
+  'HyperX Cloud III Gaming Headset': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316369/HyperX_Cloud_III_Gaming_Headset_vygrar.jpg',
+  'Acer Predator X34 Curved Monitor': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316371/Acer_Predator_X34_Curved_Monitor_znsvjj.jpg',
+  'Thrustmaster T248 Racing Wheel': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316369/Thrustmaster_T248_Racing_Wheel_lpthxm.jpg',
+  'Alienware Aurora R16 Gaming PC': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316371/Alienware_Aurora_R16_Gaming_PC_r4jiqe.jpg',
+  'HP OMEN 45L Gaming Desktop': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316371/HP_OMEN_45L_Gaming_Desktop_tr0xlu.jpg',
+  'Corsair Vengeance i7500 Gaming PC': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316453/Corsair_Vengeance_i7500_Gaming_PC_tlkwxq.jpg',
+  'MSI Aegis RS Gaming Desktop': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316371/MSI_Aegis_RS_Gaming_Desktop_bzumxc.jpg',
+  'ASUS ROG Strix G35 Gaming Desktop': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316369/ASUS_ROG_Strix_G35_Gaming_Desktop_ekwfo4.jpg',
 };
 
 // Fallback just in case you miss one
@@ -179,7 +189,17 @@ const seedDatabase = async () => {
       { name: 'ASUS ROG Ally Gaming Handheld', description: 'Windows 11 handheld with AMD Z1 Extreme for PC gaming on the go.', price: 699, stock: 12, categoryId: gamingId, images: img('ASUS ROG Ally Gaming Handheld') },
       { name: 'Corsair K100 RGB Keyboard', description: 'Flagship mechanical keyboard with OPX optical switches.', price: 229, stock: 22, categoryId: gamingId, images: img('Corsair K100 RGB Keyboard') },
       { name: 'Secretlab TITAN Evo Chair', description: 'Award-winning ergonomic gaming chair for long sessions.', price: 549, stock: 10, categoryId: gamingId, images: img('Secretlab TITAN Evo Chair') },
-      { name: 'Nintendo Switch Pro Controller', description: 'Premium wireless pad for intense gaming.', price: 69, stock: 80, categoryId: gamingId, images: img('Nintendo Switch Pro Controller') }
+      { name: 'Nintendo Switch Pro Controller', description: 'Premium wireless pad for intense gaming.', price: 69, stock: 80, categoryId: gamingId, images: img('Nintendo Switch Pro Controller') },
+      { name: 'Logitech G Pro X Superlight Mouse', description: 'Ultra-lightweight wireless gaming mouse designed for esports professionals.', price: 159, stock: 40, categoryId: gamingId, images: img('Logitech G Pro X Superlight Mouse') },
+      { name: 'SteelSeries Arctis Nova Pro', description: 'Premium gaming headset with immersive 360° spatial audio.', price: 349, stock: 25, categoryId: gamingId, images: img('SteelSeries Arctis Nova Pro') },
+      { name: 'HyperX Cloud III Gaming Headset', description: 'Comfortable gaming headset with crystal-clear microphone.', price: 99, stock: 50, categoryId: gamingId, images: img('HyperX Cloud III Gaming Headset') },
+      { name: 'Acer Predator X34 Curved Monitor', description: '34-inch ultrawide curved gaming monitor with high refresh rate.', price: 999, stock: 12, categoryId: gamingId, images: img('Acer Predator X34 Curved Monitor') },
+      { name: 'Thrustmaster T248 Racing Wheel', description: 'Force feedback racing wheel for immersive racing simulation.', price: 399, stock: 18, categoryId: gamingId, images: img('Thrustmaster T248 Racing Wheel') },
+      { name: 'Alienware Aurora R16 Gaming PC', description: 'High-end gaming desktop with Intel Core i9 processor and RTX 4090 graphics.', price: 3499, stock: 10, categoryId: gamingId, images: img('Alienware Aurora R16 Gaming PC') },
+      { name: 'HP OMEN 45L Gaming Desktop', description: 'Extreme performance gaming PC with advanced Cryo Chamber cooling.', price: 2999, stock: 14, categoryId: gamingId, images: img('HP OMEN 45L Gaming Desktop') },
+      { name: 'Corsair Vengeance i7500 Gaming PC', description: 'Premium custom-built gaming desktop with powerful liquid cooling.', price: 3299, stock: 12, categoryId: gamingId, images: img('Corsair Vengeance i7500 Gaming PC') },
+      { name: 'MSI Aegis RS Gaming Desktop', description: 'Performance-focused gaming PC designed for esports and 4K gaming.', price: 2699, stock: 18, categoryId: gamingId, images: img('MSI Aegis RS Gaming Desktop') },
+      { name: 'ASUS ROG Strix G35 Gaming Desktop', description: 'Aggressive RGB gaming tower built for high frame rate competitive gaming.', price: 2499, stock: 16, categoryId: gamingId, images: img('ASUS ROG Strix G35 Gaming Desktop') },
     ];
 
     const productsWithSlugs = productsData.map((prod, index) => ({ 
@@ -189,7 +209,7 @@ const seedDatabase = async () => {
     }));
     await Product.insertMany(productsWithSlugs);
 
-    console.log('🔥 53 REALISTIC PRODUCTS SEEDED SUCCESSFULLY! 🔥');
+    console.log('🔥 68 REALISTIC PRODUCTS SEEDED SUCCESSFULLY! 🔥');
     process.exit();
 
   } catch (error) {

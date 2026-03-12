@@ -26,6 +26,7 @@ import { PaymentCallbackComponent } from './features/payment-callback/payment-ca
 import { AboutComponent } from './features/about/about';
 import { HelpCenterComponent } from './features/help-center/help-center';
 import { WishlistComponent } from './features/wishlist/wishlist';
+import { GiftFinderComponent } from './features/gift-finder/gift-finder';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { WishlistComponent } from './features/wishlist/wishlist';
     PaymentCallbackComponent,
     AboutComponent,
     HelpCenterComponent,
-    WishlistComponent
+    WishlistComponent,
+    GiftFinderComponent
   ],
   imports: [
     BrowserModule,

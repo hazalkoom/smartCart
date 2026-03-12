@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Product = require('../models/productModel');
 const Category = require('../models/categoryModel');
 
@@ -32,45 +33,131 @@ class ProductService {
     return product;
   }
 
+  // ==========================================
+  // NEW: AGGREGATION PIPELINE ENGINE
+  // ==========================================
   async getAllProducts(query) {
-    const { keyword, category, stockStatus, page = 1, limit = 10 } = query;
+    const {
+      keyword,
+      category,     // Can be a single ID or comma-separated: 'id1,id2'
+      minPrice,
+      maxPrice,
+      minRating,
+      stockStatus,  // 'in', 'out', 'low'
+      sort,         // 'price_asc', 'price_desc', 'top_rated', 'newest'
+      page = 1,
+      limit = 10
+    } = query;
 
-    let dbQuery = { isDeleted: { $ne: true } };
+    const matchStage = { isDeleted: { $ne: true } };
 
+    // 1. Keyword Regex Matching
     if (keyword) {
       const safeKeyword = escapeRegex(keyword);
-      dbQuery.$or = [
+      matchStage.$or = [
         { name: { $regex: safeKeyword, $options: 'i' } },
         { sku: { $regex: safeKeyword, $options: 'i' } },
       ];
     }
 
+    // 2. Faceted Category Filtering
     if (category) {
-      dbQuery.categoryId = category;
+      const categoryIds = category.split(',').map(id => {
+        if (mongoose.Types.ObjectId.isValid(id.trim())) {
+          return new mongoose.Types.ObjectId(id.trim());
+        }
+        return null;
+      }).filter(id => id !== null);
+
+      if (categoryIds.length > 0) {
+        matchStage.categoryId = { $in: categoryIds };
+      }
     }
 
+    // 3. Price Range Slider Filtering
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      matchStage.price = {};
+      if (minPrice !== undefined) matchStage.price.$gte = Number(minPrice);
+      if (maxPrice !== undefined) matchStage.price.$lte = Number(maxPrice);
+    }
+
+    // 4. Rating Filtering
+    if (minRating !== undefined) {
+      matchStage.rating = { $gte: Number(minRating) };
+    }
+
+    // 5. Stock Status Logic
     if (stockStatus === 'low') {
-      dbQuery.stock = { $lt: 10, $gt: 0 };
+      matchStage.stock = { $lt: 10, $gt: 0 };
     } else if (stockStatus === 'out') {
-      dbQuery.stock = 0;
+      matchStage.stock = 0;
+    } else if (stockStatus === 'in') {
+      matchStage.stock = { $gt: 0 };
     }
 
-    const pageNum = Number(page);
-    const limitNum = Number(limit);
+    // 6. Sorting Control
+    let sortStage = { createdAt: -1 }; // Default: Newest
+    if (sort === 'price_asc') sortStage = { price: 1 };
+    if (sort === 'price_desc') sortStage = { price: -1 };
+    if (sort === 'top_rated') sortStage = { rating: -1 };
+
+    // 7. Pagination Setup
+    const pageNum = Number(page) || 1;
+    const limitNum = Number(limit) || 10;
     const skip = (pageNum - 1) * limitNum;
 
-    const count = await Product.countDocuments(dbQuery);
-    const products = await Product.find(dbQuery)
-      .populate('categoryId', 'name slug')
-      .limit(limitNum)
-      .skip(skip)
-      .sort({ createdAt: -1 });
+    // --- EXECUTE PIPELINE ---
+    const pipeline = [
+      { $match: matchStage },
+      // Emulate Mongoose Populate for Category
+      {
+        $lookup: {
+          from: 'categories',
+          localField: 'categoryId',
+          foreignField: '_id',
+          as: 'categoryObj'
+        }
+      },
+      {
+        $unwind: {
+          path: '$categoryObj',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      // Reformat the category object and exclude sensitive/hidden data
+      {
+        $set: {
+          categoryId: {
+            _id: '$categoryObj._id',
+            name: '$categoryObj.name',
+            slug: '$categoryObj.slug'
+          }
+        }
+      },
+      // Exclude the temporary lookup array and sensitive/hidden data
+      {
+        $unset: ['categoryObj', 'costPrice', 'isDeleted', '__v']
+      },
+      { $sort: sortStage },
+      // Run Count and Data extraction simultaneously
+      {
+        $facet: {
+          metadata: [{ $count: 'total' }],
+          data: [{ $skip: skip }, { $limit: limitNum }]
+        }
+      }
+    ];
+
+    const [result] = await Product.aggregate(pipeline);
+
+    const total = result.metadata.length > 0 ? result.metadata[0].total : 0;
+    const products = result.data;
 
     return {
       products,
-      total: count,
+      total,
       page: pageNum,
-      pages: Math.ceil(count / limitNum),
+      pages: Math.ceil(total / limitNum) || 1,
     };
   }
 
@@ -85,7 +172,6 @@ class ProductService {
   async updateProduct(productId, updateData) {
     const { name, description, price, costPrice, sku, stock, categoryId, images } = updateData;
 
-    // --- FIX: Explicitly select '+costPrice' so it doesn't get lost ---
     const product = await Product.findById(productId).select('+costPrice');
     
     if (!product) {

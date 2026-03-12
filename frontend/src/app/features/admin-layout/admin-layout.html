@@ -59,15 +59,22 @@
     </a>
   </nav>
   <div class="mobile-menu-footer">
-    <a routerLink="/login" class="mobile-logout-btn" (click)="closeAdminMobileMenu()">
+    <a routerLink="/" class="mobile-logout-btn" (click)="closeAdminMobileMenu()" title="Back to Store" aria-label="Back to Store">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
         <polyline points="16 17 21 12 16 7"/>
         <line x1="21" y1="12" x2="9" y2="12"/>
       </svg>
-      Logout
+      Back to Store
     </a>
-    <div></div>
+    <button type="button" class="mobile-logout-btn" (click)="logout()" title="Logout" aria-label="Logout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M16 17l5-5-5-5"/>
+        <path d="M21 12H9"/>
+        <path d="M13 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8"/>
+      </svg>
+      Logout
+    </button>
   </div>
 </div>
 
@@ -140,13 +147,20 @@
           <div class="user-avatar">{{ userInitial }}</div>
           <span class="user-name">{{ currentUser?.firstName || 'User' }}</span>
         </button>
-        <a routerLink="/login" class="btn-logout" title="Logout">
+        <a routerLink="/" class="btn-logout" title="Back to Store" aria-label="Back to Store">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
             <polyline points="16 17 21 12 16 7"/>
             <line x1="21" y1="12" x2="9" y2="12"/>
           </svg>
         </a>
+        <button type="button" class="btn-logout" title="Logout" aria-label="Logout" (click)="logout()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M16 17l5-5-5-5"/>
+            <path d="M21 12H9"/>
+            <path d="M13 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8"/>
+          </svg>
+        </button>
         <button class="mobile-menu-btn" (click)="toggleAdminMobileMenu()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="3" y1="12" x2="21" y2="12"/>

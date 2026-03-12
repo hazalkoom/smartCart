@@ -1,0 +1,44 @@
+:host {
+    display: block;
+}
+
+.gift-finder-wrapper {
+    min-height: calc(100vh - 100px);
+    background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+}
+
+.quiz-card {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.quiz-card.fade-out {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+    pointer-events: none;
+}
+
+.quiz-option-btn {
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.quiz-option-btn:hover {
+    transform: translateY(-5px);
+    border-color: #3b82f6 !important;
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1), 0 4px 6px -2px rgba(37, 99, 235, 0.05);
+}
+
+.quiz-option-btn:hover .option-icon {
+    background-color: #eff6ff !important;
+}
+
+.quiz-option-btn:hover .option-icon i {
+    color: #3b82f6 !important;
+}
+
+.quiz-option-btn:hover .ms-auto {
+    color: #3b82f6 !important;
+    transform: translateX(3px);
+    transition: transform 0.2s;
+}

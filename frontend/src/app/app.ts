@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { NavigationEnd, Router } from '@angular/router';
+import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { RoutePersistenceService } from './core/services/route-persistence';
@@ -21,15 +21,21 @@ export class App implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.updateLayoutRouteState(this.router.url);
+
     this.router.events
       .pipe(
-        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
+        filter((event): event is NavigationStart | NavigationEnd => event instanceof NavigationStart || event instanceof NavigationEnd),
         takeUntil(this.destroy$)
       )
       .subscribe((event) => {
-        const url = event.urlAfterRedirects || event.url;
-        this.isAdminRoute = url.startsWith('/admin');
+        const url = event instanceof NavigationEnd ? event.urlAfterRedirects || event.url : event.url;
+        this.updateLayoutRouteState(url);
       });
+  }
+
+  private updateLayoutRouteState(url: string): void {
+    this.isAdminRoute = url.startsWith('/admin');
   }
 
   ngOnDestroy(): void {

@@ -1,0 +1,39 @@
+<section class="gift-finder-wrapper d-flex align-items-center justify-content-center py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-md-10">
+        
+        <div class="quiz-card text-center p-5 shadow-lg rounded-4 bg-white" [class.fade-out]="isTransitioning">
+          
+          <div class="quiz-header mb-5">
+            <div class="icon-wrap mb-3 mx-auto d-flex align-items-center justify-content-center bg-light rounded-circle" style="width: 80px; height: 80px;">
+              <i class="icon icon-gift fs-1 text-primary" style="background: -webkit-linear-gradient(135deg, #8b5cf6, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+            </div>
+            <h1 class="fw-bold text-dark mb-2">{{ currentNode.question }}</h1>
+            <p class="text-muted fs-5">{{ currentNode.subtitle }}</p>
+          </div>
+
+          <div class="row g-4 justify-content-center">
+            <div class="col-md-6" *ngFor="let option of currentNode.options">
+              <button class="quiz-option-btn w-100 h-100 p-4 border rounded-4 bg-white text-start d-flex align-items-center gap-3 transition-all" (click)="selectOption(option)">
+                <div class="option-icon bg-light rounded-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; flex-shrink: 0;">
+                  <i class="fs-4 text-dark" [ngClass]="option.icon"></i>
+                </div>
+                <span class="fw-bold fs-5 text-dark">{{ option.label }}</span>
+                <i class="icon icon-chevron-right ms-auto text-muted"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-5 pt-3 border-top" *ngIf="currentNodeId !== 'root'">
+            <button class="btn btn-link text-muted text-decoration-none" (click)="resetQuiz()">
+              <i class="icon icon-rotate-ccw"></i> Start Over
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>

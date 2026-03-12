@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router'; // 1. Added ActivatedRoute
+import { Router, ActivatedRoute } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { ProductService } from '../../core/services/product';
 import { CartService } from '../../core/services/cart';
 import { CartAnimationService } from '../../core/services/cart-animation.service';
@@ -8,8 +9,6 @@ import { AuthService } from '../../core/services/auth';
 import { Subscription } from 'rxjs';
 import { Product } from '../../core/interfaces/product';
 import { environment } from '../../../environments/environment';
-
-declare var AOS: any;
 
 @Component({
   selector: 'app-product-list',
@@ -19,15 +18,26 @@ declare var AOS: any;
 })
 export class ProductListComponent implements OnInit, OnDestroy {
   
-  // Data variables
   products: Product[] = [];
+  categories: any[] = [];
+  
   isLoading: boolean = true;
   error: string = '';
+  
+  // --- FILTER STATE ---
   searchTerm: string = '';
+  minPrice: number | null = null;
+  maxPrice: number | null = null;
+  selectedCategories: string[] = [];
+  stockStatus: string = '';
+  sortOption: string = 'newest';
+  
+  // Pagination
   currentPage: number = 1;
   totalPages: number = 1;
   totalItems: number = 0;
-  readonly pageSize = 12;
+  pages: number[] = [];
+
   private subscriptions: Subscription[] = [];
   private wishlistIds: Set<string> = new Set<string>();
 
@@ -37,138 +47,176 @@ export class ProductListComponent implements OnInit, OnDestroy {
     private cartAnimationService: CartAnimationService,
     private authService: AuthService,
     private router: Router,
-    private route: ActivatedRoute, // 2. Injected ActivatedRoute
+    private route: ActivatedRoute,
+    private http: HttpClient,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
-  ngOnInit() {
-    if (isPlatformBrowser(this.platformId) && typeof AOS !== 'undefined') {
-      AOS.init();
-    }
+  ngOnInit(): void {
+    this.fetchCategories();
+    this.loadWishlistState();
 
-    // 3. Listen for URL changes (Search & Filters)
-    const qpSub = this.route.queryParams.subscribe(params => {
+    // URL-Driven State: React to query parameter changes
+    const routeSub = this.route.queryParams.subscribe(params => {
       this.searchTerm = params['keyword'] || '';
-      this.currentPage = Number(params['page']) > 0 ? Number(params['page']) : 1;
-      this.loadProducts(params);
-    });
-    this.subscriptions.push(qpSub);
-
-    const fragSub = this.route.fragment.subscribe((fragment) => {
-      if (fragment === 'products-search-input' && isPlatformBrowser(this.platformId)) {
-        setTimeout(() => {
-          const searchInput = document.querySelector('.products-search-input') as HTMLInputElement | null;
-          if (searchInput) {
-            searchInput.focus();
-          }
-        }, 0);
+      this.minPrice = params['minPrice'] ? Number(params['minPrice']) : null;
+      this.maxPrice = params['maxPrice'] ? Number(params['maxPrice']) : null;
+      this.stockStatus = params['stockStatus'] || '';
+      this.sortOption = params['sort'] || 'newest';
+      this.currentPage = params['page'] ? Number(params['page']) : 1;
+      
+      if (params['category']) {
+        this.selectedCategories = params['category'].split(',');
+      } else {
+        this.selectedCategories = [];
       }
+      
+      this.fetchProducts();
     });
-    this.subscriptions.push(fragSub);
+    this.subscriptions.push(routeSub);
+  }
 
-    const userSub = this.authService.currentUser$.subscribe((user: any) => {
-      const rawWishlist = user?.wishlist || [];
-      const normalized = rawWishlist
-        .map((item: any) => (typeof item === 'string' ? item : item?._id))
-        .filter((id: string | undefined) => !!id);
-      this.wishlistIds = new Set<string>(normalized);
+  fetchCategories(): void {
+    // Fetch directly to avoid requiring a separate CategoryService for this file
+    this.http.get<{success: boolean, data: any[]}>(`${environment.apiUrl}/categories`).subscribe({
+      next: (res) => {
+        if (res.success) this.categories = res.data;
+      },
+      error: (err) => console.error('Failed to load categories', err)
+    });
+  }
+
+  loadWishlistState(): void {
+    const userSub = this.authService.currentUser$.subscribe(user => {
+      if (user && user.wishlist) {
+        const normalized = user.wishlist.map((item: any) => typeof item === 'string' ? item : item?._id).filter(id => !!id);
+        this.wishlistIds = new Set<string>(normalized);
+      } else {
+        this.wishlistIds = new Set<string>();
+      }
     });
     this.subscriptions.push(userSub);
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
-  }
-
-  onSearch(): void {
-    const keyword = this.searchTerm.trim();
-    const queryParams: Record<string, string | number> = { page: 1 };
-
-    if (keyword) {
-      queryParams['keyword'] = keyword;
-    }
-
-    this.router.navigate(['/products'], {
-      queryParams,
-      queryParamsHandling: ''
-    });
-  }
-
-  goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages || page === this.currentPage) {
-      return;
-    }
-
-    const queryParams: Record<string, string | number> = { page };
-    const keyword = this.searchTerm.trim();
-
-    if (keyword) {
-      queryParams['keyword'] = keyword;
-    }
-
-    this.router.navigate(['/products'], {
-      queryParams,
-      queryParamsHandling: ''
-    });
-  }
-
-  get pages(): number[] {
-    return Array.from({ length: this.totalPages }, (_, index) => index + 1);
-  }
-
-  // 4. Accept params (default to empty object)
-  loadProducts(params: any = {}): void {
+  fetchProducts(): void {
     this.isLoading = true;
+    this.error = '';
 
-    const queryParams = {
+    // Build params for the backend based on current URL state
+    const params: any = {
       page: this.currentPage,
-      limit: this.pageSize,
-      ...params,
+      limit: 12
     };
-    
-    // Pass params to the service (Backend handles ?keyword=...)
-    this.productService.getProducts(queryParams).subscribe({
-      next: (response) => {
-        this.products = response.data;
-        this.currentPage = response.page || this.currentPage;
-        this.totalPages = response.pages || 1;
-        this.totalItems = response.total || response.count || this.products.length;
-        this.isLoading = false;
 
-        if (isPlatformBrowser(this.platformId) && typeof AOS !== 'undefined') {
-          setTimeout(() => {
-            AOS.refresh(); 
-          }, 100);
-        }
-      },
-      error: (err) => {
-        this.error = 'Failed to load products. Please try again later.';
+    if (this.searchTerm) params.keyword = this.searchTerm;
+    if (this.minPrice !== null) params.minPrice = this.minPrice;
+    if (this.maxPrice !== null) params.maxPrice = this.maxPrice;
+    if (this.stockStatus) params.stockStatus = this.stockStatus;
+    if (this.sortOption) params.sort = this.sortOption;
+    if (this.selectedCategories.length > 0) params.category = this.selectedCategories.join(',');
+
+    // Fallback in case your ProductService method is named getProducts vs getAllProducts
+    const fetchMethod = this.productService.getProducts || (this.productService as any).getAllProducts;
+
+    fetchMethod.call(this.productService, params).subscribe({
+      next: (res: any) => {
+        this.products = res.data || [];
+        this.totalItems = res.total || 0;
+        this.totalPages = res.pages || 1;
+        this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
         this.isLoading = false;
-        if (!environment.production) console.error(err);
+      },
+      error: (err: any) => {
+        this.error = 'Failed to load products. ' + (err.error?.message || '');
+        this.isLoading = false;
       }
     });
   }
+
+  // --- FILTER UI ACTIONS ---
+
+  applyFilters(): void {
+    const queryParams: any = {};
+    
+    if (this.searchTerm) queryParams.keyword = this.searchTerm;
+    if (this.minPrice !== null) queryParams.minPrice = this.minPrice;
+    if (this.maxPrice !== null) queryParams.maxPrice = this.maxPrice;
+    if (this.stockStatus) queryParams.stockStatus = this.stockStatus;
+    if (this.sortOption !== 'newest') queryParams.sort = this.sortOption;
+    if (this.selectedCategories.length > 0) queryParams.category = this.selectedCategories.join(',');
+    
+    queryParams.page = 1; // Reset to first page on filter change
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: queryParams
+    });
+  }
+
+  clearFilters(): void {
+    this.searchTerm = '';
+    this.minPrice = null;
+    this.maxPrice = null;
+    this.selectedCategories = [];
+    this.stockStatus = '';
+    this.sortOption = 'newest';
+    this.applyFilters();
+  }
+
+  onSearch(): void {
+    this.applyFilters();
+  }
+
+  toggleCategory(categoryId: string): void {
+    const index = this.selectedCategories.indexOf(categoryId);
+    if (index > -1) {
+      this.selectedCategories.splice(index, 1);
+    } else {
+      this.selectedCategories.push(categoryId);
+    }
+    this.applyFilters();
+  }
+
+  isCategorySelected(categoryId: string): boolean {
+    return this.selectedCategories.includes(categoryId);
+  }
+
+  getCategoryName(categoryId: string): string {
+    const cat = this.categories.find(c => c._id === categoryId);
+    return cat ? cat.name : categoryId;
+  }
+
+  onSortChange(event: any): void {
+    this.sortOption = event.target.value;
+    this.applyFilters();
+  }
+
+  onStockChange(status: string): void {
+    this.stockStatus = status;
+    this.applyFilters();
+  }
+
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages) return;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { page: page },
+      queryParamsHandling: 'merge'
+    });
+  }
+
+  // --- CART & WISHLIST ---
 
   addToCart(event: Event, product: Product): void {
     event.preventDefault();
     event.stopPropagation();
 
-    // Check if user is authenticated
-    if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/login']);
-      return;
-    }
+    const target = event.target as HTMLElement;
+    const button = target.closest('.cart-btn') as HTMLElement;
+    const rect = button?.getBoundingClientRect();
+    const startX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
+    const startY = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;
 
-    // Get button position for animation
-    let button = event.target as HTMLElement;
-    if (button.tagName === 'I' || button.classList.contains('icon')) {
-      button = button.closest('button') as HTMLElement || button;
-    }
-    const rect = button.getBoundingClientRect();
-    const startX = rect.left + rect.width / 2;
-    const startY = rect.top + rect.height / 2;
-
-    // Trigger animation
     this.cartAnimationService.triggerAnimation({
       productId: product._id,
       productImage: product.images && product.images.length > 0 ? product.images[0] : 'assets/images/default.png',
@@ -177,16 +225,9 @@ export class ProductListComponent implements OnInit, OnDestroy {
       startY
     });
 
-    // Add to cart
     this.cartService.addItemToCart(product._id, 1).subscribe({
-      next: () => {
-        // Animation and cart update handled by service
-      },
       error: (err) => {
         if (!environment.production) console.error('Error adding to cart:', err);
-        if (err.status !== 401 && err.status !== 403) {
-          alert('Failed to add item to cart. Please try again.');
-        }
       }
     });
   }
@@ -207,15 +248,13 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.authService.toggleWishlist(product._id).subscribe({
       next: (res) => {
         const updatedWishlist = res?.data || [];
-        const normalized = updatedWishlist
-          .map((item: any) => (typeof item === 'string' ? item : item?._id))
-          .filter((id: string | undefined) => !!id);
+        const normalized = updatedWishlist.map((item: any) => typeof item === 'string' ? item : item?._id).filter((id: string) => !!id);
         this.wishlistIds = new Set<string>(normalized);
-      },
-      error: (err) => {
-        if (!environment.production) console.error('Error toggling wishlist:', err);
-        alert('Failed to update wishlist. Please try again.');
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }

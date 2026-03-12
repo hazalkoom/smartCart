@@ -13,6 +13,7 @@ import { CartService } from '../../services/cart';
 export class Header implements OnInit, OnDestroy {
 
   isLoggedIn: boolean = false;
+  isAdmin: boolean = false;
   cartCount: number = 0;
   userName: string = '';
   mobileMenuOpen: boolean = false;
@@ -43,6 +44,9 @@ export class Header implements OnInit, OnDestroy {
     const userSub = this.authService.currentUser$.subscribe(user => {
       if (user) {
         this.userName = user.firstName;
+        this.isAdmin = user.role === 'admin' || user.role === 'owner';
+      } else {
+        this.isAdmin = false;
       }
     });
     this.subscriptions.push(userSub);

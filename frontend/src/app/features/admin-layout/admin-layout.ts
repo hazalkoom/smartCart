@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../core/services/auth';
 import { User } from '../../core/interfaces/user';
 import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-admin-layout',
@@ -21,7 +22,8 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -35,6 +37,10 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
         this.currentUser = user;
         this.isOwner = user.role === 'owner';
         this.userInitial = (user.firstName?.charAt(0) || 'U').toUpperCase();
+      } else {
+        this.currentUser = null;
+        this.isOwner = false;
+        this.userInitial = '';
       }
     });
 
@@ -62,5 +68,11 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
 
   closeAdminMobileMenu(): void {
     this.adminMobileMenuOpen = false;
+  }
+
+  logout(): void {
+    this.closeAdminMobileMenu();
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }
