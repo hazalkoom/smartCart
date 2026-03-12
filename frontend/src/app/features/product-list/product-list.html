@@ -1,18 +1,23 @@
-<section id="all-products" class="py-5" style="background-color: #f8fafc; min-height: 100vh;">
-	<div class="container-fluid px-4 px-xl-5">
+<section class="sc-products-page">
+  <div class="container-fluid px-4 px-xl-5">
 
-		<!-- Search Bar -->
-		<div class="row mb-4 justify-content-center mt-3">
-			<div class="col-12 col-md-8 col-lg-5">
-				<div class="search-pill bg-white shadow-sm d-flex align-items-center px-3 py-2 rounded-pill border">
-					<i class="icon icon-search text-muted fs-6 ms-1"></i>
-					<input type="text" class="form-control border-0 shadow-none bg-transparent ms-2" placeholder="Search products, brands, categories…" [(ngModel)]="searchTerm" (keyup.enter)="applyFilters()">
-					<button class="btn border-0 p-0 d-flex align-items-center justify-content-center search-clear-btn" style="width:28px;height:28px;" *ngIf="searchTerm" (click)="searchTerm=''; applyFilters()" aria-label="Clear search">
-						<i class="icon icon-x" style="font-size:0.8rem;"></i>
-					</button>
-				</div>
-			</div>
-		</div>
+    <!-- Page header -->
+    <div class="sc-page-header">
+      <h1 class="sc-page-title">ALL PRODUCTS</h1>
+      <p class="sc-page-sub">{{ totalItems }} items available</p>
+    </div>
+
+    <!-- Search bar -->
+    <div class="sc-search-row">
+      <div class="sc-search-pill">
+        <i class="icon icon-search"></i>
+        <input type="text" placeholder="Search products, brands, categories…"
+               [(ngModel)]="searchTerm" (keyup.enter)="applyFilters()">
+        <button class="sc-clear-btn" *ngIf="searchTerm" (click)="searchTerm=''; applyFilters()">
+          <i class="icon icon-x"></i>
+        </button>
+      </div>
+    </div>
 
 		<!-- Filter Bar -->
 		<div class="row mb-3">

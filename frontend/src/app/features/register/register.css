@@ -1,31 +1,59 @@
-.form-wrapper {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 40px;
-    background: #fff;
-    border: 1px solid #EAE8DF;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+/* =====================================================
+   REGISTER PAGE — extends login.css styles
+   ===================================================== */
+
+/* Re-use all .sc-auth-* styles from login.css */
+/* Additional register-specific styles: */
+
+.sc-reg-name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
 }
 
-.form-wrapper .form-control {
-    height: 55px;
-    border-color: #EAE8DF;
-    border-radius: 8px;
+/* Password strength */
+.sc-pw-strength { margin-top: 0.5rem; }
+.sc-pw-strength-bar {
+  height: 4px;
+  background: var(--bg-elevated);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.3rem;
 }
-
-.form-wrapper .form-control:focus {
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 0.25rem rgba(197, 169, 146, .25);
+.sc-pw-strength-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease, background 0.4s ease;
 }
+.sc-pw-strength-fill.weak   { background: var(--danger); }
+.sc-pw-strength-fill.medium { background: var(--warning); }
+.sc-pw-strength-fill.strong { background: var(--success); }
+.sc-pw-strength-label { font-size: 0.72rem; color: var(--text-muted); }
 
-.form-wrapper .btn-primary {
-    border-radius: 8px;
+/* Mismatch warning */
+.sc-pw-mismatch { display: block; font-size: 0.75rem; color: var(--danger); margin-top: 0.35rem; }
+
+/* Terms checkbox */
+.sc-terms-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1.5;
 }
+.sc-terms-label input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--primary);
+  margin-top: 2px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+.sc-terms-label a { color: var(--primary); }
+.sc-terms-label a:hover { color: #fff; }
 
-@media (max-width: 576px) {
-    .form-wrapper {
-        padding: 24px 20px;
-        margin: 0 8px;
-    }
+@media (max-width: 480px) {
+  .sc-reg-name-row { grid-template-columns: 1fr; }
 }

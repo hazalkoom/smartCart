@@ -1,5 +1,117 @@
-.footer-brand-title {
-  font-weight: 700;
+.sc-footer {
+  margin-top: 4rem;
+  padding: 3rem 0 1.25rem;
+  background:
+    radial-gradient(1200px 220px at 20% 0%, rgba(0, 195, 255, 0.08), transparent 70%),
+    radial-gradient(900px 180px at 80% 0%, rgba(168, 85, 247, 0.08), transparent 70%),
+    var(--bg-card);
+  border-top: 1px solid var(--border);
+}
+
+.sc-footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+  gap: 1.25rem;
+}
+
+.sc-footer-col h5,
+.sc-footer-brand h4 {
+  margin-bottom: 0.8rem;
+  font-family: var(--font-heading);
+  color: #fff;
+  letter-spacing: 0.08em;
+}
+
+.sc-footer-brand h4 {
+  font-size: 1.1rem;
   text-transform: uppercase;
-  margin-bottom: 20px;
+}
+
+.sc-footer-brand p {
+  color: var(--text-muted);
+  line-height: 1.7;
+  max-width: 46ch;
+}
+
+.sc-footer-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sc-footer-col a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.sc-footer-col a:hover {
+  color: var(--primary);
+}
+
+.sc-footer-bottom {
+  margin-top: 1.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.sc-footer-bottom p {
+  margin: 0;
+  color: var(--text-subtle);
+}
+
+.sc-footer-social {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sc-footer-social a {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.sc-footer-social a:hover {
+  color: var(--primary);
+  border-color: var(--primary);
+  box-shadow: 0 0 12px var(--primary-glow);
+}
+
+@media (max-width: 991px) {
+  .sc-footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .sc-footer-brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 576px) {
+  .sc-footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sc-footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }

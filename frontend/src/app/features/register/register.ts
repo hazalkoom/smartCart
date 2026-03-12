@@ -16,16 +16,61 @@ export class Register {
   lastName: string = '';
   email: string = '';
   password: string = '';
+  confirmPassword: string = '';
 
   // State variables
   errorMessage: string = '';
   isLoading: boolean = false;
+  showPassword: boolean = false;
+  acceptTerms: boolean = false;
+  passwordStrength: number = 0;
+  passwordStrengthLabel: string = '';
 
   constructor(
     private authService: AuthService,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
+
+  ngOnInit(): void {
+    // Listen to password changes for strength calculation
+  }
+
+  onPasswordChange(): void {
+    if (!this.password) {
+      this.passwordStrength = 0;
+      this.passwordStrengthLabel = '';
+      return;
+    }
+
+    let strength = 0;
+    
+    // Check length
+    if (this.password.length >= 8) strength += 25;
+    if (this.password.length >= 12) strength += 10;
+    
+    // Check for uppercase
+    if (/[A-Z]/.test(this.password)) strength += 20;
+    
+    // Check for lowercase
+    if (/[a-z]/.test(this.password)) strength += 20;
+    
+    // Check for numbers
+    if (/\d/.test(this.password)) strength += 15;
+    
+    // Check for special characters
+    if (/[@$!%*?&]/.test(this.password)) strength += 10;
+
+    this.passwordStrength = Math.min(strength, 100);
+    
+    if (this.passwordStrength < 40) {
+      this.passwordStrengthLabel = 'Weak';
+    } else if (this.passwordStrength < 75) {
+      this.passwordStrengthLabel = 'Medium';
+    } else {
+      this.passwordStrengthLabel = 'Strong';
+    }
+  }
 
   onSubmit(): void {
     // 1. Basic Validation

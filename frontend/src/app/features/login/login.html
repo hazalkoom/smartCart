@@ -1,62 +1,68 @@
-<section id="login-page" class="py-5 my-5">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-12">
-				<div class="section-header align-center">
-					<h2 class="section-title">Login to your account</h2>
-				</div>
-			</div>
-		</div>
+<!-- =====================================================
+     LOGIN PAGE
+     ===================================================== -->
+<section class="sc-auth-page">
+  <div class="sc-auth-glow sc-auth-glow--cyan"></div>
+  <div class="sc-auth-glow sc-auth-glow--purple"></div>
 
-		<div class="row">
-			<div class="col-md-12">
-				
-				<div class="form-wrapper">
-					<form (ngSubmit)="onLogin()">
-						
-						<!-- Error Message -->
-						<div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-							{{ errorMessage }}
-						</div>
+  <div class="sc-auth-card">
 
-						<div class="mb-3">
-							<label for="email" class="form-label">Email address</label>
-							<input 
-								type="email" 
-								class="form-control" 
-								id="email" 
-								name="email"
-								[(ngModel)]="email"
-								placeholder="name@example.com"
-								required>
-						</div>
-						<div class="mb-3">
-							<label for="password" class="form-label">Password</label>
-							<input 
-								type="password" 
-								class="form-control" 
-								id="password" 
-								name="password"
-								[(ngModel)]="password"
-								placeholder="Password"
-								required>
-						</div>
-						<div class="d-grid">
-							<button 
-								type="submit" 
-								class="btn btn-primary btn-lg mt-3" 
-								[disabled]="isLoading">
-								{{ isLoading ? 'Logging in...' : 'Login' }}
-							</button>
-						</div>
+    <!-- Logo -->
+    <div class="sc-auth-logo">
+      <div class="sc-auth-logo-icon"><i class="icon icon-zap"></i></div>
+      <span>SMARTCART</span>
+    </div>
 
-						<div class="text-center mt-4">
-							<p>Don't have an account? <a routerLink="/register">Create one</a></p>
-						</div>
-					</form>
-				</div>
+    <h1 class="sc-auth-title">Welcome Back</h1>
+    <p class="sc-auth-sub">Sign in to your account to continue</p>
 
-			</div>
-		</div>
-	</div>
+    <!-- Error alert -->
+    <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <form (ngSubmit)="onLogin()" #loginForm="ngForm" novalidate>
+
+      <div class="sc-form-group">
+        <label class="form-label">Email Address</label>
+        <div class="sc-input-wrap">
+          <i class="icon icon-mail sc-input-icon"></i>
+          <input type="email" class="form-control sc-auth-input" [(ngModel)]="email" name="email"
+                 placeholder="you@example.com" required autocomplete="email">
+        </div>
+      </div>
+
+      <div class="sc-form-group">
+        <label class="form-label">Password</label>
+        <div class="sc-input-wrap">
+          <i class="icon icon-lock sc-input-icon"></i>
+          <input [type]="showPassword ? 'text' : 'password'" class="form-control sc-auth-input"
+                 [(ngModel)]="password" name="password" placeholder="Your password" required
+                 autocomplete="current-password">
+          <button type="button" class="sc-pw-toggle" (click)="showPassword = !showPassword">
+            <i class="icon" [class.icon-eye]="!showPassword" [class.icon-eye-off]="showPassword"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="sc-auth-options">
+        <label class="sc-remember">
+          <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe">
+          <span>Remember me</span>
+        </label>
+        <a routerLink="/forgot-password" class="sc-forgot-link">Forgot password?</a>
+      </div>
+
+      <button type="submit" class="btn btn-primary sc-auth-btn" [disabled]="loginForm.invalid || isLoading">
+        <span *ngIf="!isLoading">Sign In <i class="icon icon-arrow-right ms-2"></i></span>
+        <span *ngIf="isLoading" class="sc-spinner-sm"></span>
+      </button>
+
+    </form>
+
+    <div class="sc-auth-divider"><span>or</span></div>
+
+    <p class="sc-auth-switch">
+      Don't have an account?
+      <a routerLink="/register">Create one</a>
+    </p>
+  </div>
 </section>

@@ -6,6 +6,7 @@ export interface Product {
   price: number;
   sku: string;
   stock: number;
+  rating: number;
   reviewCount: number;
   categoryId?: {
     _id: string;

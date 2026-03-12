@@ -1,3 +1,4 @@
+@import '../../../../../../smartcart-theme/navbar/navbar.css';
 /* Cart Badge Styles */
 .cart {
   position: relative;
@@ -287,5 +288,50 @@
 
   #header .right-element .cart i {
     font-size: 22px;
+  }
+}
+
+.sc-nav-actions .sc-icon-btn {
+  color: var(--text);
+}
+
+.sc-nav-actions .sc-icon-btn .bi {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.sc-user-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 42px;
+  padding: 0.25rem 0.7rem 0.25rem 0.35rem;
+  border-radius: 999px;
+}
+
+.sc-user-btn .sc-user-name {
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  color: var(--text);
+  max-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: capitalize;
+}
+
+.dropdown-menu .dropdown-item .bi {
+  width: 1rem;
+  margin-right: 0.4rem;
+  text-align: center;
+}
+
+@media (max-width: 992px) {
+  .sc-user-btn .sc-user-name {
+    display: none;
+  }
+
+  .sc-user-btn {
+    padding-right: 0.35rem;
   }
 }

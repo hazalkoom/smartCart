@@ -1,93 +1,99 @@
-<section id="register-page" class="py-5 my-5">
-	<div class="container">
-		<div class="row">
-			<div class="col-md-12">
-				<div class="section-header align-center">
-					<h2 class="section-title">Create an Account</h2>
-				</div>
-			</div>
-		</div>
+<!-- =====================================================
+     REGISTER PAGE
+     ===================================================== -->
+<section class="sc-auth-page">
+  <div class="sc-auth-glow sc-auth-glow--cyan"></div>
+  <div class="sc-auth-glow sc-auth-glow--purple"></div>
 
-		<div class="row">
-			<div class="col-md-12">
-				
-				<div class="form-wrapper">
-					<form (ngSubmit)="onSubmit()">
-						
-						<div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-						{{ errorMessage }}
-						</div>
+  <div class="sc-auth-card">
 
-						<div class="row">
-						<div class="col-md-6 mb-3">
-							<label for="firstName" class="form-label">First Name</label>
-							<input 
-							type="text" 
-							class="form-control" 
-							id="firstName" 
-							name="firstName" 
-							[(ngModel)]="firstName" 
-							placeholder="John"
-							required
-							>
-						</div>
-						<div class="col-md-6 mb-3">
-							<label for="lastName" class="form-label">Last Name</label>
-							<input 
-							type="text" 
-							class="form-control" 
-							id="lastName" 
-							name="lastName" 
-							[(ngModel)]="lastName" 
-							placeholder="Doe"
-							required
-							>
-						</div>
-						</div>
-						
-						<div class="mb-3">
-						<label for="email" class="form-label">Email address</label>
-						<input 
-							type="email" 
-							class="form-control" 
-							id="email" 
-							name="email" 
-							[(ngModel)]="email" 
-							placeholder="name@example.com"
-							required
-						>
-						</div>
-						
-						<div class="mb-3">
-						<label for="password" class="form-label">Password</label>
-						<input 
-							type="password" 
-							class="form-control" 
-							id="password" 
-							name="password" 
-							[(ngModel)]="password" 
-							placeholder="Password"
-							required
-						>
-						</div>
-						
-						<div class="d-grid">
-						<button 
-							type="submit" 
-							class="btn btn-primary btn-lg mt-3" 
-							[disabled]="isLoading"
-						>
-							{{ isLoading ? 'Creating Account...' : 'Create Account' }}
-						</button>
-						</div>
+    <div class="sc-auth-logo">
+      <div class="sc-auth-logo-icon"><i class="icon icon-zap"></i></div>
+      <span>SMARTCART</span>
+    </div>
 
-						<div class="text-center mt-4">
-						<p>Already have an account? <a routerLink="/login">Login</a></p>
-						</div>
-					</form>
-				</div>
+    <h1 class="sc-auth-title">Create Account</h1>
+    <p class="sc-auth-sub">Join and get access to exclusive deals</p>
 
-			</div>
-		</div>
-	</div>
+    <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+
+    <form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate>
+
+      <div class="sc-form-row sc-reg-name-row">
+        <div class="sc-form-group">
+          <label class="form-label">First Name</label>
+          <div class="sc-input-wrap">
+            <i class="icon icon-user sc-input-icon"></i>
+            <input type="text" class="form-control sc-auth-input"
+                   [(ngModel)]="firstName" name="firstName" placeholder="First" required>
+          </div>
+        </div>
+        <div class="sc-form-group">
+          <label class="form-label">Last Name</label>
+          <div class="sc-input-wrap">
+            <i class="icon icon-user sc-input-icon"></i>
+            <input type="text" class="form-control sc-auth-input"
+                   [(ngModel)]="lastName" name="lastName" placeholder="Last" required>
+          </div>
+        </div>
+      </div>
+
+      <div class="sc-form-group">
+        <label class="form-label">Email Address</label>
+        <div class="sc-input-wrap">
+          <i class="icon icon-mail sc-input-icon"></i>
+          <input type="email" class="form-control sc-auth-input"
+                 [(ngModel)]="email" name="email" placeholder="you@example.com" required>
+        </div>
+      </div>
+
+      <div class="sc-form-group">
+        <label class="form-label">Password</label>
+        <div class="sc-input-wrap">
+          <i class="icon icon-lock sc-input-icon"></i>
+          <input [type]="showPassword ? 'text' : 'password'" class="form-control sc-auth-input"
+                 [(ngModel)]="password" (ngModelChange)="onPasswordChange()" name="password" placeholder="Min 8 characters" required minlength="8">
+          <button type="button" class="sc-pw-toggle" (click)="showPassword = !showPassword">
+            <i class="icon" [class.icon-eye]="!showPassword" [class.icon-eye-off]="showPassword"></i>
+          </button>
+        </div>
+        <!-- Strength bar -->
+        <div class="sc-pw-strength" *ngIf="password">
+          <div class="sc-pw-strength-bar">
+            <div class="sc-pw-strength-fill" [style.width.%]="passwordStrength" [class.weak]="passwordStrength < 40" [class.medium]="passwordStrength >= 40 && passwordStrength < 75" [class.strong]="passwordStrength >= 75"></div>
+          </div>
+          <span class="sc-pw-strength-label">{{ passwordStrengthLabel }}</span>
+        </div>
+      </div>
+
+      <div class="sc-form-group">
+        <label class="form-label">Confirm Password</label>
+        <div class="sc-input-wrap">
+          <i class="icon icon-lock sc-input-icon"></i>
+          <input [type]="showPassword ? 'text' : 'password'" class="form-control sc-auth-input"
+                 [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="Repeat password" required>
+        </div>
+        <small class="sc-pw-mismatch" *ngIf="confirmPassword && password !== confirmPassword">Passwords don't match</small>
+      </div>
+
+      <div class="sc-form-group">
+        <label class="sc-terms-label">
+          <input type="checkbox" [(ngModel)]="acceptTerms" name="acceptTerms" required>
+          <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary sc-auth-btn"
+              [disabled]="registerForm.invalid || !acceptTerms || password !== confirmPassword || isLoading">
+        <span *ngIf="!isLoading">Create Account <i class="icon icon-arrow-right ms-2"></i></span>
+        <span *ngIf="isLoading" class="sc-spinner-sm"></span>
+      </button>
+
+    </form>
+
+    <div class="sc-auth-divider"><span>already have an account?</span></div>
+    <p class="sc-auth-switch">
+      <a routerLink="/login">Sign In Instead</a>
+    </p>
+  </div>
 </section>

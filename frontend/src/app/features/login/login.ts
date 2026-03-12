@@ -16,6 +16,8 @@ export class Login implements OnInit {
   password: string = '';
   errorMessage: string = '';
   isLoading: boolean = false;
+  showPassword: boolean = false;
+  rememberMe: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -29,7 +31,7 @@ export class Login implements OnInit {
     }
   }
 
-  onLogin() {
+  onLogin(): void {
     this.errorMessage = '';
     this.isLoading = true;
 

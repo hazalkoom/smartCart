@@ -154,6 +154,12 @@ export class Home implements OnInit, OnDestroy {
     }
   }
 
+  goToSlide(index: number): void {
+    if (index >= 0 && index < this.heroProducts.length) {
+      this.currentSlide = index;
+    }
+  }
+
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }

@@ -1,0 +1,58 @@
+/* =====================================================
+   WISHLIST PAGE STYLES
+   ===================================================== */
+.sc-wishlist-page { padding: 3rem 0 6rem; min-height: 100vh; }
+
+/* Actions bar */
+.sc-wishlist-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  padding: 1rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* Remove button (replaces wishlist toggle on this page) */
+.sc-wishlist-remove-btn {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 5;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  font-size: 0.75rem;
+  backdrop-filter: blur(6px);
+}
+.sc-wishlist-remove-btn:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.sc-wishlist-empty { padding: 6rem 2rem; }
+
+/* Inherit .sc-product-grid and .sc-product-card from home.css / styles.css */
+.sc-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .sc-product-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+  .sc-wishlist-bar { flex-direction: column; gap: 0.75rem; }
+}
+@media (max-width: 480px) {
+  .sc-product-grid { grid-template-columns: 1fr; }
+}

@@ -30,6 +30,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   // Form Data
   shippingAddress: any = {
+    email: '',
+    phone: '',
     street: '',
     city: '',
     state: '',
@@ -48,6 +50,17 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   // --- Payment Data ---
   paymentMethod: 'card' | 'wallet' | 'fawry' = 'card';
   mobileNumber: string = '';
+
+  // --- MULTI-STEP FORM ---
+  currentStep: number = 1;
+  isSubmitting: boolean = false;
+
+  // --- CARD DATA ---
+  cardNumber: string = '';
+  cardExpiry: string = '';
+  cardCvv: string = '';
+  cardName: string = '';
+
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -64,6 +77,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         this.currentUser = user;
         this.firstName = user.firstName || '';
         this.lastName = user.lastName || '';
+        this.shippingAddress.email = user.email || this.shippingAddress.email;
         
         // Load real addresses from DB
         this.savedAddresses = user.addresses || [];
@@ -85,12 +99,17 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   selectAddress(addressId: string) {
     this.selectedAddressId = addressId;
+    const email = this.shippingAddress.email || this.currentUser?.email || '';
+    const phone = this.shippingAddress.phone || '';
+
     if (addressId === 'new') {
-      this.shippingAddress = { street: '', city: '', state: '', postalCode: '', country: '' };
+      this.shippingAddress = { email, phone, street: '', city: '', state: '', postalCode: '', country: '' };
     } else {
       const addr = this.savedAddresses.find(a => a._id === addressId);
       if (addr) {
         this.shippingAddress = {
+          email,
+          phone,
           street: addr.street,
           city: addr.city,
           state: addr.state || '',
@@ -126,16 +145,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     return this.cart.subtotal + shipping;
   }
 
-  placeOrder(form: any) {
+  placeOrder() {
     if (!this.cart || !this.cart.items || this.cart.items.length === 0) {
       this.error = 'Your cart is empty. Please add items before placing an order.';
       setTimeout(() => this.router.navigate(['/products']), 2000);
-      return;
-    }
-
-    if (form && !form.valid) {
-      this.error = 'Please fill in all required fields correctly.';
-      Object.keys(form.controls).forEach(key => form.controls[key].markAsTouched());
       return;
     }
 
@@ -149,14 +162,14 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.isProcessing = true;
+    this.isSubmitting = true;
     this.error = '';
 
     this.orderService.createOrder(this.shippingAddress).subscribe({
       next: (orderRes: any) => {
         const orderId = orderRes?.data?._id;
         if (orderRes.success && orderId) {
-          this.isProcessing = false;
+          this.isSubmitting = false;
           this.placedOrderId = orderId;
           this.orderPlaced = true;
           
@@ -164,12 +177,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
             next: (cartRes) => this.cart = cartRes.data
           });
         } else {
-          this.isProcessing = false;
+          this.isSubmitting = false;
           this.error = 'Failed to create order. Please try again.';
         }
       },
       error: (err) => {
-        this.isProcessing = false;
+        this.isSubmitting = false;
         if (err.error?.message === 'Cart is empty') {
           this.error = 'Your cart is empty. Please add items to your cart before placing an order.';
           setTimeout(() => this.router.navigate(['/products']), 2000);
@@ -234,11 +247,29 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     });
   }
 
-  ngOnDestroy(): void {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+  // --- STEP NAVIGATION ---
+  goToStep(step: number) {
+    this.currentStep = step;
+    this.error = '';
+  }
+
+  // --- HELPER METHODS FOR TEMPLATE ---
+  getProductImage(item: any): string {
+    if (item && item.productId && item.productId.images && item.productId.images.length > 0) {
+      return item.productId.images[0];
+    }
+    return 'assets/images/default.png';
+  }
+
+  getProductName(item: any): string {
+    return item?.productId?.name || 'Unknown Product';
   }
 
   goToMyOrders() {
     this.router.navigate(['/account']);
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 }

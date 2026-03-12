@@ -1,112 +1,86 @@
-<div id="header-wrap">
-
-  <header id="header">
-    <div class="container-fluid">
-      <div class="row align-items-center">
-
-        <div class="col-md-2 col-6">
-          <div class="main-logo">
-            <a routerLink="/" class="brand-link">
-              <img src="assets/images/logo.png" alt="Electrofied logo" class="brand-logo" />
-            </a>
-          </div>
-        </div>
-
-        <div class="col-md-8 d-none d-md-block">
-          <nav id="navbar">
-            <div class="main-menu stellarnav">
-              <ul class="menu-list">
-                <li class="menu-item"><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
-                <li class="menu-item"><a routerLink="/products" routerLinkActive="active" class="nav-link">All Products</a></li>
-                <li class="menu-item"><a routerLink="/categories" routerLinkActive="active" class="nav-link">Categories</a></li>
-                <li *ngIf="isLoggedIn" class="menu-item"><a routerLink="/wishlist" routerLinkActive="active" class="nav-link">Wishlist</a></li>
-                <li *ngIf="isAdmin" class="menu-item"><a routerLink="/admin" routerLinkActive="active" class="nav-link">Admin Dashboard</a></li>
-                
-                <li *ngIf="!isLoggedIn" class="menu-item"><a routerLink="/login" routerLinkActive="active" class="nav-link">Login</a></li>
-                <li *ngIf="!isLoggedIn" class="menu-item"><a routerLink="/register" routerLinkActive="active" class="nav-link">Register</a></li>
-              </ul>
-            </div>
-          </nav>
-        </div>
-
-        <div class="col-md-2 col-6">
-          <div class="right-element">
-            
-            <a routerLink="/gift-finder" class="gift-finder-btn d-none d-lg-inline-flex me-3 align-items-center gap-2" style="background: linear-gradient(135deg, #8b5cf6, #3b82f6); color: white; padding: 8px 16px; border-radius: 50px; font-weight: 600; text-decoration: none; transition: transform 0.2s;">
-              <i class="icon icon-gift"></i>
-              <span>Gift Finder</span>
-            </a>
-
-            <a *ngIf="!isLoggedIn" routerLink="/login" class="user-account for-buy d-none d-md-inline-block">
-              <i class="icon icon-user"></i>
-              <span class="header-label">Login</span>
-            </a>
-
-            <div *ngIf="isLoggedIn" class="d-none d-md-inline-block">
-              <a routerLink="/account" class="user-account for-buy header-user-link" title="My Account">
-                <i class="icon icon-user"></i>
-                <span class="header-label">Hi, {{ userName || 'User' }}</span>
-              </a>
-              
-              <a (click)="onLogout()" class="user-account for-buy header-logout" title="Logout" aria-label="Logout">
-                <i class="icon icon-close"></i>
-              </a>
-            </div>
-
-            <a routerLink="/cart" class="cart for-buy">
-              <i class="icon icon-clipboard"></i>
-              <span *ngIf="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
-            </a>
-
-            <!-- Mobile hamburger -->
-            <button 
-              class="hamburger d-md-none" 
-              (click)="toggleMobileMenu()" 
-              [attr.aria-expanded]="mobileMenuOpen"
-              aria-label="Toggle navigation menu">
-              <span class="bar"></span>
-              <span class="bar"></span>
-              <span class="bar"></span>
-            </button>
-
-          </div>
-        </div>
-
+<header class="sc-navbar" [class.scrolled]="isScrolled">
+  <div class="sc-navbar-inner">
+    <a routerLink="/" class="sc-logo" (click)="closeMobileMenu()">
+      <div class="sc-logo-icon">
+        <i class="bi bi-lightning-charge-fill"></i>
       </div>
-    </div>
-  </header>
+      <span class="sc-logo-text">SMARTCART</span>
+    </a>
 
-  <!-- Mobile Menu Overlay -->
-  <div class="mobile-overlay" 
-       [class.open]="mobileMenuOpen" 
-       (click)="closeMobileMenu()"></div>
+    <nav class="sc-nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+      <a routerLink="/products" routerLinkActive="active">Products</a>
+      <a routerLink="/categories" routerLinkActive="active">Categories</a>
+      <a routerLink="/gift-finder" routerLinkActive="active" class="sc-nav-special">
+        <i class="bi bi-gift-fill"></i> Gift Finder
+      </a>
+      <a routerLink="/about" routerLinkActive="active">About</a>
+      <a *ngIf="isAdmin" routerLink="/admin" routerLinkActive="active">Admin</a>
+    </nav>
 
-  <!-- Mobile Slide-in Menu -->
-  <nav class="mobile-nav" [class.open]="mobileMenuOpen" aria-label="Mobile navigation">
-    <div class="mobile-nav-header">
-      <span class="mobile-nav-title">Menu</span>
-      <button class="mobile-nav-close" (click)="closeMobileMenu()" aria-label="Close menu">
-        <i class="icon icon-close"></i>
+    <div class="sc-nav-actions">
+      <button class="sc-icon-btn" (click)="toggleSearch()" aria-label="Search">
+        <i class="bi bi-search"></i>
+      </button>
+
+      <a routerLink="/wishlist" class="sc-icon-btn" aria-label="Wishlist" *ngIf="isLoggedIn">
+        <i class="bi bi-heart"></i>
+        <span class="sc-badge" *ngIf="wishlistCount > 0">{{ wishlistCount }}</span>
+      </a>
+
+      <a routerLink="/cart" class="sc-icon-btn" aria-label="Cart">
+        <i class="bi bi-cart3"></i>
+        <span class="sc-badge sc-badge-primary" *ngIf="cartCount > 0">{{ cartCount }}</span>
+      </a>
+
+      <div class="dropdown" *ngIf="isLoggedIn">
+        <button class="sc-user-btn dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
+          <div class="sc-avatar">{{ userInitials }}</div>
+          <span class="sc-user-name">{{ userName || 'Account' }}</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" routerLink="/account"><i class="bi bi-person"></i> My Account</a></li>
+          <li><a class="dropdown-item" [routerLink]="['/account']" fragment="orders"><i class="bi bi-box-seam"></i> Orders</a></li>
+          <li><a class="dropdown-item" routerLink="/wishlist"><i class="bi bi-heart"></i> Wishlist</a></li>
+          <li *ngIf="isAdmin"><a class="dropdown-item" routerLink="/admin"><i class="bi bi-grid-1x2"></i> Admin</a></li>
+          <li><hr class="dropdown-divider" style="border-color: var(--border)"></li>
+          <li><button class="dropdown-item text-danger" (click)="logout()" type="button"><i class="bi bi-box-arrow-right"></i> Logout</button></li>
+        </ul>
+      </div>
+
+      <div class="sc-auth-links" *ngIf="!isLoggedIn">
+        <a routerLink="/login" class="sc-auth-link">Login</a>
+        <a routerLink="/register" class="btn btn-primary btn-sm">Sign Up</a>
+      </div>
+
+      <button class="sc-hamburger" (click)="toggleMobileMenu()" aria-label="Menu">
+        <span [class.open]="mobileMenuOpen"></span>
+        <span [class.open]="mobileMenuOpen"></span>
+        <span [class.open]="mobileMenuOpen"></span>
       </button>
     </div>
-    
-    <ul class="mobile-nav-list">
-      <li><a routerLink="/" (click)="closeMobileMenu()" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Home</a></li>
-      <li><a routerLink="/products" (click)="closeMobileMenu()" routerLinkActive="active">All Products</a></li>
-      <li><a routerLink="/categories" (click)="closeMobileMenu()" routerLinkActive="active">Categories</a></li>
-      <li *ngIf="isLoggedIn"><a routerLink="/wishlist" (click)="closeMobileMenu()" routerLinkActive="active">Wishlist</a></li>
-      <li *ngIf="isLoggedIn"><a routerLink="/account" (click)="closeMobileMenu()" routerLinkActive="active">My Account</a></li>
-      <li *ngIf="isAdmin"><a routerLink="/admin" (click)="closeMobileMenu()" routerLinkActive="active">Admin Dashboard</a></li>
-      <li *ngIf="isLoggedIn"><a routerLink="/cart" (click)="closeMobileMenu()" routerLinkActive="active">Cart <span *ngIf="cartCount > 0" class="cart-badge-inline">{{ cartCount }}</span></a></li>
-      <li *ngIf="!isLoggedIn"><a routerLink="/login" (click)="closeMobileMenu()" routerLinkActive="active">Login</a></li>
-      <li *ngIf="!isLoggedIn"><a routerLink="/register" (click)="closeMobileMenu()" routerLinkActive="active">Register</a></li>
-    </ul>
+  </div>
 
-    <div class="mobile-nav-footer" *ngIf="isLoggedIn">
-      <a (click)="onLogout()" class="mobile-logout-btn">
-        <i class="icon icon-close"></i> Logout
-      </a>
+  <div class="sc-search-bar" [class.visible]="searchOpen">
+    <div class="sc-search-inner">
+      <i class="bi bi-search"></i>
+      <input type="text" placeholder="Search products, brands, categories..." [(ngModel)]="searchQuery" (keyup.enter)="submitSearch()" />
+      <button class="sc-search-close" (click)="toggleSearch()" type="button"><i class="bi bi-x-lg"></i></button>
     </div>
-  </nav>
+  </div>
 
-</div>```
+  <div class="sc-mobile-menu" [class.open]="mobileMenuOpen">
+    <a routerLink="/" (click)="closeMobileMenu()">Home</a>
+    <a routerLink="/products" (click)="closeMobileMenu()">Products</a>
+    <a routerLink="/categories" (click)="closeMobileMenu()">Categories</a>
+    <a routerLink="/gift-finder" (click)="closeMobileMenu()" class="sc-nav-special"><i class="bi bi-gift-fill"></i> Gift Finder</a>
+    <a routerLink="/about" (click)="closeMobileMenu()">About</a>
+    <a routerLink="/wishlist" (click)="closeMobileMenu()" *ngIf="isLoggedIn">Wishlist</a>
+    <a routerLink="/account" (click)="closeMobileMenu()" *ngIf="isLoggedIn">Account</a>
+    <a [routerLink]="['/account']" fragment="orders" (click)="closeMobileMenu()" *ngIf="isLoggedIn">Orders</a>
+    <a routerLink="/admin" (click)="closeMobileMenu()" *ngIf="isAdmin">Admin</a>
+    <a routerLink="/login" (click)="closeMobileMenu()" *ngIf="!isLoggedIn">Login</a>
+    <a routerLink="/register" (click)="closeMobileMenu()" *ngIf="!isLoggedIn">Register</a>
+    <a href="javascript:void(0)" (click)="logout()" *ngIf="isLoggedIn">Logout</a>
+  </div>
+</header>

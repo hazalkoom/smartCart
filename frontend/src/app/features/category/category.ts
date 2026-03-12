@@ -17,26 +17,26 @@ export class CategoryComponent implements OnInit {
 
   // Map category names to appropriate icons
   private iconMap: Record<string, string> = {
-    'phones': 'icon-phone',
-    'smartphones': 'icon-phone',
-    'mobile': 'icon-phone',
-    'laptops': 'icon-screen-desktop',
-    'computers': 'icon-screen-desktop',
-    'tablets': 'icon-screen-tablet',
-    'audio': 'icon-earphones',
-    'headphones': 'icon-earphones',
-    'cameras': 'icon-camera',
-    'gaming': 'icon-game-controller',
-    'accessories': 'icon-handbag',
-    'wearables': 'icon-clock',
-    'watches': 'icon-clock',
-    'networking': 'icon-globe',
-    'storage': 'icon-folder',
-    'printers': 'icon-printer',
-    'tv': 'icon-screen-desktop',
-    'monitors': 'icon-screen-desktop',
-    'speakers': 'icon-volume-2',
-    'smart home': 'icon-home',
+    'phones': 'bi bi-phone-fill',
+    'smartphones': 'bi bi-phone-fill',
+    'mobile': 'bi bi-phone-fill',
+    'laptops': 'bi bi-laptop-fill',
+    'computers': 'bi bi-pc-display-horizontal',
+    'tablets': 'bi bi-tablet-landscape-fill',
+    'audio': 'bi bi-headphones',
+    'headphones': 'bi bi-headphones',
+    'cameras': 'bi bi-camera-fill',
+    'gaming': 'bi bi-controller',
+    'accessories': 'bi bi-usb-symbol',
+    'wearables': 'bi bi-smartwatch',
+    'watches': 'bi bi-smartwatch',
+    'networking': 'bi bi-router-fill',
+    'storage': 'bi bi-device-hdd-fill',
+    'printers': 'bi bi-printer-fill',
+    'tv': 'bi bi-tv-fill',
+    'monitors': 'bi bi-display-fill',
+    'speakers': 'bi bi-speaker-fill',
+    'smart home': 'bi bi-house-gear-fill',
   };
 
   constructor(private categoryService: CategoryService) {}
@@ -60,6 +60,6 @@ export class CategoryComponent implements OnInit {
     for (const [key, icon] of Object.entries(this.iconMap)) {
       if (lower.includes(key)) return icon;
     }
-    return 'icon-grid';
+    return 'bi bi-grid-3x3-gap-fill';
   }
 }

@@ -1,328 +1,249 @@
-/* ========================================
-   MODERN ACCOUNT DASHBOARD 2024-2025
-   ======================================== */
+#account-page {
+  padding: 3rem 0 6rem;
+  min-height: 100vh;
+}
 
-/* Welcome Banner */
 .welcome-banner {
-    background: linear-gradient(135deg, var(--accent-color, #2563eb) 0%, #1e3a8a 100%);
-    padding: 40px;
-    border-radius: 16px;
-    color: #fff;
-    margin-bottom: 40px;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 8px 30px rgba(37, 99, 235, 0.3);
+  background: linear-gradient(135deg, rgba(0, 195, 255, 0.12), rgba(168, 85, 247, 0.12));
+  border: 1px solid var(--border);
+  padding: 2rem;
+  border-radius: var(--radius-xl);
+  color: var(--text);
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
 }
 
 .welcome-banner::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 400px;
-    height: 400px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 260px;
+  height: 260px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 50%;
 }
 
 .welcome-banner h2 {
-    font-size: 2.2em;
-    margin-bottom: 10px;
-    color: #fff;
+  color: #fff;
+  margin-bottom: 0.4rem;
+  position: relative;
+  z-index: 1;
 }
 
 .welcome-banner p {
-    font-size: 1.1em;
-    opacity: 0.95;
-    margin: 0;
+  color: var(--text-muted);
+  margin: 0;
+  position: relative;
+  z-index: 1;
 }
 
-/* Stats Cards */
 .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
 }
 
 .stat-card {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    padding: 25px;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  text-align: center;
+  transition: var(--transition);
 }
 
 .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border-color: var(--primary);
+  box-shadow: 0 0 20px var(--primary-glow);
 }
 
 .stat-icon {
-    width: 50px;
-    height: 50px;
-    background: rgba(37, 99, 235, 0.1);
-    color: var(--accent-color, #2563eb);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 15px;
-    font-size: 1.5em;
+  width: 46px;
+  height: 46px;
+  background: var(--primary-dim);
+  color: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.7rem;
 }
 
 .stat-value {
-    font-size: 2em;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: 5px;
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 0.2rem;
 }
 
 .stat-label {
-    color: #666;
-    font-size: 0.9em;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-/* Sidebar */
 .account-sidebar {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 16px;
-    padding: 30px 20px;
-    position: sticky;
-    top: 100px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem 1rem;
+  position: sticky;
+  top: 90px;
 }
 
 .user-avatar {
-    width: 80px;
-    height: 80px;
-    background: var(--accent-color, #2563eb);
-    color: #fff;
-    font-size: 2em;
-    font-weight: 700;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 15px;
-    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #000;
+  font-size: 1.6rem;
+  font-weight: 800;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.8rem;
+  box-shadow: 0 0 20px var(--primary-glow);
 }
 
 .account-sidebar .nav-pills .nav-link {
-    color: #444;
-    padding: 12px 20px;
-    border-radius: 8px;
-    margin-bottom: 5px;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
+  color: var(--text-muted);
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  margin-bottom: 0.35rem;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  border-left: 2px solid transparent;
 }
 
 .account-sidebar .nav-pills .nav-link:hover {
-    background: #f8f9fa;
-    color: var(--accent-color, #2563eb);
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .account-sidebar .nav-pills .nav-link.active {
-    background: var(--accent-color, #2563eb);
-    color: #fff;
+  color: var(--primary);
+  background: var(--primary-dim);
+  border-left-color: var(--primary);
 }
 
 .account-sidebar .nav-pills .nav-link.text-danger:hover {
-    background: #fff1f0;
-    color: #dc3545 !important;
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--danger) !important;
 }
 
-/* Content Areas */
 .form-wrapper,
-.orders-wrapper {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 16px;
-    padding: 35px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.02);
+.orders-wrapper,
+.addresses-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 2rem;
 }
 
-/* Form Controls */
 .form-label {
-    font-weight: 600;
-    color: #444;
-    margin-bottom: 8px;
+  color: var(--text);
+  font-weight: 600;
 }
 
 .form-control {
-    padding: 12px 15px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    transition: border-color 0.3s, box-shadow 0.3s;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
 }
 
 .form-control:focus {
-    border-color: var(--accent-color, #2563eb);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-dim);
+  background: var(--bg-input);
+  color: var(--text);
 }
 
-.form-control:disabled {
-    background-color: #f8f9fa;
-    cursor: not-allowed;
+.form-control:disabled,
+.form-control[readonly] {
+  background: var(--bg-elevated);
+  color: var(--text-muted);
 }
 
-/* Order Cards */
 .order-card {
-    border: 1px solid #eee;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: border-color 0.3s;
-}
-
-.order-card:hover {
-    border-color: #ddd;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--bg-elevated);
 }
 
 .order-card-header {
-    background: #f8f9fa;
-    padding: 15px 20px;
-    border-bottom: 1px solid #eee;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border);
+  padding: 0.9rem 1rem;
 }
 
 .order-card-body {
-    padding: 20px;
-}
-
-/* Status Badges */
-.badge {
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-weight: 500;
-    font-size: 0.85em;
+  padding: 1rem;
 }
 
 .badge.delivered {
-    background: #d1fae5;
-    color: #065f46;
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--success);
+  border: 1px solid rgba(34, 197, 94, 0.3);
 }
 
 .badge.shipped {
-    background: #dbeafe;
-    color: #1e40af;
+  background: rgba(0, 195, 255, 0.12);
+  color: var(--primary);
+  border: 1px solid rgba(0, 195, 255, 0.3);
 }
 
-.badge.pending {
-    background: #fef3c7;
-    color: #92400e;
-}
-
+.badge.pending,
 .badge.paid {
-    background: #e0e7ff;
-    color: #3730a3;
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .badge.cancelled {
-    background: #fee2e2;
-    color: #991b1b;
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--danger);
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
-/* ========================================
-   NEW: ADDRESS CARDS & FORMS
-   ======================================== */
-
 .address-card {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 20px;
-    height: 100%;
-    transition: all 0.2s ease-in-out;
-    position: relative;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  transition: var(--transition);
 }
 
 .address-card:hover {
-    border-color: var(--accent-color, #2563eb);
-    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
-    transform: translateY(-2px);
-}
-
-.address-card h5 {
-    color: #1e293b;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 15px;
-    display: flex;
-    align-items: center;
-}
-
-.address-card p {
-    color: #475569;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    margin-bottom: 0.5rem;
-}
-
-.address-card .btn-outline-danger {
-    margin-top: 10px;
-    border-radius: 6px;
-    font-weight: 500;
+  border-color: var(--primary);
 }
 
 .add-address-form {
-    background: #f8fafc;
-    border: 1px dashed #cbd5e1;
-    border-radius: 12px;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
-}
-
-.add-address-form h5 {
-    color: #1e293b;
-    font-weight: 600;
-}
-
-/* Loading & Alerts */
-.spinner-border {
-    width: 3rem;
-    height: 3rem;
-    border-width: 3px;
+  background: var(--bg-elevated) !important;
+  border: 1px dashed var(--border) !important;
 }
 
 .alert {
-    border-radius: 10px;
-    border: none;
-    padding: 20px;
+  border-radius: 10px;
 }
 
-/* Responsive Design */
 @media (max-width: 991px) {
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .account-sidebar { position: static; }
 }
 
 @media (max-width: 768px) {
-    .welcome-banner {
-        padding: 30px 20px;
-    }
-
-    .welcome-banner h2 {
-        font-size: 1.6em;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .form-wrapper,
-    .orders-wrapper,
-    .addresses-wrapper {
-        padding: 25px 20px;
-    }
-
-    .order-card-body {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
+  .stats-grid { grid-template-columns: 1fr; }
+  .form-wrapper,
+  .orders-wrapper,
+  .addresses-wrapper { padding: 1.25rem; }
 }

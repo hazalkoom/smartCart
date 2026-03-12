@@ -1,301 +1,251 @@
-<section id="checkout-page" class="py-5 my-5">
+<div *ngIf="isLoading" class="loading-state" style="min-height:80vh">
+  <div class="sc-spinner-ring"></div>
+</div>
+
+<div *ngIf="error" class="error-state" style="min-height:80vh">
+  <div class="sc-empty-icon"><i class="icon icon-alert-triangle"></i></div>
+  <h3>{{ error }}</h3>
+  <a routerLink="/cart" class="btn btn-outline-primary mt-2">Back to Cart</a>
+</div>
+
+<section class="sc-checkout-page" *ngIf="!isLoading && !orderPlaced && cart">
   <div class="container">
-    
-    <div class="row">
-      <div class="col-md-12">
-        <div class="section-header align-center">
-          <h2 class="section-title">Checkout</h2>
-        </div>
+
+    <div class="sc-page-header">
+      <h1 class="sc-page-title">CHECKOUT</h1>
+    </div>
+
+    <!-- Checkout steps -->
+    <div class="sc-checkout-steps">
+      <div class="sc-step" [class.active]="currentStep >= 1" [class.done]="currentStep > 1">
+        <div class="sc-step-num">1</div>
+        <span>Shipping</span>
+      </div>
+      <div class="sc-step-line"></div>
+      <div class="sc-step" [class.active]="currentStep >= 2" [class.done]="currentStep > 2">
+        <div class="sc-step-num">2</div>
+        <span>Payment</span>
+      </div>
+      <div class="sc-step-line"></div>
+      <div class="sc-step" [class.active]="currentStep >= 3">
+        <div class="sc-step-num">3</div>
+        <span>Review</span>
       </div>
     </div>
 
-    <div class="row" *ngIf="!isLoading">
-      <div class="col-md-12">
-        <div class="checkout-progress">
-          <div class="progress-step completed">
-            <div class="progress-step-circle">
-              <i class="icon icon-check"></i>
-            </div>
-            <span class="progress-step-label">Cart</span>
-          </div>
-          <div class="progress-step" [class.completed]="orderPlaced" [class.active]="!orderPlaced">
-            <div class="progress-step-circle">
-              <i *ngIf="orderPlaced" class="icon icon-check"></i>
-              <span *ngIf="!orderPlaced">2</span>
-            </div>
-            <span class="progress-step-label">Shipping</span>
-          </div>
-          <div class="progress-step" [class.active]="orderPlaced">
-            <div class="progress-step-circle">3</div>
-            <span class="progress-step-label">Payment</span>
-          </div>
-          <div class="progress-step">
-            <div class="progress-step-circle">4</div>
-            <span class="progress-step-label">Complete</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    <div class="sc-checkout-layout">
 
-    <div *ngIf="isLoading" class="text-center py-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-    </div>
+      <!-- ── FORM COLUMN ── -->
+      <div class="sc-checkout-form-col">
 
-    <div *ngIf="error" class="alert alert-danger text-center mb-4">
-      <i class="icon icon-alert-circle"></i>
-      <span>{{ error }}</span>
-    </div>
-
-    <div class="row" *ngIf="orderPlaced && !isLoading">
-      <div class="col-md-8 offset-md-2">
-        <div class="order-success-card">
-          <div class="success-icon">
-            <i class="icon icon-check-circle"></i>
-          </div>
-          <h2 class="text-center mb-3">Order Placed Successfully!</h2>
-          <p class="text-center mb-4 success-subtitle">
-            Your order <strong>#{{ placedOrderId.substring(placedOrderId.length - 8) }}</strong> has been created.
-            <br>Complete your payment now to confirm your order.
-          </p>
-          
-          <div class="payment-info mb-4 p-4">
-            <h5 class="mb-3">
-              <i class="icon icon-credit-card"></i>
-              Selected Payment Method
-            </h5>
-            <div class="d-flex align-items-center">
-              <div class="payment-icon me-3">
-                <i class="icon {{ paymentMethod === 'card' ? 'icon-credit-card' : paymentMethod === 'wallet' ? 'icon-smartphone' : 'icon-dollar-sign' }} payment-icon-lg"></i>
-              </div>
-              <div>
-                <strong class="payment-method-name">{{ paymentMethod }}</strong>
-                <div *ngIf="mobileNumber" class="text-muted">{{ mobileNumber }}</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="d-grid gap-3">
-            <button 
-              type="button" 
-              class="btn btn-success btn-lg" 
-              (click)="completePaymentNow()"
-              [disabled]="isPaymentProcessing"
-              class="btn btn-success btn-lg btn-complete-payment">
-              <i class="icon icon-credit-card me-2"></i>
-              {{ isPaymentProcessing ? 'Redirecting to Payment...' : 'Complete Payment Now' }}
-            </button>
-            <button 
-              type="button" 
-              class="btn btn-outline-secondary" 
-              (click)="goToMyOrders()"
-              [disabled]="isPaymentProcessing">
-              <i class="icon icon-package me-2"></i>
-              Pay Later from My Orders
-            </button>
-          </div>
-
-          <div class="text-center mt-4">
-            <small class="text-muted">
-              <i class="icon icon-shield"></i>
-              Secure payment powered by Paymob
-            </small>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row" *ngIf="!isLoading && cart && !orderPlaced">
-
-      <div class="col-md-7">
-        <div class="form-wrapper">
-          <form #checkoutForm="ngForm" (ngSubmit)="placeOrder(checkoutForm)">
-            
-            <div class="d-flex justify-content-between align-items-center mb-4">
-              <h4>
-                <i class="icon icon-map-pin"></i>
-                Shipping Address
-              </h4>
-              <a routerLink="/account" fragment="addresses" class="btn btn-sm btn-outline-primary">Manage Addresses</a>
-            </div>
-
-            <div class="saved-addresses-grid mb-5" *ngIf="savedAddresses.length > 0">
-              <div 
-                *ngFor="let addr of savedAddresses"
-                class="address-card" 
-                [class.active]="selectedAddressId === addr._id"
-                (click)="selectAddress(addr._id || '')"
-              >
-                <div class="address-header d-flex justify-content-between">
-                  <strong class="text-primary"><i class="icon icon-map-pin me-1"></i> {{ addr.alias }}</strong>
-                  <span class="badge bg-soft-primary text-primary" *ngIf="addr.isDefault">Default</span>
-                </div>
-                <div class="address-body mt-2 text-muted small">
-                  <div>{{ addr.street }}</div>
-                  <div>{{ addr.city }}<span *ngIf="addr.state">, {{ addr.state }}</span> {{ addr.postalCode }}</div>
-                  <div>{{ addr.country }}</div>
-                </div>
-                <div class="active-indicator" *ngIf="selectedAddressId === addr._id">
-                  <i class="icon icon-check-circle text-primary"></i> Selected
-                </div>
+        <!-- STEP 1 — SHIPPING -->
+        <div class="sc-checkout-step-panel" *ngIf="currentStep === 1">
+          <h2 class="sc-checkout-step-title">Shipping Address</h2>
+          <form (ngSubmit)="goToStep(2)" #shippingForm="ngForm" novalidate>
+            <div class="sc-address-selector" *ngIf="savedAddresses.length > 0">
+              <div class="sc-address-selector-head">
+                <span>Saved addresses</span>
+                <button type="button" class="btn btn-link p-0" (click)="selectAddress('new')">Use new address</button>
               </div>
 
-              <div 
-                class="address-card address-card-new d-flex flex-column align-items-center justify-content-center" 
-                [class.active]="selectedAddressId === 'new'"
-                (click)="selectAddress('new')"
-              >
-                <i class="icon icon-plus fs-3 mb-2 text-muted"></i>
-                <span class="text-muted fw-bold">Enter New Address</span>
-                <div class="active-indicator" *ngIf="selectedAddressId === 'new'">
-                  <i class="icon icon-check-circle text-primary"></i> Selected
-                </div>
-              </div>
-            </div>
-            
-            <div class="address-form-section p-4 rounded bg-light mb-5">
-              <h5 class="mb-4 d-flex align-items-center">
-                <i class="icon icon-edit-3 me-2 text-primary"></i>
-                <span *ngIf="selectedAddressId === 'new'">New Address Details</span>
-                <span *ngIf="selectedAddressId !== 'new'">Selected Address Details</span>
-              </h5>
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="firstName" class="form-label">First Name <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="firstName" name="firstName" [(ngModel)]="firstName" required placeholder="John">
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="lastName" class="form-label">Last Name <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="lastName" name="lastName" [(ngModel)]="lastName" required placeholder="Doe">
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label for="street" class="form-label">Street Address <span class="text-danger">*</span></label>
-                <div class="input-with-icon">
-                  <input type="text" class="form-control" id="street" name="street" [(ngModel)]="shippingAddress.street" required placeholder="123 Main Street" [readonly]="selectedAddressId !== 'new'" [class.bg-white]="selectedAddressId === 'new'">
-                  <i class="icon icon-home"></i>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-8 mb-3">
-                  <label for="city" class="form-label">City <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="city" name="city" [(ngModel)]="shippingAddress.city" required placeholder="New York" [readonly]="selectedAddressId !== 'new'" [class.bg-white]="selectedAddressId === 'new'">
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label for="postalCode" class="form-label">Postal Code <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="postalCode" name="postalCode" [(ngModel)]="shippingAddress.postalCode" required placeholder="10001" [readonly]="selectedAddressId !== 'new'" [class.bg-white]="selectedAddressId === 'new'">
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-md-6 mb-3">
-                  <label for="state" class="form-label">State</label>
-                  <input type="text" class="form-control" id="state" name="state" [(ngModel)]="shippingAddress.state" placeholder="New York" [readonly]="selectedAddressId !== 'new'" [class.bg-white]="selectedAddressId === 'new'">
-                </div>
-                <div class="col-md-6 mb-3">
-                  <label for="country" class="form-label">Country <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="country" name="country" [(ngModel)]="shippingAddress.country" required placeholder="United States" [readonly]="selectedAddressId !== 'new'" [class.bg-white]="selectedAddressId === 'new'">
-                </div>
+              <div class="sc-address-list">
+                <label class="sc-address-option" [class.selected]="selectedAddressId === addr._id" *ngFor="let addr of savedAddresses">
+                  <input type="radio" name="savedAddress" [checked]="selectedAddressId === addr._id" (change)="selectAddress(addr._id || 'new')">
+                  <div class="sc-address-option-inner">
+                    <div class="sc-address-option-top">
+                      <strong>{{ addr.alias || 'Saved Address' }}</strong>
+                      <span class="badge bg-primary" *ngIf="addr.isDefault">Default</span>
+                    </div>
+                    <p>
+                      {{ addr.street }}<br>
+                      {{ addr.city }}<span *ngIf="addr.state">, {{ addr.state }}</span> {{ addr.postalCode }}<br>
+                      {{ addr.country }}
+                    </p>
+                  </div>
+                </label>
               </div>
             </div>
 
-            <h4 class="mt-5">
-              <i class="icon icon-credit-card"></i>
-              Payment Details
-            </h4>
-            <hr class="my-3">
-
-            <div class="payment-methods">
-              <div class="payment-method" [class.active]="paymentMethod === 'card'" (click)="paymentMethod = 'card'">
-                <i class="icon icon-credit-card payment-method-icon"></i><br>
-                <span class="payment-method-label">Card</span>
+            <div class="sc-form-row">
+              <div class="sc-form-group">
+                <label class="form-label">First Name</label>
+                <input type="text" class="form-control" [(ngModel)]="firstName" name="firstName" required>
               </div>
-              <div class="payment-method" [class.active]="paymentMethod === 'wallet'" (click)="paymentMethod = 'wallet'">
-                <i class="icon icon-smartphone payment-method-icon"></i><br>
-                <span class="payment-method-label">Wallet</span>
-              </div>
-              <div class="payment-method" [class.active]="paymentMethod === 'fawry'" (click)="paymentMethod = 'fawry'">
-                <i class="icon icon-dollar-sign payment-method-icon"></i><br>
-                <span class="payment-method-label">Fawry</span>
+              <div class="sc-form-group">
+                <label class="form-label">Last Name</label>
+                <input type="text" class="form-control" [(ngModel)]="lastName" name="lastName" required>
               </div>
             </div>
-
-            <div class="mb-4" *ngIf="paymentMethod === 'wallet' || paymentMethod === 'fawry'">
-              <label for="mobileNumber" class="form-label">Mobile Number <span class="text-danger">*</span></label>
-              <input type="tel" class="form-control" id="mobileNumber" name="mobileNumber" [(ngModel)]="mobileNumber" placeholder="01012345678" [required]="paymentMethod === 'wallet' || paymentMethod === 'fawry'">
-              <small class="text-muted">Egyptian mobile format: 010/011/012/015 followed by 8 digits (e.g., 01012345678)</small>
+            <div class="sc-form-group">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" [(ngModel)]="shippingAddress.email" name="email" required>
             </div>
-
-            <div class="trust-signals">
-              <div class="trust-signal">
-                <i class="icon icon-shield"></i>
-                <span>Secure Payment</span>
+            <div class="sc-form-group">
+              <label class="form-label">Phone</label>
+              <input type="tel" class="form-control" [(ngModel)]="shippingAddress.phone" name="phone">
+            </div>
+            <div *ngIf="selectedAddressId === 'new'">
+              <div class="sc-form-group">
+                <label class="form-label">Address</label>
+                <input type="text" class="form-control" [(ngModel)]="shippingAddress.street" name="address" required>
               </div>
-              <div class="trust-signal">
-                <i class="icon icon-lock"></i>
-                <span>SSL Encrypted</span>
+              <div class="sc-form-row">
+                <div class="sc-form-group">
+                  <label class="form-label">City</label>
+                  <input type="text" class="form-control" [(ngModel)]="shippingAddress.city" name="city" required>
+                </div>
+                <div class="sc-form-group">
+                  <label class="form-label">Postal Code</label>
+                  <input type="text" class="form-control" [(ngModel)]="shippingAddress.postalCode" name="postalCode" required>
+                </div>
               </div>
-              <div class="trust-signal">
-                <i class="icon icon-refresh-cw"></i>
-                <span>Easy Returns</span>
+              <div class="sc-form-row">
+                <div class="sc-form-group">
+                  <label class="form-label">State</label>
+                  <input type="text" class="form-control" [(ngModel)]="shippingAddress.state" name="state">
+                </div>
+                <div class="sc-form-group">
+                  <label class="form-label">Country</label>
+                  <select class="form-select" [(ngModel)]="shippingAddress.country" name="country" required>
+                    <option value="">Select country</option>
+                    <option value="US">United States</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="CA">Canada</option>
+                    <option value="AU">Australia</option>
+                    <option value="DE">Germany</option>
+                  </select>
+                </div>
               </div>
             </div>
-            
-            <div class="d-grid">
-              <button 
-                type="submit" 
-                class="btn btn-place-order" 
-                [disabled]="isProcessing || !cart || !cart.items || cart.items.length === 0">
-                <span *ngIf="isProcessing">
-                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Processing Order...
-                </span>
-                <span *ngIf="!isProcessing">Place Order</span>
+            <div class="sc-form-actions">
+              <a routerLink="/cart" class="btn btn-link"><i class="icon icon-arrow-left me-1"></i> Back to Cart</a>
+              <button type="submit" class="btn btn-primary" [disabled]="selectedAddressId === 'new' && shippingForm.invalid">
+                Continue to Payment <i class="icon icon-arrow-right ms-2"></i>
               </button>
             </div>
           </form>
         </div>
+
+        <!-- STEP 2 — PAYMENT -->
+        <div class="sc-checkout-step-panel" *ngIf="currentStep === 2">
+          <h2 class="sc-checkout-step-title">Payment Method</h2>
+          <div class="sc-payment-options">
+            <label class="sc-payment-option" [class.selected]="paymentMethod === 'card'">
+              <input type="radio" [(ngModel)]="paymentMethod" value="card" name="paymentMethod">
+              <div class="sc-payment-option-inner">
+                <i class="icon icon-credit-card"></i>
+                <span>Credit / Debit Card via Paymob</span>
+              </div>
+            </label>
+            <label class="sc-payment-option" [class.selected]="paymentMethod === 'wallet'">
+              <input type="radio" [(ngModel)]="paymentMethod" value="wallet" name="paymentMethod">
+              <div class="sc-payment-option-inner">
+                <i class="icon icon-smartphone"></i>
+                <span>Mobile Wallet</span>
+              </div>
+            </label>
+            <label class="sc-payment-option" [class.selected]="paymentMethod === 'fawry'">
+              <input type="radio" [(ngModel)]="paymentMethod" value="fawry" name="paymentMethod">
+              <div class="sc-payment-option-inner">
+                <i class="icon icon-credit-card"></i>
+                <span>Fawry</span>
+              </div>
+            </label>
+          </div>
+
+          <div class="sc-payment-note" *ngIf="paymentMethod === 'card'">
+            <i class="icon icon-info"></i>
+            <span>You will be redirected to the secure Paymob payment page after placing the order.</span>
+          </div>
+
+          <div *ngIf="paymentMethod === 'wallet' || paymentMethod === 'fawry'" class="sc-form-group">
+            <label class="form-label">Mobile Number</label>
+            <input type="tel" class="form-control" placeholder="01012345678" [(ngModel)]="mobileNumber" name="mobileNumber">
+          </div>
+
+          <div class="sc-form-actions">
+            <button class="btn btn-link" (click)="goToStep(1)"><i class="icon icon-arrow-left me-1"></i> Back</button>
+            <button class="btn btn-primary" (click)="goToStep(3)">
+              Review Order <i class="icon icon-arrow-right ms-2"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- STEP 3 — REVIEW -->
+        <div class="sc-checkout-step-panel" *ngIf="currentStep === 3">
+          <h2 class="sc-checkout-step-title">Review & Place Order</h2>
+
+          <div class="sc-review-block">
+            <div class="sc-review-block-title">Shipping to</div>
+            <p>{{ firstName }} {{ lastName }}<br>
+               {{ shippingAddress.street }}, {{ shippingAddress.city }}, {{ shippingAddress.postalCode }}<br>
+               {{ shippingAddress.country }}</p>
+          </div>
+
+          <div class="sc-review-block">
+            <div class="sc-review-block-title">Payment</div>
+            <p>
+              {{ paymentMethod === 'card' ? 'Paymob secure checkout' : paymentMethod === 'wallet' ? 'Mobile Wallet' : 'Fawry' }}
+              <span *ngIf="mobileNumber"> using {{ mobileNumber }}</span>
+            </p>
+          </div>
+
+          <div class="sc-form-actions">
+            <button class="btn btn-link" (click)="goToStep(2)"><i class="icon icon-arrow-left me-1"></i> Back</button>
+            <button class="btn btn-primary sc-place-order-btn" (click)="placeOrder()" [disabled]="isSubmitting">
+              <span *ngIf="!isSubmitting">Place Order <i class="icon icon-check ms-2"></i></span>
+              <span *ngIf="isSubmitting" class="sc-spinner-sm"></span>
+            </button>
+          </div>
+        </div>
+
       </div>
 
-      <div class="col-md-5">
-        <div class="order-summary">
-          <h4>Order Summary</h4>
-          
-          <div class="order-item" *ngFor="let item of cart.items">
-            <img [src]="item.productId.images[0]" [alt]="item.productId.name" class="order-item-image">
-            <div class="order-item-details">
-              <h6>{{ item.productId.name }}</h6>
-              <span class="item-meta">Qty: {{ item.quantity }}</span>
+      <!-- ── SIDEBAR SUMMARY ── -->
+      <div class="sc-checkout-sidebar">
+        <div class="sc-summary-card">
+          <h3 class="sc-summary-title">ORDER SUMMARY</h3>
+          <div class="sc-sidebar-items">
+            <div class="sc-sidebar-item" *ngFor="let item of cart.items">
+              <div class="sc-sidebar-item-img">
+                <img [src]="getProductImage(item)" [alt]="getProductName(item)">
+                <span class="sc-sidebar-item-qty">{{ item.quantity }}</span>
+              </div>
+              <div class="sc-sidebar-item-name">{{ getProductName(item) }}</div>
+              <div class="sc-sidebar-item-price">${{ (item.price * item.quantity) | number:'1.2-2' }}</div>
             </div>
-            <span class="order-item-price">$ {{ (item.price * item.quantity).toFixed(2) }}</span>
           </div>
-
-          <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-              <span>Subtotal</span>
-              <span>$ {{ cart.subtotal.toFixed(2) }}</span>
-            </li>
-            <li class="list-group-item">
-              <span>Shipping</span>
-              <span *ngIf="cart.subtotal >= 100" class="free-shipping">FREE</span>
-              <span *ngIf="cart.subtotal < 100">$ {{ shippingCost.toFixed(2) }}</span>
-            </li>
-            <li class="list-group-item">
-              <span>Total</span>
-              <span>$ {{ getTotal().toFixed(2) }}</span>
-            </li>
-          </ul>
-
-          <div class="security-badge">
-            <i class="icon icon-shield-check"></i>
-            <p>Your payment information is secure and encrypted</p>
+          <div class="sc-summary-divider"></div>
+          <div class="sc-summary-rows">
+            <div class="sc-summary-row"><span>Subtotal</span><span>${{ cart.subtotal | number:'1.2-2' }}</span></div>
+            <div class="sc-summary-row"><span>Shipping</span><span>{{ cart.subtotal >= 100 ? 'Free' : `$\{shippingCost.toFixed(2)\}` }}</span></div>
           </div>
+          <div class="sc-summary-divider"></div>
+          <div class="sc-summary-total"><span>Total</span><span class="sc-total-value">${{ getTotal() | number:'1.2-2' }}</span></div>
         </div>
       </div>
 
+    </div>
+  </div>
+</section>
+
+<!-- Order Success State -->
+<section class="sc-checkout-page" *ngIf="!isLoading && orderPlaced">
+  <div class="container">
+    <div style="text-align: center; padding: 4rem 2rem;">
+      <div class="sc-empty-icon" style="font-size: 4rem; margin-bottom: 1rem;">
+        <i class="icon icon-check-circle" style="color: var(--success);"></i>
+      </div>
+      <h2>Order Placed Successfully!</h2>
+      <p>Order #{{ placedOrderId }}</p>
+      <p style="color: var(--text-muted);">Check your email for order confirmation.</p>
+      <div style="margin-top: 2rem;">
+        <button class="btn btn-primary" (click)="completePaymentNow()" [disabled]="isPaymentProcessing">
+          {{ isPaymentProcessing ? 'Connecting to Paymob...' : 'Complete Payment Now' }}
+        </button>
+        <a routerLink="/products" class="btn btn-primary">Continue Shopping</a>
+        <a routerLink="/account" class="btn btn-outline-primary ms-2">View My Orders</a>
+      </div>
     </div>
   </div>
 </section>

@@ -1,133 +1,61 @@
-	<footer id="footer">
-		<div class="container">
-			<div class="row">
+<footer class="sc-footer">
+  <div class="container">
+    <div class="sc-footer-grid">
+      <div class="sc-footer-col sc-footer-brand">
+        <h4>Electrofied</h4>
+        <p>
+          Your one-stop destination for the latest gadgets, gaming gear, and smart home essentials.
+          Top-quality tech, fast shipping, and trusted support.
+        </p>
+      </div>
 
-				<div class="col-md-4">
-					<div class="footer-item">
-						<div class="company-brand">
-							<h4 class="footer-brand-title">Electrofied</h4>
-							<p>Your one-stop destination for the latest gadgets, gaming gear, and smart home essentials. We provide top-quality tech at unbeatable prices with fast, reliable shipping.</p>
-						</div>
-					</div>
-				</div>
+      <div class="sc-footer-col">
+        <h5>About</h5>
+        <ul>
+          <li><a routerLink="/about" fragment="vision">Vision</a></li>
+          <li><a routerLink="/about" fragment="articles">Articles</a></li>
+          <li><a routerLink="/about" fragment="careers">Careers</a></li>
+          <li><a routerLink="/about" fragment="service-terms">Terms</a></li>
+        </ul>
+      </div>
 
-				<div class="col-md-2">
+      <div class="sc-footer-col">
+        <h5>Discover</h5>
+        <ul>
+          <li><a routerLink="/">Home</a></li>
+          <li><a routerLink="/products">Electronics</a></li>
+          <li><a routerLink="/products" fragment="products-search-input">Advanced Search</a></li>
+        </ul>
+      </div>
 
-					<div class="footer-menu">
-						<h5>About Us</h5>
-						<ul class="menu-list">
-							<li class="menu-item">
-								<a routerLink="/about" fragment="vision">vision</a>
-							</li>
-							<li class="menu-item">
-								<a routerLink="/about" fragment="articles">articles</a>
-							</li>
-							<li class="menu-item">
-								<a routerLink="/about" fragment="careers">careers</a>
-							</li>
-							<li class="menu-item">
-								<a routerLink="/about" fragment="service-terms">service terms</a>
-							</li>
-						</ul>
-					</div>
+      <div class="sc-footer-col">
+        <h5>Account</h5>
+        <ul>
+          <li *ngIf="!(isLoggedIn$ | async)"><a routerLink="/login">Sign In</a></li>
+          <li><a routerLink="/account">My Account</a></li>
+          <li><a routerLink="/account" [queryParams]="{ tab: 'orders' }">Track Order</a></li>
+        </ul>
+      </div>
 
-				</div>
-				<div class="col-md-2">
+      <div class="sc-footer-col">
+        <h5>Help</h5>
+        <ul>
+          <li><a routerLink="/help-center">Help Center</a></li>
+          <li><a routerLink="/help-center">Report a Problem</a></li>
+          <li><a routerLink="/help-center">Suggest Edits</a></li>
+          <li><a routerLink="/help-center">Contact Us</a></li>
+        </ul>
+      </div>
+    </div>
 
-					<div class="footer-menu">
-						<h5>Discover</h5>
-						<ul class="menu-list">
-							<li class="menu-item">
-								<a routerLink="/">Home</a>
-							</li>
-							<li class="menu-item">
-								<a routerLink="/products">Electronics</a>
-							</li>
-							<li class="menu-item">
-								<a routerLink="/products" fragment="products-search-input">Advanced Search</a>
-							</li>
-						</ul>
-					</div>
-
-				</div>
-				<div class="col-md-2">
-
-					<div class="footer-menu">
-						<h5>My account</h5>
-						<ul class="menu-list">
-							<li class="menu-item" *ngIf="!(isLoggedIn$ | async)">
-								<a routerLink="/login">Sign In</a>
-							</li>
-							<li class="menu-item">
-								<a routerLink="/account">My Account</a>
-							</li>
-							<li class="menu-item">
-								<a routerLink="/account" [queryParams]="{ tab: 'orders' }">Track My Order</a>
-							</li>
-						</ul>
-					</div>
-
-				</div>
-				<div class="col-md-2">
-
-					<div class="footer-menu">
-						<h5>Help</h5>
-						<ul class="menu-list">
-							<li class="menu-item">
-								<a routerLink="/help-center">Help center</a>
-							</li>
-							<li class="menu-item">
-								<a routerLink="/help-center">Report a problem</a>
-							</li>
-							<li class="menu-item">
-								<a routerLink="/help-center">Suggesting edits</a>
-							</li>
-							<li class="menu-item">
-								<a routerLink="/help-center">Contact us</a>
-							</li>
-						</ul>
-					</div>
-
-				</div>
-
-			</div>
-			<!-- / row -->
-
-		</div>
-	</footer>
-
-	<div id="footer-bottom">
-		<div class="container">
-			<div class="row">
-				<div class="col-md-12">
-
-					<div class="copyright">
-						<div class="row">
-
-							<div class="col-md-6">
-								<p>© {{ currentYear }} Electrofied. All rights reserved.</p>
-							</div>
-
-							<div class="col-md-6">
-								<div class="social-links align-right">
-									<ul>
-										<li>
-											<a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="icon icon-facebook"></i></a>
-										</li>
-										<li>
-											<a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="icon icon-twitter"></i></a>
-										</li>
-										<li>
-											<a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="icon icon-youtube-play"></i></a>
-										</li>
-										<li>
-											<a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="icon icon-instagram"></i></a>
-										</li>
-									</ul>
-								</div>
-							</div>
-
-						</div>
-					</div><!--grid-->
-
-				</div><!--footer-bottom-content-->
+    <div class="sc-footer-bottom">
+      <p>© {{ currentYear }} Electrofied. All rights reserved.</p>
+      <ul class="sc-footer-social">
+        <li><a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook"><i class="icon icon-facebook"></i></a></li>
+        <li><a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter"><i class="icon icon-twitter"></i></a></li>
+        <li><a href="https://youtube.com" target="_blank" rel="noopener noreferrer" aria-label="YouTube"><i class="icon icon-youtube-play"></i></a></li>
+        <li><a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><i class="icon icon-instagram"></i></a></li>
+      </ul>
+    </div>
+  </div>
+</footer>

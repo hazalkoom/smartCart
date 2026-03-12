@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, HostListener } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth';
@@ -15,18 +16,25 @@ export class Header implements OnInit, OnDestroy {
   isLoggedIn: boolean = false;
   isAdmin: boolean = false;
   cartCount: number = 0;
+  wishlistCount: number = 0;
   userName: string = '';
   mobileMenuOpen: boolean = false;
+  searchOpen: boolean = false;
+  searchQuery: string = '';
+  isScrolled: boolean = false;
 
   private subscriptions: Subscription[] = [];
 
   constructor(
     private authService: AuthService,
     private cartService: CartService,
-    private router: Router
+    private router: Router,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
+    this.updateScrollState();
+
     // 1. Subscribe to authentication state
     const authSub = this.authService.isLoggedIn$.subscribe(loggedIn => {
       this.isLoggedIn = loggedIn;
@@ -45,8 +53,13 @@ export class Header implements OnInit, OnDestroy {
       if (user) {
         this.userName = user.firstName;
         this.isAdmin = user.role === 'admin' || user.role === 'owner';
+        const normalizedWishlist = (user.wishlist || [])
+          .map((item: any) => typeof item === 'string' ? item : item?._id)
+          .filter((id: string | undefined) => !!id);
+        this.wishlistCount = normalizedWishlist.length;
       } else {
         this.isAdmin = false;
+        this.wishlistCount = 0;
       }
     });
     this.subscriptions.push(userSub);
@@ -58,6 +71,19 @@ export class Header implements OnInit, OnDestroy {
     this.subscriptions.push(cartSub);
   }
 
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    this.updateScrollState();
+  }
+
+  get userInitials(): string {
+    if (!this.userName) {
+      return 'SC';
+    }
+
+    return this.userName.slice(0, 2).toUpperCase();
+  }
+
   // Search logic: Receives the value directly from the HTML
   onSearch(term: string): void {
     if (term && term.trim()) {
@@ -67,12 +93,25 @@ export class Header implements OnInit, OnDestroy {
     }
   }
 
+  toggleSearch(): void {
+    this.searchOpen = !this.searchOpen;
+    if (!this.searchOpen) {
+      this.searchQuery = '';
+    }
+  }
+
+  submitSearch(): void {
+    this.onSearch(this.searchQuery);
+    this.closeMobileMenu();
+  }
+
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  onLogout(): void {
+  logout(): void {
     this.mobileMenuOpen = false;
+    this.searchOpen = false;
     this.authService.logout();
     this.router.navigate(['/login']);
   }
@@ -83,5 +122,11 @@ export class Header implements OnInit, OnDestroy {
 
   closeMobileMenu(): void {
     this.mobileMenuOpen = false;
+  }
+
+  private updateScrollState(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      this.isScrolled = window.scrollY > 12;
+    }
   }
 }

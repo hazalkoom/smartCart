@@ -1,0 +1,107 @@
+<!-- =====================================================
+     CART PAGE
+     ===================================================== -->
+<section class="sc-cart-page">
+  <div class="container">
+
+    <div class="sc-page-header">
+      <h1 class="sc-page-title">YOUR CART</h1>
+      <p class="sc-page-sub" *ngIf="cartItems.length > 0">{{ cartItems.length }} item{{ cartItems.length > 1 ? 's' : '' }}</p>
+    </div>
+
+    <!-- Empty cart -->
+    <div class="sc-empty-state sc-cart-empty" *ngIf="cartItems.length === 0">
+      <div class="sc-empty-icon"><i class="icon icon-shopping-cart"></i></div>
+      <h3>Your cart is empty</h3>
+      <p>Looks like you haven't added anything yet.</p>
+      <a routerLink="/products" class="btn btn-primary mt-2">Start Shopping</a>
+    </div>
+
+    <div class="sc-cart-layout" *ngIf="cartItems.length > 0">
+
+      <!-- ── ITEMS ── -->
+      <div class="sc-cart-items">
+        <div class="sc-cart-item" *ngFor="let item of cartItems; let i = index">
+          <!-- Image -->
+          <a [routerLink]="['/products', item.product?.slug]" class="sc-cart-item-img-wrap">
+            <img [src]="item.product?.images?.[0]" [alt]="item.product?.name" class="sc-cart-item-img">
+          </a>
+
+          <!-- Details -->
+          <div class="sc-cart-item-details">
+            <div class="sc-cart-item-brand">{{ item.product?.brand || item.product?.category?.name }}</div>
+            <h3 class="sc-cart-item-name">
+              <a [routerLink]="['/products', item.product?.slug]">{{ item.product?.name }}</a>
+            </h3>
+            <div class="sc-cart-item-price">${{ (item.product?.price * item.quantity) | number:'1.2-2' }}</div>
+            <div class="sc-cart-item-unit-price" *ngIf="item.quantity > 1">
+              ${{ item.product?.price | number:'1.2-2' }} each
+            </div>
+          </div>
+
+          <!-- Quantity control -->
+          <div class="sc-cart-item-qty">
+            <button (click)="decreaseQuantity(i)" [disabled]="item.quantity <= 1">
+              <i class="icon icon-minus"></i>
+            </button>
+            <input type="number" [value]="item.quantity" min="1"
+                   (change)="updateQuantity(i, $any($event.target).value)" class="sc-qty-input">
+            <button (click)="increaseQuantity(i)">
+              <i class="icon icon-plus"></i>
+            </button>
+          </div>
+
+          <!-- Remove -->
+          <button class="sc-remove-btn" (click)="removeFromCart(i)" title="Remove">
+            <i class="icon icon-trash-2"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── SUMMARY ── -->
+      <div class="sc-cart-summary">
+        <div class="sc-summary-card">
+          <h2 class="sc-summary-title">ORDER SUMMARY</h2>
+
+          <div class="sc-summary-rows">
+            <div class="sc-summary-row">
+              <span>Subtotal</span>
+              <span>${{ subtotal | number:'1.2-2' }}</span>
+            </div>
+            <div class="sc-summary-row">
+              <span>Shipping</span>
+              <span class="text-success" *ngIf="subtotal >= 100">Free</span>
+              <span *ngIf="subtotal < 100">${{ shippingCost | number:'1.2-2' }}</span>
+            </div>
+            <div class="sc-summary-row sc-summary-row--coupon" *ngIf="couponApplied">
+              <span>Discount ({{ couponCode }})</span>
+              <span class="text-success">-${{ discount | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          <!-- Coupon -->
+          <div class="sc-coupon-row">
+            <input type="text" class="form-control" placeholder="Coupon code" [(ngModel)]="couponInput">
+            <button class="btn btn-outline-primary sc-coupon-btn" (click)="applyCoupon()" [disabled]="!couponInput">Apply</button>
+          </div>
+
+          <div class="sc-summary-divider"></div>
+
+          <div class="sc-summary-total">
+            <span>Total</span>
+            <span class="sc-total-value">${{ total | number:'1.2-2' }}</span>
+          </div>
+
+          <a routerLink="/checkout" class="btn btn-primary w-100 sc-checkout-btn">
+            Proceed to Checkout <i class="icon icon-arrow-right ms-2"></i>
+          </a>
+
+          <a routerLink="/products" class="sc-continue-link">
+            <i class="icon icon-arrow-left me-1"></i> Continue Shopping
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
