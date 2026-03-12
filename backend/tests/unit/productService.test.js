@@ -4,6 +4,7 @@ jest.mock('../../src/models/productModel', () => ({
   countDocuments: jest.fn(),
   find: jest.fn(),
   findById: jest.fn(),
+  aggregate: jest.fn(),
 }));
 
 jest.mock('../../src/models/categoryModel', () => ({
@@ -87,26 +88,19 @@ describe('ProductService', () => {
 
   describe('getAllProducts (filters)', () => {
     it("constructs low-stock query when stockStatus is 'low'", async () => {
-      Product.countDocuments.mockResolvedValue(0);
-
-      const chain = {
-        populate: jest.fn(() => chain),
-        limit: jest.fn(() => chain),
-        skip: jest.fn(() => chain),
-        sort: jest.fn().mockResolvedValue([]),
-      };
-
-      Product.find.mockReturnValue(chain);
+      Product.aggregate.mockResolvedValue([
+        { metadata: [{ total: 0 }], data: [] },
+      ]);
 
       await productService.getAllProducts({ stockStatus: 'low', page: 1, limit: 10 });
 
-      const expectedQuery = {
+      expect(Product.aggregate).toHaveBeenCalled();
+      const pipeline = Product.aggregate.mock.calls[0][0];
+      const matchStage = pipeline.find((s) => s.$match).$match;
+      expect(matchStage).toMatchObject({
         isDeleted: { $ne: true },
         stock: { $lt: 10, $gt: 0 },
-      };
-
-      expect(Product.countDocuments).toHaveBeenCalledWith(expectedQuery);
-      expect(Product.find).toHaveBeenCalledWith(expectedQuery);
+      });
     });
   });
 

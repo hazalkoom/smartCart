@@ -22,36 +22,26 @@
       <div class="sc-form-row sc-reg-name-row">
         <div class="sc-form-group">
           <label class="form-label">First Name</label>
-          <div class="sc-input-wrap">
-            <i class="icon icon-user sc-input-icon"></i>
-            <input type="text" class="form-control sc-auth-input"
-                   [(ngModel)]="firstName" name="firstName" placeholder="First" required>
-          </div>
+          <input type="text" class="form-control"
+                 [(ngModel)]="firstName" name="firstName" placeholder="First" required>
         </div>
         <div class="sc-form-group">
           <label class="form-label">Last Name</label>
-          <div class="sc-input-wrap">
-            <i class="icon icon-user sc-input-icon"></i>
-            <input type="text" class="form-control sc-auth-input"
-                   [(ngModel)]="lastName" name="lastName" placeholder="Last" required>
-          </div>
+          <input type="text" class="form-control"
+                 [(ngModel)]="lastName" name="lastName" placeholder="Last" required>
         </div>
       </div>
 
       <div class="sc-form-group">
         <label class="form-label">Email Address</label>
-        <div class="sc-input-wrap">
-          <i class="icon icon-mail sc-input-icon"></i>
-          <input type="email" class="form-control sc-auth-input"
-                 [(ngModel)]="email" name="email" placeholder="you@example.com" required>
-        </div>
+        <input type="email" class="form-control"
+               [(ngModel)]="email" name="email" placeholder="you@example.com" required>
       </div>
 
       <div class="sc-form-group">
         <label class="form-label">Password</label>
-        <div class="sc-input-wrap">
-          <i class="icon icon-lock sc-input-icon"></i>
-          <input [type]="showPassword ? 'text' : 'password'" class="form-control sc-auth-input"
+        <div class="sc-pw-wrap">
+          <input [type]="showPassword ? 'text' : 'password'" class="form-control"
                  [(ngModel)]="password" (ngModelChange)="onPasswordChange()" name="password" placeholder="Min 8 characters" required minlength="8">
           <button type="button" class="sc-pw-toggle" (click)="showPassword = !showPassword">
             <i class="icon" [class.icon-eye]="!showPassword" [class.icon-eye-off]="showPassword"></i>
@@ -68,10 +58,12 @@
 
       <div class="sc-form-group">
         <label class="form-label">Confirm Password</label>
-        <div class="sc-input-wrap">
-          <i class="icon icon-lock sc-input-icon"></i>
-          <input [type]="showPassword ? 'text' : 'password'" class="form-control sc-auth-input"
+        <div class="sc-pw-wrap">
+          <input [type]="showPassword ? 'text' : 'password'" class="form-control"
                  [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="Repeat password" required>
+          <button type="button" class="sc-pw-toggle" (click)="showPassword = !showPassword">
+            <i class="icon" [class.icon-eye]="!showPassword" [class.icon-eye-off]="showPassword"></i>
+          </button>
         </div>
         <small class="sc-pw-mismatch" *ngIf="confirmPassword && password !== confirmPassword">Passwords don't match</small>
       </div>

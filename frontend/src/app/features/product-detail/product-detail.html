@@ -111,10 +111,96 @@
         </div>
       </div>
 
-      <div class="sc-empty-state sc-reviews-empty">
-        <div class="sc-empty-icon"><i class="icon icon-message-square"></i></div>
-        <h4>No reviews yet</h4>
-        <p>Be the first to review this product.</p>
+      <!-- Loading spinner -->
+      <div *ngIf="reviewsLoading" class="sc-reviews-loading">
+        <div class="sc-spinner-ring"></div>
+      </div>
+
+      <!-- Reviews list -->
+      <ng-container *ngIf="!reviewsLoading">
+        <div *ngIf="reviews.length === 0" class="sc-empty-state sc-reviews-empty">
+          <div class="sc-empty-icon"><i class="icon icon-message-square"></i></div>
+          <h4>No reviews yet</h4>
+          <p>Be the first to review this product.</p>
+        </div>
+
+        <div *ngIf="reviews.length > 0" class="sc-reviews-list">
+          <div *ngFor="let review of reviews" class="sc-review-card">
+            <div class="sc-review-header">
+              <div class="sc-review-author">
+                <span class="sc-reviewer-name">{{ review.userId?.firstName }} {{ review.userId?.lastName }}</span>
+                <span class="sc-review-date">{{ review.createdAt | date:'mediumDate' }}</span>
+              </div>
+              <div class="sc-review-stars">
+                <i class="icon icon-star" *ngFor="let s of [1,2,3,4,5]" [class.filled]="s <= review.rating"></i>
+              </div>
+            </div>
+            <h5 class="sc-review-title">{{ review.title }}</h5>
+            <p class="sc-review-comment">{{ review.comment }}</p>
+            <button *ngIf="canDeleteReview(review)"
+                    class="sc-review-delete-btn"
+                    (click)="deleteReview(review._id)">
+              <i class="icon icon-trash-2"></i> Delete
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Write a Review -->
+      <div class="sc-write-review">
+        <h3 class="sc-section-title-sm">WRITE A REVIEW</h3>
+
+        <!-- Not logged in -->
+        <div *ngIf="!currentUserId" class="sc-review-login-prompt">
+          <p>You must be <a routerLink="/login">logged in</a> to write a review.</p>
+        </div>
+
+        <!-- Already reviewed -->
+        <div *ngIf="currentUserId && hasUserReviewed()" class="sc-review-already">
+          <p><i class="icon icon-check-circle"></i> You have already reviewed this product.</p>
+        </div>
+
+        <!-- Review form -->
+        <form *ngIf="currentUserId && !hasUserReviewed()" class="sc-review-form" (ngSubmit)="submitReview()">
+          <!-- Star Rating Picker -->
+          <div class="sc-review-form-group">
+            <label class="sc-review-label">Rating <span class="sc-required">*</span></label>
+            <div class="sc-star-picker">
+              <i *ngFor="let s of [1,2,3,4,5]"
+                 class="icon icon-star sc-star-pick"
+                 [class.filled]="s <= (hoverRating || reviewForm.rating)"
+                 (mouseenter)="hoverRating = s"
+                 (mouseleave)="hoverRating = 0"
+                 (click)="setReviewRating(s)">
+              </i>
+            </div>
+          </div>
+
+          <!-- Title -->
+          <div class="sc-review-form-group">
+            <label class="sc-review-label" for="reviewTitle">Title <span class="sc-required">*</span></label>
+            <input id="reviewTitle" type="text" class="sc-review-input"
+                   [(ngModel)]="reviewForm.title" name="reviewTitle"
+                   placeholder="Summarise your experience" maxlength="100">
+          </div>
+
+          <!-- Comment -->
+          <div class="sc-review-form-group">
+            <label class="sc-review-label" for="reviewComment">Review <span class="sc-required">*</span></label>
+            <textarea id="reviewComment" class="sc-review-textarea"
+                      [(ngModel)]="reviewForm.comment" name="reviewComment"
+                      placeholder="Tell others what you think..." rows="4" maxlength="1000">
+            </textarea>
+          </div>
+
+          <!-- Feedback messages -->
+          <div *ngIf="reviewError" class="sc-review-error">{{ reviewError }}</div>
+          <div *ngIf="reviewSuccess" class="sc-review-success">{{ reviewSuccess }}</div>
+
+          <button type="submit" class="btn btn-primary" [disabled]="isSubmittingReview">
+            {{ isSubmittingReview ? 'Submitting...' : 'Submit Review' }}
+          </button>
+        </form>
       </div>
     </div>
 

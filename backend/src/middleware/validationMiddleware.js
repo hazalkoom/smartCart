@@ -166,12 +166,12 @@ const reviewValidationRules = [
     .notEmpty().withMessage('Rating is required')
     .isInt({ min: 1, max: 5 }).withMessage('Rating must be an integer between 1 and 5'),
   body('title')
-    .optional()
+    .notEmpty().withMessage('Review title is required')
     .isString().withMessage('Title must be a string')
     .trim()
     .isLength({ max: 100 }).withMessage('Title cannot exceed 100 characters'),
   body('comment')
-    .optional()
+    .notEmpty().withMessage('Review comment is required')
     .isString().withMessage('Comment must be a string')
     .trim()
     .isLength({ max: 1000 }).withMessage('Comment cannot exceed 1000 characters'),

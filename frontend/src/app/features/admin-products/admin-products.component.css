@@ -2,16 +2,16 @@
 
 :host {
   display: block;
-  --primary-color: #1d4ed8;
-  --primary-light: #dbeafe;
-  --success-color: #10b981;
-  --danger-color: #ef4444;
-  --border-color: #e5e7eb;
-  --bg-secondary: #f9fafb;
+  --primary-color: var(--primary);
+  --primary-light: var(--primary-dim);
+  --success-color: var(--success);
+  --danger-color: var(--danger);
+  --border-color: var(--border);
+  --bg-secondary: var(--bg-card);
 }
 
 .container-fluid {
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, #ffffff 100%);
+  background: transparent;
   min-height: 100vh;
   padding: 2rem 1rem;
 }
@@ -239,7 +239,7 @@ table tbody tr:hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff;
+  background: var(--bg-card);
 }
 
 .image-preview-img {
@@ -254,7 +254,7 @@ table tbody tr:hover {
   border-radius: 8px;
   overflow: hidden;
   border: 1px solid var(--border-color);
-  background: #fff;
+  background: var(--bg-card);
 }
 
 .table-product-image {

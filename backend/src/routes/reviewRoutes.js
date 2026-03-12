@@ -11,12 +11,12 @@ router.get('/', reviewController.getProductReviews);
 // Protected Routes
 router.use(protect);
 
-router.post('/', authorize('customer'), reviewValidationRules, validate, reviewController.createReview);
+router.post('/', authorize('customer', 'user'), reviewValidationRules, validate, reviewController.createReview);
 
 router
   .route('/:id')
-  .patch(authorize('customer', 'admin'), reviewUpdateValidationRules, validate, reviewController.updateReview)
-  .delete(authorize('customer', 'admin', 'owner'), reviewController.deleteReview);
+  .patch(authorize('customer', 'user', 'admin'), reviewUpdateValidationRules, validate, reviewController.updateReview)
+  .delete(authorize('customer', 'user', 'admin', 'owner'), reviewController.deleteReview);
 
 module.exports = router;
 

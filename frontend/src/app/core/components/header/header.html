@@ -35,7 +35,7 @@
 
       <div class="dropdown" *ngIf="isLoggedIn">
         <button class="sc-user-btn dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
-          <div class="sc-avatar">{{ userInitials }}</div>
+          <div class="sc-avatar"><i class="bi bi-person-fill"></i></div>
           <span class="sc-user-name">{{ userName || 'Account' }}</span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
@@ -50,7 +50,7 @@
 
       <div class="sc-auth-links" *ngIf="!isLoggedIn">
         <a routerLink="/login" class="sc-auth-link">Login</a>
-        <a routerLink="/register" class="btn btn-primary btn-sm">Sign Up</a>
+        <a routerLink="/register" class="sc-auth-link">Sign Up</a>
       </div>
 
       <button class="sc-hamburger" (click)="toggleMobileMenu()" aria-label="Menu">

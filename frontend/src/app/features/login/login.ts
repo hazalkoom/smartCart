@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, Inject } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../core/services/auth';
@@ -9,6 +9,7 @@ import { environment } from '../../../environments/environment';
   standalone: false,
   templateUrl: './login.html',
   styleUrl: './login.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class Login implements OnInit {
   

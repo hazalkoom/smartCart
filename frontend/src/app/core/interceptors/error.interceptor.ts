@@ -45,8 +45,8 @@ export class ErrorInterceptor implements HttpInterceptor {
 
         // --- 403 Forbidden ---
         if (error.status === 403) {
-          const router = this.injector.get(Router);
-          router.navigate(['/']);
+          // Let the calling component decide how to present authorization errors.
+          return throwError(() => error);
         }
 
         // --- 500+ Server errors ---

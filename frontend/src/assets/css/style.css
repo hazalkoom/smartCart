@@ -453,6 +453,8 @@ h2,
 h3 {
   margin: 25px 0;
   text-transform: capitalize;
+  color: white;
+
 }
 
 h5,
@@ -509,6 +511,7 @@ h6 a {
 
 p {
   margin: 0 0 20px 0;
+  color: #e0dfe1;
 }
 
 p:empty {
@@ -733,6 +736,7 @@ ol ul {
 
 li {
   margin-bottom: 1rem;
+  color: #ffffff;
 }
 
 /*------------------------------------------------

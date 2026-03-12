@@ -69,16 +69,11 @@ class ReviewService {
     }
 
     // Update fields
-    if (updateData.rating) review.rating = updateData.rating;
-    if (updateData.title) review.title = updateData.title;
-    if (updateData.comment) review.comment = updateData.comment;
+    if (updateData.rating !== undefined) review.rating = updateData.rating;
+    if (updateData.title !== undefined) review.title = updateData.title;
+    if (updateData.comment !== undefined) review.comment = updateData.comment;
 
-    await review.save(); 
-    
-    if (Review.calcAverageRatings) {
-        await Review.calcAverageRatings(review.productId);
-    }
-    // -----------------------------------------------------------
+    await review.save();
 
     return review;
   }

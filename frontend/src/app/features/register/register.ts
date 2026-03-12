@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { AuthService } from '../../core/services/auth'; 
@@ -8,6 +8,7 @@ import { AuthService } from '../../core/services/auth';
   standalone: false,
   templateUrl: './register.html',
   styleUrl: './register.css',
+  encapsulation: ViewEncapsulation.None,
 })
 export class Register {
   

@@ -283,15 +283,19 @@
 }
 
 .filter-dropdown {
-	display: inline-flex;
-	align-items: center;
+	display: inline-flex !important;
+	align-items: center !important;
 	flex: 0 0 auto;
 	vertical-align: middle;
 }
 
-.filter-pill.dropdown-toggle {
-	box-sizing: border-box;
-	height: 36px !important;
+button.filter-pill {
+	display: inline-flex !important;
+	align-items: center !important;
+	padding-top: 0 !important;
+	padding-bottom: 0 !important;
+	margin: 0 !important;
+	box-sizing: border-box !important;
 	line-height: 1 !important;
 }
 

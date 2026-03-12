@@ -23,18 +23,14 @@
 
       <div class="sc-form-group">
         <label class="form-label">Email Address</label>
-        <div class="sc-input-wrap">
-          <i class="icon icon-mail sc-input-icon"></i>
-          <input type="email" class="form-control sc-auth-input" [(ngModel)]="email" name="email"
-                 placeholder="you@example.com" required autocomplete="email">
-        </div>
+        <input type="email" class="form-control" [(ngModel)]="email" name="email"
+               placeholder="you@example.com" required autocomplete="email">
       </div>
 
       <div class="sc-form-group">
         <label class="form-label">Password</label>
-        <div class="sc-input-wrap">
-          <i class="icon icon-lock sc-input-icon"></i>
-          <input [type]="showPassword ? 'text' : 'password'" class="form-control sc-auth-input"
+        <div class="sc-pw-wrap">
+          <input [type]="showPassword ? 'text' : 'password'" class="form-control"
                  [(ngModel)]="password" name="password" placeholder="Your password" required
                  autocomplete="current-password">
           <button type="button" class="sc-pw-toggle" (click)="showPassword = !showPassword">

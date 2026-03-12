@@ -66,8 +66,8 @@ reviewSchema.statics.calcAverageRatings = async function (productId) {
 };
 
 // Update rating after saving
-reviewSchema.post('save', function () {
-  this.constructor.calcAverageRatings(this.productId);
+reviewSchema.post('save', async function () {
+  await this.constructor.calcAverageRatings(this.productId);
 });
 
 // Update rating after updating/deleting

@@ -131,15 +131,17 @@
 							</a>
 
 							<!-- Info -->
-							<div class="product-info p-3 d-flex flex-column flex-grow-1" style="border-top:1px solid #f1f5f9;">
+							<div class="product-info p-3 d-flex flex-column grow" style="border-top:1px solid #f1f5f9;">
 
 								<h6 class="product-name mb-1 fw-medium text-dark" style="font-size:0.85rem;line-height:1.4;">
 									<a [routerLink]="['/products', product.slug]" class="text-dark text-decoration-none hover-primary">{{ product.name }}</a>
 								</h6>
 
 								<div class="d-flex align-items-center gap-1 mb-2">
-									<span class="stars text-warning" style="font-size:0.65rem;letter-spacing:1px;">★★★★★</span>
-									<span class="text-muted" style="font-size:0.7rem;">(12)</span>
+									<span class="stars" style="font-size:0.65rem;letter-spacing:1px;">
+										<i class="icon icon-star" *ngFor="let s of [1,2,3,4,5]" [style.color]="s <= (product.rating || 0) ? '#f59e0b' : '#cbd5e1'"></i>
+									</span>
+									<span class="text-muted" style="font-size:0.7rem;">({{ product.reviewCount || 0 }})</span>
 								</div>
 
 								<div class="d-flex align-items-center justify-content-between mt-auto">

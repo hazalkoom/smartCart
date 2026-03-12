@@ -15,7 +15,7 @@ const createReview = asyncHandler(async (req, res, next) => {
 });
 
 const getProductReviews = asyncHandler(async (req, res, next) => {
-  const productId = req.params.productId || req.body.productId;
+  const productId = req.params.productId || req.query.productId;
   
   const reviews = await reviewService.getReviewsByProduct(productId);
 

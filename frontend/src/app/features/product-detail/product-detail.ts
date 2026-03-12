@@ -5,8 +5,10 @@ import { ProductService } from '../../core/services/product';
 import { CartService } from '../../core/services/cart';
 import { CartAnimationService } from '../../core/services/cart-animation.service';
 import { AuthService } from '../../core/services/auth';
+import { ReviewService } from '../../core/services/review';
 import { Subscription } from 'rxjs';
 import { Product } from '../../core/interfaces/product';
+import { Review } from '../../core/interfaces/review';
 import { environment } from '../../../environments/environment';
 
 @Component({
@@ -31,12 +33,25 @@ export class ProductDetail implements OnInit, OnDestroy {
   private subscriptions: Subscription[] = [];
   private wishlistIds: Set<string> = new Set<string>();
 
+  // Reviews state
+  reviews: Review[] = [];
+  reviewsLoading: boolean = false;
+  reviewForm = { rating: 0, title: '', comment: '' };
+  hoverRating: number = 0;
+  isSubmittingReview: boolean = false;
+  reviewError: string = '';
+  reviewSuccess: string = '';
+  currentUserId: string = '';
+  currentUserRole: string = '';
+  editingReview: Review | null = null;
+
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
     private cartService: CartService,
     private cartAnimationService: CartAnimationService,
     private authService: AuthService,
+    private reviewService: ReviewService,
     private router: Router,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
@@ -48,6 +63,8 @@ export class ProductDetail implements OnInit, OnDestroy {
         .map((item: any) => (typeof item === 'string' ? item : item?._id))
         .filter((id: string | undefined) => !!id);
       this.wishlistIds = new Set<string>(normalized);
+      this.currentUserId = user?._id || '';
+      this.currentUserRole = user?.role || '';
     });
     this.subscriptions.push(userSub);
 
@@ -67,6 +84,9 @@ export class ProductDetail implements OnInit, OnDestroy {
 
   loadProduct(slug: string) {
     this.isLoading = true;
+    this.error = '';
+    this.reviewError = '';
+    this.reviewSuccess = '';
     this.productService.getProduct(slug).subscribe({
       next: (res) => {
         this.product = res.data;
@@ -75,6 +95,7 @@ export class ProductDetail implements OnInit, OnDestroy {
           ? this.product.images[0] 
           : 'assets/images/placeholder.jpg';
         this.isLoading = false;
+        this.loadReviews();
       },
       error: (err) => {
         if (!environment.production) console.error(err);
@@ -82,6 +103,95 @@ export class ProductDetail implements OnInit, OnDestroy {
         this.isLoading = false;
       }
     });
+  }
+
+  loadReviews() {
+    if (!this.product) return;
+    this.reviewsLoading = true;
+    this.reviewService.getProductReviews(this.product._id).subscribe({
+      next: (res) => {
+        this.reviews = res.data;
+        this.reviewsLoading = false;
+      },
+      error: (err) => {
+        if (!environment.production) console.error('Failed to load reviews:', err);
+        this.reviewsLoading = false;
+      }
+    });
+  }
+
+  refreshReviewState() {
+    if (!this.product) return;
+
+    this.loadReviews();
+    this.productService.getProduct(this.product.slug).subscribe({
+      next: (res) => {
+        this.product = res.data;
+      },
+      error: (err) => {
+        if (!environment.production) console.error('Failed to refresh product rating:', err);
+      }
+    });
+  }
+
+  hasUserReviewed(): boolean {
+    return this.reviews.some(r => r.userId?._id === this.currentUserId);
+  }
+
+  setReviewRating(rating: number) {
+    this.reviewForm.rating = rating;
+  }
+
+  submitReview() {
+    if (!this.product || this.reviewForm.rating === 0 || !this.reviewForm.title.trim() || !this.reviewForm.comment.trim()) {
+      this.reviewError = 'Please fill in all fields and select a rating.';
+      return;
+    }
+    this.isSubmittingReview = true;
+    this.reviewError = '';
+    this.reviewSuccess = '';
+
+    this.reviewService.createReview({
+      productId: this.product._id,
+      rating: this.reviewForm.rating,
+      title: this.reviewForm.title.trim(),
+      comment: this.reviewForm.comment.trim()
+    }).subscribe({
+      next: () => {
+        this.reviewSuccess = 'Review submitted successfully!';
+        this.reviewForm = { rating: 0, title: '', comment: '' };
+        this.isSubmittingReview = false;
+        this.refreshReviewState();
+      },
+      error: (err) => {
+        this.reviewError = err.error?.message || err.error?.error?.message || 'Failed to submit review.';
+        this.reviewSuccess = '';
+        this.isSubmittingReview = false;
+      }
+    });
+  }
+
+  deleteReview(reviewId: string) {
+    this.reviewError = '';
+    this.reviewSuccess = '';
+    this.reviewService.deleteReview(reviewId).subscribe({
+      next: () => {
+        this.reviewSuccess = 'Review deleted successfully.';
+        this.refreshReviewState();
+      },
+      error: (err) => {
+        this.reviewError = err.error?.message || err.error?.error?.message || 'Failed to delete review.';
+        if (!environment.production) console.error('Error deleting review:', err);
+      }
+    });
+  }
+
+  canDeleteReview(review: Review): boolean {
+    return review.userId?._id === this.currentUserId || this.currentUserRole === 'admin' || this.currentUserRole === 'owner';
+  }
+
+  getStarArray(): number[] {
+    return [1, 2, 3, 4, 5];
   }
 
   changeImage(imageUrl: string) {
