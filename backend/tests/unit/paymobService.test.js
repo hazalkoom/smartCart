@@ -66,7 +66,7 @@ describe('PaymobService', () => {
       expect.objectContaining({
         auth_token: 'auth-token',
         amount_cents: '1050',
-        merchant_order_id: 'order-1',
+        merchant_order_id: expect.stringMatching(/^order-1_\d+$/),
       })
     );
 

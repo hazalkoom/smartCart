@@ -35,7 +35,9 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
   }
 
   // 4. Idempotency & Order Retrieval
-  const rawMerchantOrderId = data.order ? data.order.merchant_order_id : data.merchant_order_id;
+  const rawMerchantOrderId =
+    (data.order && typeof data.order === 'object' && data.order.merchant_order_id) ||
+    data.merchant_order_id;
   
   if (!rawMerchantOrderId) {
       console.error('Paymob Webhook: merchant_order_id is missing from payload', data);

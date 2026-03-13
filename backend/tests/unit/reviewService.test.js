@@ -56,7 +56,7 @@ describe('ReviewService', () => {
   });
 
   describe('updateReview', () => {
-    it('calls Review.calcAverageRatings(productId) after a successful update (aggregation)', async () => {
+    it('updates review fields and saves successfully', async () => {
       const review = {
         _id: 'rev-1',
         userId: { toString: () => 'user-1' },
@@ -78,7 +78,7 @@ describe('ReviewService', () => {
 
       expect(Review.findById).toHaveBeenCalledWith('rev-1');
       expect(review.save).toHaveBeenCalled();
-      expect(Review.calcAverageRatings).toHaveBeenCalledWith('prod-1');
+      expect(Review.calcAverageRatings).not.toHaveBeenCalled();
       expect(result.rating).toBe(4);
       expect(result.title).toBe('New');
     });

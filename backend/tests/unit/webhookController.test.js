@@ -38,6 +38,7 @@ const makeRes = () => {
 const makeReq = (overrides = {}) => ({
   query: { hmac: 'valid-hmac' },
   body: {
+    type: 'TRANSACTION',
     obj: {
       success: true,
       merchant_order_id: 'order-123',
@@ -74,7 +75,7 @@ describe('webhookController — handlePaymobWebhook', () => {
   // --- HMAC Verification ---
 
   it('returns 400 when request body has no obj', async () => {
-    const req = { query: { hmac: 'abc' }, body: {} };
+    const req = { query: { hmac: 'abc' }, body: { type: 'TRANSACTION' } };
     const res = makeRes();
 
     await handlePaymobWebhook(req, res, next);
