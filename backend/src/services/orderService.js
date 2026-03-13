@@ -178,7 +178,10 @@ class OrderService {
 
     // 3. Update Status & Timestamps
     order.status = newStatus;
-    if (newStatus === 'Paid') order.paidAt = Date.now();
+    if (newStatus === 'Paid') {
+      order.paidAt = Date.now();
+      order.isPaid = true;
+    }
     if (newStatus === 'Shipped') order.shippedAt = Date.now();
     if (newStatus === 'Delivered') order.deliveredAt = Date.now();
 

@@ -19,6 +19,9 @@ def test_cart_setup():
     owner_token = res_login.json()['data']['token']
     owner_headers = {"Authorization": f"Bearer {owner_token}"}
     shared_data['owner_token'] = owner_token
+
+    # Ensure deterministic cart state across repeated/full-suite runs
+    requests.delete(cart_url, headers=owner_headers)
     
     # 2. Create a temporary Category
     cat_name = f"Cart Test Cat {int(time.time())}"

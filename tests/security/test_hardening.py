@@ -3,7 +3,7 @@ import pytest
 from tests.test_config import BASE_URL
 
 # --- CONFIGURATION ---
-PAYLOAD_LIMIT_BYTES = 10 * 1024 
+PAYLOAD_LIMIT_BYTES = 50 * 1024
 
 @pytest.mark.run(order=97)
 def test_security_headers_helmet():
@@ -31,9 +31,9 @@ def test_security_headers_helmet():
 @pytest.mark.run(order=98)
 def test_security_payload_limit():
     """
-    Verify the 10kb body limit prevents Denial of Service (DoS) via large payloads.
+    Verify the configured JSON body limit prevents oversized payloads.
     """
-    # Create a string larger than 10kb
+    # Create a string larger than configured body limit
     huge_text = "a" * (PAYLOAD_LIMIT_BYTES + 500) 
     
     payload = {

@@ -11,13 +11,13 @@ from tests.test_config import BASE_URL, OWNER_LOGIN, print_test_result, shared_d
 # If you are using a dummy value in dev, put it here.
 HMAC_SECRET = "9398BBEE4367A5BB6119DD67EECECC1D"
 
-webhook_url = f"{BASE_URL}/orders/webhook/paymob" # Use the path defined in your routes
+webhook_url = f"{BASE_URL}/webhook/paymob"
 # Based on your previous setup, you mounted webhookRoutes at /webhook/paymob? 
 # Or /api/v1/webhook? Let's assume /webhook/paymob based on Prompt 3.
 # Adjust this URL if your server.js mount point is different.
 # If you mounted it as: app.post('/webhook/paymob', handlePaymobWebhook)
 # Then URL is http://localhost:5000/webhook/paymob
-WEBHOOK_ENDPOINT = "http://localhost:5000/webhook/paymob"
+WEBHOOK_ENDPOINT = webhook_url
 
 # --- HELPER: HMAC GENERATOR ---
 def generate_hmac(data, secret):
@@ -123,6 +123,7 @@ def test_webhook_impersonator_attack(setup_data):
     order_id = setup_data['order_id']
     
     payload = {
+        "type": "TRANSACTION",
         "obj": {
             "id": 123456,
             "success": True,
@@ -179,7 +180,10 @@ def test_webhook_man_in_the_middle_attack(setup_data):
     data['amount_cents'] = 100 
     
     # 4. Send with ORIGINAL valid HMAC
-    res = requests.post(f"{WEBHOOK_ENDPOINT}?hmac={valid_hmac}", json={"obj": data})
+    res = requests.post(
+        f"{WEBHOOK_ENDPOINT}?hmac={valid_hmac}",
+        json={"type": "TRANSACTION", "obj": data}
+    )
     
     assert res.status_code == 403
 
@@ -225,7 +229,10 @@ def test_webhook_happy_path_success(setup_data):
     signature = generate_hmac(data, HMAC_SECRET)
     
     # 3. Send
-    res = requests.post(f"{WEBHOOK_ENDPOINT}?hmac={signature}", json={"obj": data})
+    res = requests.post(
+        f"{WEBHOOK_ENDPOINT}?hmac={signature}",
+        json={"type": "TRANSACTION", "obj": data}
+    )
     
     assert res.status_code == 200
     
@@ -280,7 +287,10 @@ def test_webhook_idempotency(setup_data):
     signature = generate_hmac(data, HMAC_SECRET)
     
     # Send Duplicate
-    res = requests.post(f"{WEBHOOK_ENDPOINT}?hmac={signature}", json={"obj": data})
+    res = requests.post(
+        f"{WEBHOOK_ENDPOINT}?hmac={signature}",
+        json={"type": "TRANSACTION", "obj": data}
+    )
     assert res.status_code == 200
     
     # Verify State Unchanged
