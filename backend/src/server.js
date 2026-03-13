@@ -46,7 +46,7 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(express.json({ limit: '10kb' })); // Body parser with payload limit
+app.use(express.json({ limit: '50kb' })); // Body parser with payload limit
 
 if (process.env.NODE_ENV === 'production') {
   const limiter = rateLimit({

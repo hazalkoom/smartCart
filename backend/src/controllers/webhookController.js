@@ -3,6 +3,10 @@ const { validateHmac } = require('../utils/paymobHmac');
 const asyncHandler = require('../utils/asyncHandler');
 
 const handlePaymobWebhook = asyncHandler(async (req, res) => {
+
+  if (req.body.type !== 'TRANSACTION') {
+    return res.status(200).send();
+  }
   // 1. Extract Data
   const hmacSent = req.query.hmac;
   const data = req.body.obj;

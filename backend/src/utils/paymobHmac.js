@@ -1,9 +1,7 @@
 const crypto = require('crypto');
 
-/**
- * Validates the Paymob HMAC signature.
- */
 const validateHmac = (data, hmacSent, secret) => {
+  // STRICTLY 20 KEYS. EXACTLY AS WRITTEN. Do not add orderId.
   const keys = [
     'amount_cents',
     'created_at',
@@ -30,42 +28,28 @@ const validateHmac = (data, hmacSent, secret) => {
   const concatenatedString = keys
     .map((key) => {
       let value;
-      // Handle nested source_data keys
-      if (key.startsWith('source_data.')) {
+      
+      if (key === 'order') {
+        value = typeof data.order === 'object' ? data.order.id : data.order;
+      } else if (key.startsWith('source_data.')) {
         const subKey = key.split('.')[1];
         value = data.source_data ? data.source_data[subKey] : '';
       } else {
         value = data[key];
       }
 
-      // Sanitize: Treat null/undefined as empty string
       if (value === null || value === undefined) return '';
       
-      // Convert booleans (true -> "true") and numbers to string
       return value.toString();
     })
     .join('');
 
-  // Create SHA512 Hash
   const calculatedHmac = crypto
     .createHmac('sha512', secret)
     .update(concatenatedString)
     .digest('hex');
 
-  // Debug logging — only in development
-  if (process.env.NODE_ENV === 'development') {
-    console.log('--- HMAC DEBUG ---');
-    console.log('Backend Concatenated String:', concatenatedString);
-    console.log('Backend Calculated HMAC:    ', calculatedHmac);
-    console.log('Received HMAC from Test:    ', hmacSent);
-    console.log('------------------');
-  }
-
-  // Timing-safe comparison to prevent side-channel attacks
-  const a = Buffer.from(calculatedHmac, 'hex');
-  const b = Buffer.from(hmacSent, 'hex');
-  if (a.length !== b.length) return false;
-  return crypto.timingSafeEqual(a, b);
+  return calculatedHmac === hmacSent;
 };
 
 module.exports = { validateHmac };
