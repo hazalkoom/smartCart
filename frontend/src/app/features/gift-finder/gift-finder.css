@@ -4,12 +4,31 @@
 
 .gift-finder-wrapper {
     min-height: calc(100vh - 100px);
-    background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+    background:
+        radial-gradient(ellipse at 50% -10%, rgba(19, 214, 255, 0.14) 0%, transparent 55%),
+        radial-gradient(ellipse at 100% 120%, rgba(111, 123, 255, 0.12) 0%, transparent 55%),
+        linear-gradient(180deg, #050c1a 0%, #040914 55%, #02060f 100%);
 }
 
 .quiz-card {
     transition: opacity 0.3s ease, transform 0.3s ease;
-    border: 1px solid rgba(226, 232, 240, 0.8);
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border);
+    color: var(--text);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+}
+
+.quiz-header h1 {
+    color: var(--text) !important;
+}
+
+.quiz-header p {
+    color: var(--text-muted) !important;
+}
+
+.icon-wrap {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border);
 }
 
 .quiz-card.fade-out {
@@ -19,26 +38,37 @@
 }
 
 .quiz-option-btn {
-    border-color: #e2e8f0 !important;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    background: var(--bg-elevated) !important;
+    border-color: var(--border) !important;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22);
 }
 
 .quiz-option-btn:hover {
     transform: translateY(-5px);
-    border-color: #3b82f6 !important;
-    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.1), 0 4px 6px -2px rgba(37, 99, 235, 0.05);
+    border-color: var(--primary) !important;
+    box-shadow: 0 14px 24px rgba(19, 214, 255, 0.16);
 }
 
 .quiz-option-btn:hover .option-icon {
-    background-color: #eff6ff !important;
+    background-color: var(--primary-dim) !important;
 }
 
 .quiz-option-btn:hover .option-icon i {
-    color: #3b82f6 !important;
+    color: var(--primary) !important;
 }
 
 .quiz-option-btn:hover .ms-auto {
-    color: #3b82f6 !important;
+    color: var(--primary) !important;
     transform: translateX(3px);
     transition: transform 0.2s;
+}
+
+.option-icon {
+    background: rgba(255, 255, 255, 0.04) !important;
+    border: 1px solid var(--border);
+}
+
+.option-icon i,
+.quiz-option-btn span {
+    color: var(--text) !important;
 }

@@ -32,7 +32,7 @@ class PaymobService {
   async _registerOrder(authToken, order) {
     try {
       const amountCents = Math.round(order.total * 100).toString();
-      const merchantOrderId = order._id.toString();
+      const merchantOrderId = `${order._id.toString()}_${Date.now()}`;
 
       const response = await paymobClient.post('/ecommerce/orders', {
         auth_token: authToken,

@@ -31,12 +31,19 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
   }
 
   // 4. Idempotency & Order Retrieval
-  const orderId = data.merchant_order_id;
+  const rawMerchantOrderId = data.order ? data.order.merchant_order_id : data.merchant_order_id;
+  
+  if (!rawMerchantOrderId) {
+      console.error('Paymob Webhook: merchant_order_id is missing from payload', data);
+      return res.status(200).send(); 
+  }
+
+  const orderId = rawMerchantOrderId.split('_')[0];  // Extract the real MongoDB ID
+
   const order = await Order.findById(orderId);
 
   if (!order) {
-    console.error(`Paymob Webhook: Order not found (ID: ${orderId})`);
-    // Return 200 to stop Paymob retries
+    console.error(`Paymob Webhook: Order not found (Parsed ID: ${orderId})`);
     return res.status(200).send();
   }
 
