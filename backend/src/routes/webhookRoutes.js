@@ -7,6 +7,14 @@ const { handlePaymobWebhook } = require('../controllers/webhookController');
 // We rely on HMAC signature for security.
 router.post('/paymob', handlePaymobWebhook);
 
+router.get('/paymob/redirect', (req, res) => {
+    // Grab all the success/failure parameters Paymob puts in the URL
+    const queryString = new URLSearchParams(req.query).toString();
+    
+    // Slingshot the user back to your local Angular frontend!
+    res.redirect(`http://localhost:4200/payment-callback?${queryString}`);
+});
+
 module.exports = router;
 
 // =========================================================================

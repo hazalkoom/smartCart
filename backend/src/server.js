@@ -68,7 +68,7 @@ app.use('/api/v1/products', productRoutes);
 app.use('/api/v1/cart', cartRoutes);
 app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
-app.use('/webhook', webhookRoutes);
+app.use('/api/v1/webhook', webhookRoutes);
 app.use('/api/v1/users', userRoutes);
 // Simple health check route
 app.get('/api/v1/health', (req, res) => {
