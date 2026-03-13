@@ -2,28 +2,55 @@ import requests
 import pytest
 import sys
 import os
+import uuid
 
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from tests.test_config import BASE_URL, print_test_result, shared_data
+from tests.test_config import BASE_URL, print_test_result
+from tests.helpers.api_assertions import assert_error, assert_status, auth_header
 # -------------------------------------------------------------------------
 
 auth_url = f"{BASE_URL}/auth"
 product_url = f"{BASE_URL}/products"
 
+
+def _unique_email(prefix: str) -> str:
+    return f"{prefix}_{uuid.uuid4().hex[:8]}@example.com"
+
+
+@pytest.fixture(scope='module')
+def customer_token():
+    email = _unique_email('security_customer')
+    register_payload = {
+        "email": email,
+        "password": "password123",
+        "firstName": "Security",
+        "lastName": "Customer",
+    }
+    requests.post(f"{auth_url}/register", json=register_payload)
+    res_login = requests.post(f"{auth_url}/login", json={"email": email, "password": "password123"})
+    assert_status(res_login, 200, "security fixture customer login")
+    return res_login.json()['data']['token']
+
+
+@pytest.fixture(scope='module')
+def reset_user_email():
+    email = _unique_email('security_reset')
+    payload = {
+        "email": email,
+        "password": "password123",
+        "firstName": "Reset",
+        "lastName": "User",
+    }
+    res = requests.post(f"{auth_url}/register", json=payload)
+    assert res.status_code in [201, 400]
+    return email
+
 @pytest.mark.run(order=95)
-def test_security_rbac():
+def test_security_rbac(customer_token):
     print("\n--- 🛡️ Running Security (RBAC) Tests ---")
     
-    # We rely on the token generated in test_auth.py (functional tests)
-    token = shared_data.get('token')
-    
-    # If running standalone, you might not have a token. 
-    # This check prevents a crash, but you should run functional tests first.
-    if not token:
-        pytest.skip("Skipping Security Tests: No token found. Run functional/test_auth.py first.")
-    
-    headers = {"Authorization": f"Bearer {token}"}
+    headers = auth_header(customer_token)
 
     # Scenario 1: Customer trying to Create Product (Should be Forbidden)
     new_product = {
@@ -40,6 +67,7 @@ def test_security_rbac():
     # Expect 403 Forbidden (Authorized but not Admin/Owner)
     success = res.status_code == 403
     print_test_result("Security - 1: Customer cannot Create Product (403)", success, res)
+    assert_error(res, 403, 'FORBIDDEN', 'not authorized', 'rbac create product forbidden')
     assert success
 
     # Scenario 2: Customer trying to Delete a Product
@@ -48,6 +76,7 @@ def test_security_rbac():
     
     success_delete = res_delete.status_code == 403
     print_test_result("Security - 2: Customer cannot Delete Product (403)", success_delete, res_delete)
+    assert_error(res_delete, 403, 'FORBIDDEN', 'not authorized', 'rbac delete product forbidden')
     assert success_delete
 
 
@@ -62,28 +91,21 @@ def test_security_injection():
         "password": "anything"
     }
     
-    try:
-        res = requests.post(f"{auth_url}/login", json=injection_payload)
-        # It MUST NOT be 200 OK. Ideally 400, 401, or 422.
-        is_safe = res.status_code != 200
-        print_test_result("Security - 3: NoSQL Injection Blocked", is_safe, res)
-        assert is_safe
-    except Exception as e:
-        # If the server drops the connection, that's technically safe (no login), but messy.
-        print(f"Server refused connection (Safe): {e}")
+    res = requests.post(f"{auth_url}/login", json=injection_payload)
+    is_safe = res.status_code in [400, 401]
+    print_test_result("Security - 3: NoSQL Injection Blocked", is_safe, res)
+    assert is_safe
 
 
 @pytest.mark.run(order=96.1)
-def test_reset_token_tampering():
+def test_reset_token_tampering(reset_user_email):
     """
     Security Test: Modifying even one character of a reset token should fail.
     """
     print("\n--- 🛡️ Running Password Reset Security Tests ---")
     
     # First, get a valid reset token
-    from tests.test_config import TEST_USER
-    
-    res_forgot = requests.post(f"{auth_url}/forgot-password", json={"email": TEST_USER['email']})
+    res_forgot = requests.post(f"{auth_url}/forgot-password", json={"email": reset_user_email})
     
     if res_forgot.status_code != 200:
         pytest.skip("Could not get reset token for security test")
@@ -109,10 +131,14 @@ def test_reset_token_replay_attack():
     """
     Security Test: Using the same reset token twice should fail the second time.
     """
-    from tests.test_config import TEST_USER
+    email = _unique_email('security_replay')
+    requests.post(
+        f"{auth_url}/register",
+        json={"email": email, "password": "password123", "firstName": "Replay", "lastName": "User"},
+    )
     
     # Get a fresh reset token
-    res_forgot = requests.post(f"{auth_url}/forgot-password", json={"email": TEST_USER['email']})
+    res_forgot = requests.post(f"{auth_url}/forgot-password", json={"email": email})
     
     if res_forgot.status_code != 200:
         pytest.skip("Could not get reset token")
@@ -145,9 +171,11 @@ def test_forgot_password_nosql_injection():
     
     res = requests.post(f"{auth_url}/forgot-password", json=injection_payload)
     
-    # Must NOT return 200 (which would indicate it found a user via injection)
-    is_safe = res.status_code != 200
+    # Must fail validation with an explicit client error.
+    is_safe = res.status_code == 400
     print_test_result("Security - Forgot Password NoSQL Injection Blocked", is_safe, res)
+    if is_safe:
+        assert_error(res, 400, 'VALIDATION_ERROR', 'valid email', 'forgot password injection')
     assert is_safe
 
 
@@ -161,7 +189,9 @@ def test_reset_password_nosql_injection():
     
     res = requests.post(f"{auth_url}/reset-password/{injection_token}", json={"password": "hacked"})
     
-    # Must NOT succeed
-    is_safe = res.status_code != 200
+    # Must fail with invalid token handling.
+    is_safe = res.status_code == 400
     print_test_result("Security - Reset Password Injection Blocked", is_safe, res)
+    if is_safe:
+        assert_error(res, 400, 'VALIDATION_ERROR', 'Invalid token', 'reset password injection')
     assert is_safe

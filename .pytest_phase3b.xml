@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="45" time="56.739" timestamp="2026-03-14T00:32:18.340338+02:00" hostname="DESKTOP-18NJLGS"><testcase classname="tests.functional.test_admin_users" name="test_setup_users" time="12.997" /><testcase classname="tests.functional.test_admin_users" name="test_get_all_users_owner_pagination" time="1.481" /><testcase classname="tests.functional.test_admin_users" name="test_get_all_users_security_intruder" time="0.191" /><testcase classname="tests.functional.test_admin_users" name="test_promote_user_to_admin" time="0.790" /><testcase classname="tests.functional.test_admin_users" name="test_owner_cannot_demote_self" time="0.352" /><testcase classname="tests.functional.test_admin_users" name="test_update_non_existent_user" time="0.753"><failure message="AssertionError: update non-existent user: Expected error.code=NOT_FOUND, got SERVER_ERROR. Body: {'success': False, 'error': {'code': 'SERVER_ERROR', 'message': 'User not found'}}">admin_users_ctx = {'admin_header': {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YjQ5MDc2Nzc5OTA0MGI1ODBjN2...0MCwiZXhwIjoxNzc0MDQ1OTQwfQ.MfKaFNMQltkFdjQD8lIW-xn3-JB2qe0WiGVRCXFuIS8'}, 'owner_id': '6995b332abc8acbf6079231f', ...}
+
+    @pytest.mark.run(order=10)
+    def test_update_non_existent_user(admin_users_ctx):
+        fake_id = '605d5b1d9c3e1a001f7b8b1a'
+        res = requests.put(f"{user_url}/{fake_id}", json={"role": "admin"}, headers=admin_users_ctx['owner_header'])
+&gt;       assert_error(res, 404, 'NOT_FOUND', 'User not found', 'update non-existent user')
+
+tests\functional\test_admin_users.py:102: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+response = &lt;Response [404]&gt;, expected_status = 404, expected_code = 'NOT_FOUND'
+message_contains = 'User not found', context = 'update non-existent user'
+
+    def assert_error(response, expected_status: int, expected_code: str = None, message_contains: str = None, context: str = ""):
+        assert_status(response, expected_status, context)
+        error = get_error(response, context)
+    
+        if expected_code and error.get("code") != expected_code:
+&gt;           raise AssertionError(
+                f"{context}: Expected error.code={expected_code}, got {error.get('code')}. Body: {json_body(response)}"
+            )
+E           AssertionError: update non-existent user: Expected error.code=NOT_FOUND, got SERVER_ERROR. Body: {'success': False, 'error': {'code': 'SERVER_ERROR', 'message': 'User not found'}}
+
+tests\helpers\api_assertions.py:55: AssertionError</failure></testcase><testcase classname="tests.functional.test_admin_users" name="test_delete_user_lifecycle" time="4.395"><failure message="AssertionError: get deleted user: Expected error.code=NOT_FOUND, got SERVER_ERROR. Body: {'success': False, 'error': {'code': 'SERVER_ERROR', 'message': 'User not found'}}">admin_users_ctx = {'admin_header': {'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5YjQ5MDc2Nzc5OTA0MGI1ODBjN2...0MCwiZXhwIjoxNzc0MDQ1OTQwfQ.MfKaFNMQltkFdjQD8lIW-xn3-JB2qe0WiGVRCXFuIS8'}, 'owner_id': '6995b332abc8acbf6079231f', ...}
+
+    @pytest.mark.run(order=11)
+    def test_delete_user_lifecycle(admin_users_ctx):
+        target_id = admin_users_ctx['target_id']
+        res_del = requests.delete(f"{user_url}/{target_id}", headers=admin_users_ctx['owner_header'])
+        assert_success(res_del, 200, "delete target user")
+    
+        res_get = requests.get(f"{user_url}/{target_id}", headers=admin_users_ctx['owner_header'])
+&gt;       assert_error(res_get, 404, 'NOT_FOUND', 'User not found', 'get deleted user')
+
+tests\functional\test_admin_users.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+response = &lt;Response [404]&gt;, expected_status = 404, expected_code = 'NOT_FOUND'
+message_contains = 'User not found', context = 'get deleted user'
+
+    def assert_error(response, expected_status: int, expected_code: str = None, message_contains: str = None, context: str = ""):
+        assert_status(response, expected_status, context)
+        error = get_error(response, context)
+    
+        if expected_code and error.get("code") != expected_code:
+&gt;           raise AssertionError(
+                f"{context}: Expected error.code={expected_code}, got {error.get('code')}. Body: {json_body(response)}"
+            )
+E           AssertionError: get deleted user: Expected error.code=NOT_FOUND, got SERVER_ERROR. Body: {'success': False, 'error': {'code': 'SERVER_ERROR', 'message': 'User not found'}}
+
+tests\helpers\api_assertions.py:55: AssertionError</failure></testcase><testcase classname="tests.functional.test_admin_users" name="test_owner_delete_self_fails" time="1.112" /><testcase classname="tests.functional.test_categories" name="test_get_owner_token" time="1.337" /><testcase classname="tests.functional.test_categories" name="test_get_all_categories_public" time="0.236" /><testcase classname="tests.functional.test_categories" name="test_category_security_no_token" time="0.006" /><testcase classname="tests.functional.test_categories" name="test_category_security_customer_role" time="0.173" /><testcase classname="tests.functional.test_categories" name="test_create_category_validation" time="0.619" /><testcase classname="tests.functional.test_categories" name="test_create_category_logic" time="0.984" /><testcase classname="tests.functional.test_categories" name="test_get_single_category_public" time="0.308" /><testcase classname="tests.functional.test_categories" name="test_update_category_logic" time="0.863" /><testcase classname="tests.functional.test_categories" name="test_delete_category" time="0.716" /><testcase classname="tests.functional.test_orders" name="test_order_setup_login_and_create_product" time="6.893" /><testcase classname="tests.functional.test_orders" name="test_order_setup_create_customer" time="0.001" /><testcase classname="tests.functional.test_orders" name="test_order_customer_adds_to_cart" time="1.110" /><testcase classname="tests.functional.test_orders" name="test_create_order_validation_fails" time="0.311" /><testcase classname="tests.functional.test_orders" name="test_create_order_happy_path" time="1.617" /><testcase classname="tests.functional.test_orders" name="test_verify_cart_is_cleared" time="1.112" /><testcase classname="tests.functional.test_orders" name="test_verify_stock_is_reduced" time="0.563" /><testcase classname="tests.functional.test_orders" name="test_create_order_fails_if_cart_empty" time="0.290" /><testcase classname="tests.functional.test_orders" name="test_customer_get_my_orders" time="0.304" /><testcase classname="tests.functional.test_orders" name="test_customer_get_order_by_id_success" time="0.984" /><testcase classname="tests.functional.test_orders" name="test_customer_get_order_by_id_fails_for_other_order" time="0.351" /><testcase classname="tests.functional.test_orders" name="test_admin_get_all_orders" time="0.736" /><testcase classname="tests.functional.test_orders" name="test_admin_get_customer_order_by_id" time="0.431" /><testcase classname="tests.functional.test_orders" name="test_admin_update_status_validation_fails" time="0.148" /><testcase classname="tests.functional.test_orders" name="test_admin_update_status_happy_path" time="0.915" /><testcase classname="tests.functional.test_orders" name="test_order_security_admin_routes_fail_for_customer" time="0.293" /><testcase classname="tests.functional.test_orders" name="test_order_cleanup" time="2.153" /><testcase classname="tests.functional.test_reviews" name="test_review_setup" time="1.879" /><testcase classname="tests.functional.test_reviews" name="test_create_review_validation" time="0.280" /><testcase classname="tests.functional.test_reviews" name="test_create_review_happy_path" time="0.843" /><testcase classname="tests.functional.test_reviews" name="test_prevent_duplicate_reviews" time="0.459" /><testcase classname="tests.functional.test_reviews" name="test_verify_product_stats_updated" time="0.365" /><testcase classname="tests.functional.test_reviews" name="test_update_review_permissions" time="0.160" /><testcase classname="tests.functional.test_reviews" name="test_update_review_happy_path" time="1.724" /><testcase classname="tests.functional.test_reviews" name="test_verify_stats_after_update" time="1.277" /><testcase classname="tests.functional.test_reviews" name="test_delete_review_happy_path" time="0.865" /><testcase classname="tests.functional.test_reviews" name="test_verify_stats_after_delete" time="0.288" /><testcase classname="tests.functional.test_reviews" name="test_review_cleanup" time="2.176" /></testsuite></testsuites>

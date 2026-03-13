@@ -1,30 +1,22 @@
+import os
 import requests
 import pytest
-import time
-import hashlib
 import hmac
-import os
-from tests.test_config import BASE_URL, OWNER_LOGIN, print_test_result, shared_data
+import hashlib
+
+from tests.test_config import BASE_URL, OWNER_LOGIN
+from tests.helpers.api_assertions import assert_status, assert_success, auth_header, unique_suffix
 
 # --- CONFIGURATION ---
 # IMPORTANT: This must match the PAYMOB_HMAC_SECRET in your backend .env file
 # If you are using a dummy value in dev, put it here.
-HMAC_SECRET = "9398BBEE4367A5BB6119DD67EECECC1D"
+HMAC_SECRET = os.getenv("PAYMOB_HMAC_SECRET", "9398BBEE4367A5BB6119DD67EECECC1D")
 
-webhook_url = f"{BASE_URL}/webhook/paymob"
-# Based on your previous setup, you mounted webhookRoutes at /webhook/paymob? 
-# Or /api/v1/webhook? Let's assume /webhook/paymob based on Prompt 3.
-# Adjust this URL if your server.js mount point is different.
-# If you mounted it as: app.post('/webhook/paymob', handlePaymobWebhook)
-# Then URL is http://localhost:5000/webhook/paymob
-WEBHOOK_ENDPOINT = webhook_url
+WEBHOOK_ENDPOINT = f"{BASE_URL}/webhook/paymob"
 
 # --- HELPER: HMAC GENERATOR ---
 def generate_hmac(data, secret):
-    """
-    Mimics Paymob's HMAC calculation exactly.
-    """
-    # 1. The 20 keys enforced by Paymob (Lexicographically sorted)
+    """Mimic Paymob HMAC calculation over expected fields."""
     keys = [
         'amount_cents', 'created_at', 'currency', 'error_occured', 
         'has_parent_transaction', 'id', 'integration_id', 'is_3d_secure', 
@@ -44,18 +36,15 @@ def generate_hmac(data, secret):
         else:
             val = data.get(key, "")
         
-        # Paymob treats None/False as specific strings in some SDKs, 
-        # but usually string conversion works.
-        # Boolean to string in Python is 'True'/'False', JS is 'true'/'false'.
-        # Paymob sends 'true'/'false' as JSON booleans. 
-        # We need to ensure we format it how the Backend expects it stringified.
-        if val is True: val = "true"
-        if val is False: val = "false"
-        if val is None: val = ""
+        if val is True:
+            val = "true"
+        if val is False:
+            val = "false"
+        if val is None:
+            val = ""
         
         concatenated_values += str(val)
 
-    # Hash it
     signature = hmac.new(
         key=secret.encode('utf-8'), 
         msg=concatenated_values.encode('utf-8'), 
@@ -64,63 +53,73 @@ def generate_hmac(data, secret):
     
     return signature
 
-# --- FIXTURE: SETUP DATA ---
 @pytest.fixture(scope="module")
-def setup_data():
-    """
-    Creates an Order to pay for.
-    """
-    # 1. Login Owner to create product
+def webhook_ctx():
     res_login = requests.post(f"{BASE_URL}/auth/login", json=OWNER_LOGIN)
-    owner_token = res_login.json()['data']['token']
-    owner_headers = {"Authorization": f"Bearer {owner_token}"}
-    
-    # 2. Create Product
-    prod_data = {
-        "name": f"Webhook Item {int(time.time())}", "price": 100, "sku": f"WEB-{int(time.time())}", 
-        "stock": 100, "categoryId": "605d5b1d9c3e1a001f7b8b1a", "description": "sec test"
-    }
-    # Create category if needed, but assuming one exists or using fake ID if validation loose
-    # Let's verify category existence quickly or create one
-    cat_res = requests.post(f"{BASE_URL}/categories", json={"name": f"WebCat {int(time.time())}"}, headers=owner_headers)
-    if cat_res.status_code == 201:
-        prod_data['categoryId'] = cat_res.json()['data']['_id']
-    
-    res_prod = requests.post(f"{BASE_URL}/products", json=prod_data, headers=owner_headers)
-    product_id = res_prod.json()['data']['_id']
+    owner_body = assert_success(res_login, 200, "webhook owner login")
+    owner_headers = auth_header(owner_body['data']['token'])
 
-    # 3. Create User & Order
-    user_email = f"webhookuser_{int(time.time())}@test.com"
-    requests.post(f"{BASE_URL}/auth/register", json={
-        "email": user_email, "password": "password123", "firstName": "Web", "lastName": "Hook"
-    })
+    res_cat = requests.post(f"{BASE_URL}/categories", json={"name": f"WebCat {unique_suffix()}"}, headers=owner_headers)
+    cat_body = assert_success(res_cat, 201, "webhook create category")
+    category_id = cat_body['data']['_id']
+
+    res_prod = requests.post(
+        f"{BASE_URL}/products",
+        json={
+            "name": f"Webhook Item {unique_suffix()}",
+            "price": 100,
+            "sku": f"WEB-{unique_suffix()}",
+            "stock": 100,
+            "categoryId": category_id,
+            "description": "sec test",
+        },
+        headers=owner_headers,
+    )
+    prod_body = assert_success(res_prod, 201, "webhook create product")
+    product_id = prod_body['data']['_id']
+
+    user_email = f"webhookuser_{unique_suffix()}@test.com"
+    res_reg = requests.post(
+        f"{BASE_URL}/auth/register",
+        json={"email": user_email, "password": "password123", "firstName": "Web", "lastName": "Hook"},
+    )
+    assert_status(res_reg, 201, "webhook register user")
+
     res_user = requests.post(f"{BASE_URL}/auth/login", json={"email": user_email, "password": "password123"})
-    user_token = res_user.json()['data']['token']
-    user_headers = {"Authorization": f"Bearer {user_token}"}
-    
-    requests.post(f"{BASE_URL}/cart/items", json={"productId": product_id, "quantity": 1}, headers=user_headers)
-    res_order = requests.post(f"{BASE_URL}/orders", json={
-        "shippingAddress": {"street": "Web St", "city": "Cairo", "country": "EG"}
-    }, headers=user_headers)
-    
-    order_payload = res_order.json().get('data', {})
+    user_body = assert_success(res_user, 200, "webhook login user")
+    user_headers = auth_header(user_body['data']['token'])
+
+    res_cart = requests.post(f"{BASE_URL}/cart/items", json={"productId": product_id, "quantity": 1}, headers=user_headers)
+    if res_cart.status_code not in [200, 201]:
+        raise AssertionError(f"webhook add cart item failed: status={res_cart.status_code} body={res_cart.text}")
+
+    res_order = requests.post(
+        f"{BASE_URL}/orders",
+        json={"shippingAddress": {"street": "Web St", "city": "Cairo", "country": "EG"}},
+        headers=user_headers,
+    )
+    order_body = assert_success(res_order, 201, "webhook create order")
+    order_payload = order_body.get('data', {})
     order_obj = order_payload.get('order', order_payload)
-    order_id = order_obj['_id']
-    
-    return {
-        "order_id": order_id,
+
+    ctx = {
+        "order_id": order_obj['_id'],
         "user_headers": user_headers,
-        "amount_cents": 10000 # 100.00 * 100
+        "amount_cents": 10000,
+        "owner_headers": owner_headers,
+        "product_id": product_id,
+        "category_id": category_id,
     }
+    yield ctx
+
+    requests.delete(f"{BASE_URL}/products/{ctx['product_id']}", headers=ctx['owner_headers'])
+    requests.delete(f"{BASE_URL}/categories/{ctx['category_id']}", headers=ctx['owner_headers'])
 
 # --- TESTS ---
 
 @pytest.mark.run(order=91)
-def test_webhook_impersonator_attack(setup_data):
-    """
-    Attack: Send valid data but invalid HMAC.
-    """
-    order_id = setup_data['order_id']
+def test_webhook_impersonator_attack(webhook_ctx):
+    order_id = webhook_ctx['order_id']
     
     payload = {
         "type": "TRANSACTION",
@@ -129,28 +128,17 @@ def test_webhook_impersonator_attack(setup_data):
             "success": True,
             "merchant_order_id": order_id,
             "amount_cents": 10000,
-            # ... minimal fields needed to pass basic validation
             "source_data": {"type": "card", "pan": "1234", "sub_type": "Visa"}
         }
     }
-    
-    # Fake Signature
     fake_hmac = "a" * 128
-    
     res = requests.post(f"{WEBHOOK_ENDPOINT}?hmac={fake_hmac}", json=payload)
-    
-    assert res.status_code == 403
-    # Check if your backend sends JSON or text for 403
-    # assert "Invalid HMAC" in res.text
+    assert_status(res, 403, "webhook impersonator attack")
 
 @pytest.mark.run(order=92)
-def test_webhook_man_in_the_middle_attack(setup_data):
-    """
-    Attack: Intercept valid payload, change amount, keep valid signature.
-    """
-    order_id = setup_data['order_id']
-    
-    # 1. Construct Valid Payload
+def test_webhook_man_in_the_middle_attack(webhook_ctx):
+    order_id = webhook_ctx['order_id']
+
     data = {
         "amount_cents": 10000,
         "created_at": "2023-01-01T00:00:00",
@@ -171,36 +159,23 @@ def test_webhook_man_in_the_middle_attack(setup_data):
         "source_data": {"pan": "2345", "sub_type": "MasterCard", "type": "card"},
         "success": True
     }
-    
-    # 2. Generate Valid HMAC for THIS data
+
     valid_hmac = generate_hmac(data, HMAC_SECRET)
-    
-    # 3. Modify Data (The Hack)
-    # Hacker changes amount from 100.00 to 1.00
+
     data['amount_cents'] = 100 
-    
-    # 4. Send with ORIGINAL valid HMAC
+
     res = requests.post(
         f"{WEBHOOK_ENDPOINT}?hmac={valid_hmac}",
         json={"type": "TRANSACTION", "obj": data}
     )
-    
-    assert res.status_code == 403
+
+    assert_status(res, 403, "webhook man in the middle attack")
 
 @pytest.mark.run(order=93)
-def test_webhook_happy_path_success(setup_data):
-    """
-    Valid Paymob Callback -> Order should become PAID.
-    """
-    order_id = setup_data['order_id']
-    amount = setup_data['amount_cents']
-    
-    # 1. Construct Full Valid Payload
-    # Paymob sends merchant_order_id inside the 'obj', but it's not part of HMAC calculation keys!
-    # Wait, check backend logic: 
-    # Backend usually uses merchant_order_id to find the order.
-    # HMAC keys list does NOT include 'merchant_order_id'.
-    
+def test_webhook_happy_path_success(webhook_ctx):
+    order_id = webhook_ctx['order_id']
+    amount = webhook_ctx['amount_cents']
+
     data = {
         "amount_cents": amount,
         "created_at": "2023-01-01T00:00:00",
@@ -221,48 +196,40 @@ def test_webhook_happy_path_success(setup_data):
         "source_data": {"pan": "2345", "sub_type": "MasterCard", "type": "card"},
         "success": True,
         
-        # Extra fields NOT in HMAC but needed by Controller
         "merchant_order_id": order_id 
     }
-    
-    # 2. Calculate HMAC
+
     signature = generate_hmac(data, HMAC_SECRET)
-    
-    # 3. Send
+
     res = requests.post(
         f"{WEBHOOK_ENDPOINT}?hmac={signature}",
         json={"type": "TRANSACTION", "obj": data}
     )
-    
-    assert res.status_code == 200
-    
-    # 4. Verify DB State
-    headers = setup_data['user_headers']
+
+    assert_status(res, 200, "webhook happy path callback")
+
+    headers = webhook_ctx['user_headers']
     res_order = requests.get(f"{BASE_URL}/orders/{order_id}", headers=headers)
-    
-    order_data = res_order.json()['data']
+
+    order_body = assert_success(res_order, 200, "webhook verify order state")
+    order_data = order_body['data']
     assert order_data['status'] == 'Paid'
     assert order_data['isPaid'] is True
     assert order_data.get('paidAt') is not None
 
 @pytest.mark.run(order=94)
-def test_webhook_idempotency(setup_data):
-    """
-    Send the same valid webhook again.
-    """
-    order_id = setup_data['order_id']
-    headers = setup_data['user_headers']
-    
-    # Check if previous test passed (Order is Paid)
+def test_webhook_idempotency(webhook_ctx):
+    order_id = webhook_ctx['order_id']
+    headers = webhook_ctx['user_headers']
+
     res_before = requests.get(f"{BASE_URL}/orders/{order_id}", headers=headers)
-    order_data = res_before.json().get('data', {})
-    
+    before_body = assert_success(res_before, 200, "webhook idempotency before")
+    order_data = before_body.get('data', {})
     if order_data.get('status') != 'Paid':
-        pytest.skip("Skipping Idempotency test because Happy Path failed (Order is not Paid)")
+        pytest.skip("Skipping idempotency test because order is not Paid")
 
     paid_at_before = order_data['paidAt']
     
-    # Construct Payload again (Same ID)
     data = {
         "amount_cents": 10000,
         "created_at": "2023-01-01T00:00:00",
@@ -285,16 +252,15 @@ def test_webhook_idempotency(setup_data):
         "merchant_order_id": order_id
     }
     signature = generate_hmac(data, HMAC_SECRET)
-    
-    # Send Duplicate
+
     res = requests.post(
         f"{WEBHOOK_ENDPOINT}?hmac={signature}",
         json={"type": "TRANSACTION", "obj": data}
     )
-    assert res.status_code == 200
-    
-    # Verify State Unchanged
+    assert_status(res, 200, "webhook idempotency duplicate callback")
+
     res_after = requests.get(f"{BASE_URL}/orders/{order_id}", headers=headers)
-    paid_at_after = res_after.json()['data']['paidAt']
+    after_body = assert_success(res_after, 200, "webhook idempotency after")
+    paid_at_after = after_body['data']['paidAt']
     
     assert paid_at_before == paid_at_after

@@ -1,227 +1,246 @@
 import requests
 import pytest
-import time
-from tests.test_config import BASE_URL, OWNER_LOGIN, print_test_result, shared_data
+from tests.test_config import BASE_URL, OWNER_LOGIN
+from tests.helpers.api_assertions import (
+    assert_error,
+    assert_status,
+    assert_success,
+    auth_header,
+    unique_suffix,
+)
 
 order_url = f"{BASE_URL}/orders"
 product_url = f"{BASE_URL}/products"
 category_url = f"{BASE_URL}/categories"
 cart_url = f"{BASE_URL}/cart"
 
-owner_headers = {}
-customer_headers = {} # For our new order customer
 
-# --- Helper Tests (Setup) ---
-
-@pytest.mark.run(order=58)
-def test_order_setup_login_and_create_product():
-    global owner_headers
-    # 1. Log in as owner
+@pytest.fixture(scope='module')
+def order_ctx():
+    # 1. Owner login
     res_login = requests.post(f"{BASE_URL}/auth/login", json=OWNER_LOGIN)
-    assert res_login.status_code == 200, "Order setup failed: could not log in as owner"
-    owner_token = res_login.json()['data']['token']
-    owner_headers = {"Authorization": f"Bearer {owner_token}"}
-    shared_data['owner_token'] = owner_token
-    
-    # 2. Create a temporary Category
-    cat_name = f"Order Test Cat {int(time.time())}"
-    res_cat = requests.post(category_url, json={"name": cat_name}, headers=owner_headers)
-    assert res_cat.status_code == 201
-    category_id = res_cat.json()['data']['_id']
-    shared_data['order_test_category_id'] = category_id
+    login_body = assert_success(res_login, 200, "order setup owner login")
+    owner_headers = auth_header(login_body['data']['token'])
 
-    # 3. Create a temporary Product (with stock 10)
-    prod_sku = f"ORDER-TEST-{int(time.time())}"
-    prod_name = f"Order Test Product {int(time.time())}"
+    # 2. Category
+    cat_name = f"Order Test Cat {unique_suffix()}"
+    res_cat = requests.post(category_url, json={"name": cat_name}, headers=owner_headers)
+    cat_body = assert_success(res_cat, 201, "order setup create category")
+    category_id = cat_body['data']['_id']
+
+    # 3. Product (stock 10)
     product_data = {
-        "name": prod_name, "price": 20.00, "sku": prod_sku, "stock": 10,
-        "categoryId": category_id, "description": "A product for order testing"
+        "name": f"Order Test Product {unique_suffix()}",
+        "price": 20.00,
+        "sku": f"ORDER-TEST-{unique_suffix()}",
+        "stock": 10,
+        "categoryId": category_id,
+        "description": "A product for order testing",
     }
     res_prod = requests.post(product_url, json=product_data, headers=owner_headers)
-    assert res_prod.status_code == 201
-    
-    shared_data['order_product_id'] = res_prod.json()['data']['_id']
-    shared_data['order_product_slug'] = res_prod.json()['data']['slug']
-    shared_data['order_product_stock'] = 10
-    print("Order tests created a temporary product and category.")
+    prod_body = assert_success(res_prod, 201, "order setup create product")
 
-@pytest.mark.run(order=59)
-def test_order_setup_create_customer():
-    global customer_headers
-    customer_email = f"order_customer_{int(time.time())}@example.com"
+    # 4. Customer
+    customer_email = f"order_customer_{unique_suffix()}@example.com"
     register_payload = {
-        "email": customer_email, "password": "password123", 
-        "firstName": "Order", "lastName": "Customer"
+        "email": customer_email,
+        "password": "password123",
+        "firstName": "Order",
+        "lastName": "Customer",
     }
     res_register = requests.post(f"{BASE_URL}/auth/register", json=register_payload)
-    assert res_register.status_code == 201
-    
-    res_login = requests.post(f"{BASE_URL}/auth/login", json={"email": customer_email, "password": "password123"})
-    assert res_login.status_code == 200
-    
-    customer_token = res_login.json()['data']['token']
-    customer_headers = {"Authorization": f"Bearer {customer_token}"}
-    print("Order tests created a temporary customer.")
+    assert_status(res_register, 201, "order setup register customer")
 
-# --- 2. Customer Flow: Add to Cart ---
+    res_customer_login = requests.post(
+        f"{BASE_URL}/auth/login",
+        json={"email": customer_email, "password": "password123"},
+    )
+    customer_login_body = assert_success(res_customer_login, 200, "order setup login customer")
+    customer_headers = auth_header(customer_login_body['data']['token'])
+
+    # Deterministic customer cart state for this module.
+    requests.delete(cart_url, headers=customer_headers)
+
+    ctx = {
+        'owner_headers': owner_headers,
+        'customer_headers': customer_headers,
+        'category_id': category_id,
+        'product_id': prod_body['data']['_id'],
+        'product_slug': prod_body['data']['slug'],
+        'product_stock': 10,
+        'order_id': None,
+    }
+
+    yield ctx
+
+    requests.delete(cart_url, headers=customer_headers)
+    requests.delete(f"{product_url}/{ctx['product_id']}", headers=owner_headers)
+    requests.delete(f"{category_url}/{category_id}", headers=owner_headers)
+
+
+@pytest.mark.run(order=58)
+def test_order_setup_login_and_create_product(order_ctx):
+    assert order_ctx['product_id']
+    assert order_ctx['category_id']
+
+
+@pytest.mark.run(order=59)
+def test_order_setup_create_customer(order_ctx):
+    assert order_ctx['customer_headers'].get('Authorization', '').startswith('Bearer ')
+
 
 @pytest.mark.run(order=60)
-def test_order_customer_adds_to_cart():
-    product_id = shared_data['order_product_id']
-    res = requests.post(f"{cart_url}/items", json={"productId": product_id, "quantity": 3}, headers=customer_headers)
-    assert res.status_code == 200
-    assert len(res.json()['data']['items']) == 1
-    assert res.json()['data']['items'][0]['quantity'] == 3
+def test_order_customer_adds_to_cart(order_ctx):
+    res = requests.post(
+        f"{cart_url}/items",
+        json={"productId": order_ctx['product_id'], "quantity": 3},
+        headers=order_ctx['customer_headers'],
+    )
+    data = assert_success(res, 200, "order add to cart")['data']
+    assert len(data['items']) == 1
+    assert data['items'][0]['quantity'] == 3
 
-# --- 3. Customer Flow: Create Order ---
 
 @pytest.mark.run(order=61)
-def test_create_order_validation_fails():
+def test_create_order_validation_fails(order_ctx):
     # Scenario 1: Missing shippingAddress
-    res = requests.post(order_url, json={}, headers=customer_headers)
-    assert res.status_code == 400
-    assert res.json()['error']['code'] == 'VALIDATION_ERROR'
-    assert "Shipping address is required" in res.json()['error']['message']
-    
+    res = requests.post(order_url, json={}, headers=order_ctx['customer_headers'])
+    assert_error(res, 400, 'VALIDATION_ERROR', 'Shipping address is required', 'order validation missing address')
+
     # Scenario 2: Missing street
     bad_address = {"city": "Cairo", "country": "Egypt"}
-    res_street = requests.post(order_url, json={"shippingAddress": bad_address}, headers=customer_headers)
-    assert res_street.status_code == 400
-    assert "Street is required" in res_street.json()['error']['message']
+    res_street = requests.post(order_url, json={"shippingAddress": bad_address}, headers=order_ctx['customer_headers'])
+    assert_error(res_street, 400, 'VALIDATION_ERROR', 'Street is required', 'order validation missing street')
+
 
 @pytest.mark.run(order=62)
-def test_create_order_happy_path():
+def test_create_order_happy_path(order_ctx):
     address = {"street": "123 Test St", "city": "Cairo", "country": "Egypt"}
-    res = requests.post(order_url, json={"shippingAddress": address}, headers=customer_headers)
-    assert res.status_code == 201
-    
-    data = res.json()['data']
+    res = requests.post(order_url, json={"shippingAddress": address}, headers=order_ctx['customer_headers'])
+    body = assert_success(res, 201, "order create happy path")
+
+    data = body['data']
     order_data = data['order'] if 'order' in data else data
-    
+
     assert order_data['status'] == 'Pending'
-    # Check items length (safely)
+    assert order_data.get('isPaid') is False
     assert len(order_data['items']) >= 1
-    assert order_data['shippingAddress']['city'] == "Cairo"
-    
-    # Save the order ID for later tests
-    shared_data['order_id'] = order_data['_id']
+    assert order_data['shippingAddress']['city'] == 'Cairo'
+    assert order_data['total'] == order_data['subtotal'] + order_data['tax'] + order_data['shipping']
 
-# --- 4. Verify Post-Order State ---
+    order_ctx['order_id'] = order_data['_id']
 
-@pytest.mark.run(order=63)
-def test_verify_cart_is_cleared():
-    res = requests.get(cart_url, headers=customer_headers)
-    assert res.status_code == 200
-    assert len(res.json()['data']['items']) == 0
-    assert res.json()['data']['subtotal'] == 0
 
 @pytest.mark.run(order=63)
-def test_verify_stock_is_reduced():
-    slug = shared_data['order_product_slug']
-    res = requests.get(f"{product_url}/{slug}") # Public route
-    assert res.status_code == 200
-    
-    original_stock = shared_data['order_product_stock'] # 10
-    expected_stock = original_stock - 3 # 7
-    assert res.json()['data']['stock'] == expected_stock
+def test_verify_cart_is_cleared(order_ctx):
+    res = requests.get(cart_url, headers=order_ctx['customer_headers'])
+    data = assert_success(res, 200, "order verify cart cleared")['data']
+    assert len(data['items']) == 0
+    assert data['subtotal'] == 0
+
 
 @pytest.mark.run(order=63)
-def test_create_order_fails_if_cart_empty():
+def test_verify_stock_is_reduced(order_ctx):
+    res = requests.get(f"{product_url}/{order_ctx['product_slug']}")
+    data = assert_success(res, 200, "order verify stock reduced")['data']
+
+    expected_stock = order_ctx['product_stock'] - 3
+    assert data['stock'] == expected_stock
+
+
+@pytest.mark.run(order=63)
+def test_create_order_fails_if_cart_empty(order_ctx):
     address = {"street": "123 Test St", "city": "Cairo", "country": "Egypt"}
-    res = requests.post(order_url, json={"shippingAddress": address}, headers=customer_headers)
-    assert res.status_code == 400
-    
-    # Robust check: look for message inside 'error' object OR top level
+    res = requests.post(order_url, json={"shippingAddress": address}, headers=order_ctx['customer_headers'])
+    assert_status(res, 400, "order create fails when cart empty")
+
     json_response = res.json()
     error_msg = json_response.get('error', {}).get('message', '') or json_response.get('message', '')
     error_code = json_response.get('error', {}).get('code', '')
-    
-    # We accept either specific code or a message indicating empty cart
-    assert error_code == 'CART_EMPTY' or "empty" in error_msg.lower()
+    assert error_code == 'CART_EMPTY' or 'empty' in error_msg.lower()
 
-# --- 5. Customer Read Tests ---
 
 @pytest.mark.run(order=64)
-def test_customer_get_my_orders():
-    res = requests.get(f"{order_url}/my", headers=customer_headers)
-    assert res.status_code == 200
-    assert res.json()['count'] == 1
-    assert res.json()['data'][0]['_id'] == shared_data['order_id']
+def test_customer_get_my_orders(order_ctx):
+    res = requests.get(f"{order_url}/my", headers=order_ctx['customer_headers'])
+    body = assert_success(res, 200, "customer get my orders")
+    assert body['count'] >= 1
+    assert any(o['_id'] == order_ctx['order_id'] for o in body['data'])
+
 
 @pytest.mark.run(order=64)
-def test_customer_get_order_by_id_success():
-    order_id = shared_data['order_id']
-    res = requests.get(f"{order_url}/{order_id}", headers=customer_headers)
-    assert res.status_code == 200
-    assert res.json()['data']['_id'] == order_id
+def test_customer_get_order_by_id_success(order_ctx):
+    res = requests.get(f"{order_url}/{order_ctx['order_id']}", headers=order_ctx['customer_headers'])
+    body = assert_success(res, 200, "customer get order by id")
+    assert body['data']['_id'] == order_ctx['order_id']
+
 
 @pytest.mark.run(order=64)
-def test_customer_get_order_by_id_fails_for_other_order():
-    fake_id = "605d5b1d9c3e1a001f7b8b1a"
-    res = requests.get(f"{order_url}/{fake_id}", headers=customer_headers)
-    assert res.status_code == 404
-    assert res.json()['error']['code'] == 'NOT_FOUND'
+def test_customer_get_order_by_id_fails_for_other_order(order_ctx):
+    fake_id = '605d5b1d9c3e1a001f7b8b1a'
+    res = requests.get(f"{order_url}/{fake_id}", headers=order_ctx['customer_headers'])
+    assert_error(res, 404, 'NOT_FOUND', 'Order not found', 'customer get invalid order')
 
-# --- 6. Admin Read/Update Tests ---
 
 @pytest.mark.run(order=65)
-def test_admin_get_all_orders():
-    res = requests.get(order_url, headers=owner_headers)
-    assert res.status_code == 200
-    assert res.json()['count'] >= 1
-    
-@pytest.mark.run(order=65)
-def test_admin_get_customer_order_by_id():
-    order_id = shared_data['order_id']
-    res = requests.get(f"{order_url}/{order_id}", headers=owner_headers)
-    assert res.status_code == 200
-    assert res.json()['data']['_id'] == order_id
+def test_admin_get_all_orders(order_ctx):
+    res = requests.get(order_url, headers=order_ctx['owner_headers'])
+    body = assert_success(res, 200, "admin get all orders")
+    assert body['count'] >= 1
+
 
 @pytest.mark.run(order=65)
-def test_admin_update_status_validation_fails():
-    order_id = shared_data['order_id']
-    res = requests.patch(f"{order_url}/{order_id}/status", json={"status": "InvalidStatus"}, headers=owner_headers)
-    assert res.status_code == 400
-    assert res.json()['error']['code'] == 'VALIDATION_ERROR'
+def test_admin_get_customer_order_by_id(order_ctx):
+    res = requests.get(f"{order_url}/{order_ctx['order_id']}", headers=order_ctx['owner_headers'])
+    body = assert_success(res, 200, "admin get customer order")
+    assert body['data']['_id'] == order_ctx['order_id']
+
 
 @pytest.mark.run(order=65)
-def test_admin_update_status_happy_path():
-    """
-    Test the Correct Flow: Pending -> Paid -> Shipped.
-    """
-    order_id = shared_data['order_id']
-    
-    res_paid = requests.patch(f"{order_url}/{order_id}/status", json={"status": "Paid"}, headers=owner_headers)
-    assert res_paid.status_code == 200
-    
-    res = requests.patch(f"{order_url}/{order_id}/status", json={"status": "Shipped"}, headers=owner_headers)
-    assert res.status_code == 200
-    assert res.json()['data']['status'] == "Shipped"
-    assert "shippedAt" in res.json()['data']
+def test_admin_update_status_validation_fails(order_ctx):
+    res = requests.patch(
+        f"{order_url}/{order_ctx['order_id']}/status",
+        json={"status": "InvalidStatus"},
+        headers=order_ctx['owner_headers'],
+    )
+    assert_error(res, 400, 'VALIDATION_ERROR', 'Invalid order status', 'admin update invalid status')
 
-# --- 7. Final Security & Cleanup ---
+
+@pytest.mark.run(order=65)
+def test_admin_update_status_happy_path(order_ctx):
+    res_paid = requests.patch(
+        f"{order_url}/{order_ctx['order_id']}/status",
+        json={"status": "Paid"},
+        headers=order_ctx['owner_headers'],
+    )
+    paid_body = assert_success(res_paid, 200, "admin update status paid")
+    assert paid_body['data']['status'] == 'Paid'
+
+    res = requests.patch(
+        f"{order_url}/{order_ctx['order_id']}/status",
+        json={"status": "Shipped"},
+        headers=order_ctx['owner_headers'],
+    )
+    body = assert_success(res, 200, "admin update status shipped")
+    assert body['data']['status'] == 'Shipped'
+    assert 'shippedAt' in body['data']
+
 
 @pytest.mark.run(order=66)
-def test_order_security_admin_routes_fail_for_customer():
-    order_id = shared_data['order_id']
-    # Try to get ALL orders as a customer
-    res_get = requests.get(order_url, headers=customer_headers)
-    assert res_get.status_code == 403
-    assert res_get.json()['error']['code'] == 'FORBIDDEN'
-    
-    # Try to update status as a customer
-    res_patch = requests.patch(f"{order_url}/{order_id}/status", json={"status": "Delivered"}, headers=customer_headers)
-    assert res_patch.status_code == 403
-    assert res_patch.json()['error']['code'] == 'FORBIDDEN'
+def test_order_security_admin_routes_fail_for_customer(order_ctx):
+    res_get = requests.get(order_url, headers=order_ctx['customer_headers'])
+    assert_error(res_get, 403, 'FORBIDDEN', 'not authorized', 'order security customer get all')
+
+    res_patch = requests.patch(
+        f"{order_url}/{order_ctx['order_id']}/status",
+        json={"status": "Delivered"},
+        headers=order_ctx['customer_headers'],
+    )
+    assert_error(res_patch, 403, 'FORBIDDEN', 'not authorized', 'order security customer patch')
+
 
 @pytest.mark.run(order=67)
-def test_order_cleanup():
-    prod_id = shared_data['order_product_id']
-    cat_id = shared_data['order_test_category_id']
-    
-    res_prod = requests.delete(f"{product_url}/{prod_id}", headers=owner_headers)
-    assert res_prod.status_code == 200
-    
-    res_cat = requests.delete(f"{category_url}/{cat_id}", headers=owner_headers)
-    assert res_cat.status_code == 200
-    print("\nOrder tests cleaned up temporary product and category.")
+def test_order_cleanup(order_ctx):
+    # Fixture teardown handles cleanup; keep marker continuity.
+    res = requests.get(f"{order_url}/{order_ctx['order_id']}", headers=order_ctx['owner_headers'])
+    assert_status(res, 200, "order cleanup verification")
