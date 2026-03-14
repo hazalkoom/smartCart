@@ -1,166 +1,126 @@
 # Features
 
-This document describes SmartCart’s **user-facing capabilities** and **operator workflows**. It is grounded in the backend implementation (`backend/src/*`) and the automated system/security test suites (`tests/functional`, `tests/security`).
-
-For endpoint-level detail, see [`docs/api.md`](api.md).
-
-## Personas
-
-- **Customer**: shops, checks out, reviews.
-- **Admin**: manages catalog and order fulfillment.
-- **Owner**: top-level operator; can manage users/roles.
+This document summarizes the user-facing and operator-facing behavior that exists in the current SmartCart codebase.
 
 ## Customer capabilities
 
-### Account access
+### Account and profile
 
 Customers can:
 
-- Create an account (register)
-- Sign in (login)
-- Retrieve their profile
-- Update basic profile details
-- Initiate password reset and set a new password
-- Add/remove products in a personal wishlist
-- Save and delete shipping addresses for faster checkout
+- register and log in
+- retrieve their current profile
+- update first and last name
+- request a password reset and submit a new password
+- add and remove wishlist items
+- add and remove saved addresses
 
-Constraints / edge cases:
+Current constraints:
 
-- Passwords are hashed and never returned.
-- Password reset tokens are generated server-side; **email delivery is not evidenced** in this repo (tokens are returned for testing).
-- Saved addresses are user-scoped and include alias/street/city/postalCode/country (plus optional default flag).
+- profile updates only expose firstName and lastName in the frontend service
+- password reset returns resetToken and resetUrl only outside production
 
-### Browse catalog
+### Catalog and discovery
 
 Customers can:
 
-- View categories (for navigation)
-- View products (listing)
-- Filter/search products (keyword, category, stock status)
-- Open a product details view by slug
+- browse categories
+- browse product listings with filters and sorting
+- open product detail pages by slug
+- browse themed content pages such as about, help center, and gift finder
 
-Constraints / edge cases:
+Implemented product filtering supports:
 
-- Products can be **soft-deleted**; soft-deleted products are excluded from standard queries.
+- keyword
+- category, including comma-separated category IDs
+- minPrice and maxPrice
+- minRating
+- stockStatus
+- sort
+- page and limit
 
-### Cart workflow
-
-Customers can:
-
-- Create and maintain a shopping cart
-- Add products to cart
-- Increase/decrease quantities
-- Remove items
-- Clear the cart
-
-Constraints / edge cases:
-
-- **Stock is validated** on add and quantity updates.
-- **Price is locked** when an item is added to cart; later product price changes do not retroactively change cart line item prices.
-- The backend maintains a server-side cart `subtotal` and recalculates it after modifications.
-
-### Checkout & order lifecycle
+### Cart and checkout
 
 Customers can:
 
-- Create an order from the current cart
-- View their order history
-- View details for an individual order
+- add products to a cart
+- update item quantities
+- remove cart items
+- clear the cart
+- create an order from the current cart
+- open a protected order-detail route for a specific order
 
-Constraints / edge cases:
+Current behavior:
 
-- Order creation is transactional: inventory decrement and cart clearing occur atomically.
-- Access control: customers can only view their own orders.
+- cart state is also cached in browser localStorage by the frontend service
+- order creation only requires shippingAddress at request time
+- the backend currently persists card as the initial order paymentMethod before explicit Paymob payment initiation
 
-### Payments (Paymob)
+### Payments
 
-Customers can initiate payment for an order using:
+Customers can initiate Paymob payment for an unpaid order using:
 
-- **Card** (returns an iframe URL)
-- **Wallet** (returns a redirect URL)
-- **Fawry** (returns a bill reference code)
+- card
+- wallet
+- fawry
 
-Constraints / edge cases:
+Current constraints:
 
-- Paymob integration requires environment variables (see [`docs/setup.md`](setup.md)).
-- Mobile wallet payments may require the customer to have a mobile number in their profile.
-- Webhook authenticity is validated using HMAC.
+- wallet payments require a mobile number in the request or on the saved user profile
+- Paymob redirects are sent to the frontend payment-callback route
 
 ### Reviews
 
 Customers can:
 
-- List reviews for a product
-- Create a review for a product
-- Update their own review
-- Delete their own review
-
-Constraints / edge cases:
-
-- A customer can submit **only one review per product** (enforced by a unique index).
-- Product `rating` and `reviewCount` are recalculated after review create/update/delete.
+- fetch reviews for a product
+- create one review per product
+- update their own review
+- delete their own review
 
 ## Admin capabilities
 
-### Catalog operations
-
 Admins can:
 
-- Create, update, delete categories
-- Create and update products
-- View product listing like customers
+- access the admin area
+- view the admin dashboard
+- manage products
+- manage categories
+- view and update orders
+- list users
 
-Constraints / edge cases:
+Current constraints:
 
-- Product deletion is **owner-only** and implemented as soft delete.
-
-### Order operations
-
-Admins can:
-
-- View all orders
-- Update order status for fulfillment
-
-Constraints / edge cases:
-
-- Order status transitions are validated (e.g., shipping requires paid status).
-- Cancelling an order restocks inventory.
+- admins cannot delete products
+- admins cannot access the owner-only user-management route actions that mutate owner-level user data
 
 ## Owner capabilities
 
-### Everything an admin can do
+Owners inherit admin capabilities and can also:
 
-Owner includes all admin capabilities.
+- create users through POST /users
+- update users through PUT /users/:id
+- delete users through DELETE /users/:id
+- access the protected /admin/users screen
+- soft-delete products
 
-### User management (owner-only)
+Owner safeguards in the backend prevent:
 
-Owners can:
+- creating another owner account
+- assigning owner through normal user updates
+- changing the current owner's role away from owner
+- deleting the current owner or self-deleting
 
-- List users (paginated)
-- View an individual user
-- Update a user’s role
-- Delete a user
+## Frontend-specific improvements currently present
 
-Constraints / edge cases:
+- route guards for guest, auth, admin, and owner flows
+- SSR server module and browser hydration support
+- auth and error interceptors for centralized HTTP handling
+- admin route persistence in the browser through RoutePersistenceService
+- dedicated feature routes for wishlist, account, help center, gift finder, and payment callback
 
-- Safeguards prevent deleting the owner account.
-- Safeguards prevent the owner deleting themselves.
+## What is not implemented here
 
-## What is not claimed here
-
-- A separate Python ML microservice is **not implemented** in this repository.
-- The Angular frontend builds and compiles successfully; SSR safety, route guards, error handling, and console hygiene were applied during the codebase hardening audit. However, automated E2E UI tests (Cypress/Playwright) are not present.
-
-## Cross-cutting hardening (applied during audit)
-
-The following improvements span all personas:
-
-- **Security headers** (helmet), CORS origin whitelist, rate limiting in production.
-- **Input validation** at the route level with ReDoS-safe regex patterns.
-- **HMAC timing-safe comparison** on Paymob webhook callbacks.
-- **Env var validation** on startup with fail-fast.
-- **Graceful shutdown** on SIGTERM/SIGINT.
-- **Frontend SSR guards** preventing Node.js crashes from browser-only APIs.
-- **Error interceptor** for consistent 401/403/5xx handling on the client.
-
-See [`docs/security.md`](security.md) for full security controls and [`docs/changelog.md`](changelog.md) for the complete audit trail.
+- a separate machine-learning or recommendation service
+- automated frontend E2E coverage with Playwright or Cypress
+- configurable payment callback redirect target beyond the current hardcoded localhost redirect route

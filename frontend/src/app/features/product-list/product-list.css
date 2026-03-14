@@ -686,9 +686,9 @@ button.filter-pill {
 	align-content: center;
 }
 
-.filters-controls > .filter-pill,
-.filters-controls > .filter-dropdown,
-.filters-controls > .filter-clear-btn {
+.filters-controls>.filter-pill,
+.filters-controls>.filter-dropdown,
+.filters-controls>.filter-clear-btn {
 	align-self: center;
 	margin: 0 !important;
 }
@@ -708,7 +708,7 @@ button.filter-pill {
 }
 
 @media (min-width: 577px) {
-	.filters-controls > .filter-dropdown {
+	.filters-controls>.filter-dropdown {
 		display: contents !important;
 	}
 }
@@ -718,7 +718,7 @@ button.filter-pill {
 		max-width: 100%;
 	}
 
-	.filters-controls > .filter-dropdown {
+	.filters-controls>.filter-dropdown {
 		display: inline-flex !important;
 		align-items: center !important;
 	}

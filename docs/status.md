@@ -1,116 +1,58 @@
 # Status
 
-This document is the **single source of truth** for what is implemented in this repository.
+This document summarizes the current implementation state based on repository inspection and targeted verification performed during this documentation refresh.
 
-It distinguishes:
+## Verified in this refresh
 
-- **Finished vs partially implemented vs not implemented**
-- **Verified vs unverified** (based on executed tests and runtime checks)
+### Backend
 
-## 1) Verification levels
+- Backend unit test suite passes.
+- Result: 10 suites, 67 tests passing.
+- Health route exists at GET /api/v1/health.
+- API route groups mounted in server.js: auth, categories, products, cart, orders, reviews, webhook, users.
 
-- **Verified**
-  - Backed by passing automated tests and/or a runtime health check performed during this documentation pass.
-- **Unverified**
-  - Code exists, but it was not validated end-to-end (e.g., frontend UI flows).
+### Frontend
 
-## 2) Backend API (Node.js/Express)
+- Angular production build passes.
+- The frontend is an Angular 20 SSR app using app-module.ts and app-routing-module.ts.
+- Route guards exist for guest, auth, admin, and owner flows.
+- Auth and error interceptors are registered through the root NgModule.
 
-### Finished (verified)
+### Build warnings currently present
 
-- **Authentication & accounts**
-  - Register/login/me
-  - Forgot/reset password flows
-  - Update user details
-  - Wishlist endpoints (`POST/GET /auth/wishlist`)
-  - Saved address endpoints (`POST /auth/addresses`, `DELETE /auth/addresses/:id`)
-- **RBAC + JWT authorization**
-  - Roles: `customer`, `admin`, `owner`
-- **Catalog**
-  - Categories CRUD (admin/owner)
-  - Products CRUD (admin/owner)
-  - Product soft delete (owner-only)
-- **Cart**
-  - Add/update/remove/clear
-  - Stock validation + price locking + subtotal recalculation
-- **Orders**
-  - Transactional checkout from cart
-  - Admin/owner order listing and status updates
-  - Strict status flow + cancellation restocking
-- **Reviews**
-  - Create/update/delete
-  - One review per user/product
-  - Aggregated rating and review count updates
-- **Payments (Paymob)**
-  - Payment initiation (card/wallet/Fawry)
-  - Webhook HMAC verification
-- **API documentation**
-  - Swagger UI at `/api-docs`
+- initial bundle budget exceeded
+- product-detail.css component-style budget exceeded
+- product-list.css component-style budget exceeded
+- inline Google Fonts CSS budget exceeded
 
-Evidence:
+## Implemented backend capabilities
 
-- Pytest suites passed: `tests/functional`, `tests/security`
-- Jest unit suites passed: `backend/tests/unit`
-- Backend health check succeeded: `GET /api/v1/health`
+- authentication, login, profile, and password reset flow
+- wishlist and saved-address endpoints
+- categories CRUD
+- products CRUD with soft delete
+- cart CRUD with stock-aware mutations
+- transactional order creation and controlled status transitions
+- Paymob payment initiation and webhook handling
+- reviews CRUD
+- user listing for admin and owner, plus owner-only create, update, and delete actions
 
-### Partially implemented (verified / unverified mix)
+## Implemented frontend capabilities
 
-- **Email delivery for password reset**
-  - Token generation exists.
-  - Email sending is not evidenced in this repository (token is returned for testing).
+- storefront routes for home, products, product detail, cart, checkout, account, wishlist, categories, order detail, payment callback, about, help center, and gift finder
+- lazy-loaded admin area with dashboard, orders, users, products, and categories screens
+- localStorage-backed auth token handling
+- localStorage-assisted cart caching and admin route persistence
 
-### Not implemented
+## Not verified in this refresh
 
-- **Standalone Python ML microservice**
-  - The repo contains Python dependencies and test tooling, but no FastAPI service entrypoint is present.
+- Python functional tests under tests/functional
+- Python security tests under tests/security
+- frontend end-to-end browser workflows
+- production deployment behavior outside local build and unit-test execution
 
-## 3) Frontend (Angular SSR)
+## Known mismatches or constraints in the current code
 
-### Verified
-
-- Angular 20 SSR project builds cleanly (`ng build` — 0 errors, 2 pre-existing bundle-budget warnings).
-- API base URL is configured to `/api/v1` and local proxy forwards `/api` to `http://localhost:5000`.
-- `environment.ts` / `environment.prod.ts` are wired via Angular `fileReplacements`.
-- SSR-safe guards (`isPlatformBrowser`) applied to all browser-API-dependent components.
-- Route guards (`authGuard`, `adminGuard`, `ownerGuard`) protect restricted routes.
-- Error interceptor handles 401/403/5xx with appropriate redirects and dev-only logging.
-- All debug `console.log` statements removed; `console.error` gated behind `!environment.production`.
-
-### Not verified
-
-- End-to-end UI workflows (browse → cart → checkout) have not been validated via automated E2E tests.
-
-## 4) Tests and quality
-
-### Verified
-
-- **Pytest**: `138 passed, 2 skipped` (functional + security)
-- **Jest**: `10` suites passed, `60` tests passed
-- **Angular build**: `ng build` completes with 0 errors
-
-### Available but not executed here
-
-- **Performance tests**: Locust scripts exist under `tests/performance/`.
-
-## 5) Codebase hardening audit
-
-A 42-item hardening audit was completed covering backend security, startup safety, data integrity, frontend lifecycle/SSR, and test quality. See [`docs/changelog.md`](changelog.md) for the full item list and [`docs/security.md`](security.md) for the consolidated security posture.
-
-Highlights:
-
-- HMAC timing-safe comparison for Paymob webhooks
-- Environment variable validation on startup with fail-fast
-- Graceful shutdown handlers (SIGTERM/SIGINT)
-- ReDoS-safe email regex across model + middleware
-- Angular SSR `isPlatformBrowser` guards
-- Jest coverage grew from 39 → 60 tests (new webhook, cart, product suites)
-- Python test isolation via `ensure_test_data()` fixture
-
-## 6) Known constraints and risks
-
-- **Secrets and configuration**
-  - `backend/.env` is gitignored; contributors need an out-of-band way to obtain configuration or a non-secret template.
-- **MongoDB transactions**
-  - Order creation uses MongoDB transactions; MongoDB must support them (usually replica set/cluster).
-- **No frontend E2E tests**
-  - Cypress/Playwright tests are not present; UI workflows are only manually verified.
+- order creation docs previously claimed paymentMethod was required, but the backend currently only validates shippingAddress and sets paymentMethod internally
+- the Paymob redirect endpoint currently points to a hardcoded localhost frontend URL
+- the user model currently hashes passwords with bcrypt salt rounds fixed at 10

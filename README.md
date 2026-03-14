@@ -1,40 +1,39 @@
 # SmartCart
 
-SmartCart is a full‑stack e‑commerce platform: a secure REST API for catalog, cart, orders, reviews, and role-based administration—paired with an Angular SSR frontend.
+SmartCart is a full-stack e-commerce application with a Node.js and Express API, an Angular SSR frontend, and layered automated tests.
 
-## Who it’s for
+## Current stack
 
-- **Online retailers** who need an extensible commerce backend (catalog, orders, admin workflows).
-- **Customers** who browse products, manage a cart, place orders, and write reviews.
-- **Operators** (admin/owner roles) who manage products, categories, and order fulfillment.
+- Backend: Node.js, Express 5, Mongoose, MongoDB
+- Frontend: Angular 20 SSR with NgModule-based routing
+- Payments: Paymob payment initiation plus webhook handling
+- Tests: Jest for backend unit tests, Pytest for API-level functional and security suites, Locust scripts for load testing
 
-## Tech stack (high level)
+## Project layout
 
-- **Backend**: Node.js + Express + Mongoose (MongoDB)
-- **Frontend**: Angular (SSR)
-- **Payments**: Paymob integration (initiation + webhook verification)
-- **Testing**: Jest (unit) + Pytest (system/security) + Locust (performance scripts)
+- backend/: API server, controllers, services, models, and Jest tests
+- frontend/: Angular SSR application, guards, interceptors, admin area, and HTTP services
+- tests/: Python functional, security, and performance suites
+- docs/: project reference docs
 
-## Get started
+## Quick start
 
-- **Setup & prerequisites**: [`docs/setup.md`](docs/setup.md)
-- **How to run tests**: [`docs/testing.md`](docs/testing.md)
+- Setup: [docs/setup.md](docs/setup.md)
+- API reference: [docs/api.md](docs/api.md)
+- Architecture: [docs/architecture.md](docs/architecture.md)
+- Testing: [docs/testing.md](docs/testing.md)
+- Security: [docs/security.md](docs/security.md)
+- Status: [docs/status.md](docs/status.md)
+- Agent navigation: [docs/AGENTS.md](docs/AGENTS.md)
+- Audit log: [docs/changelog.md](docs/changelog.md)
 
-## Documentation index
+## Current verification snapshot
 
-- [`docs/setup.md`](docs/setup.md): onboarding guide, prerequisites, environment variables, local run steps.
-- [`docs/architecture.md`](docs/architecture.md): system design, backend domain boundaries, runtime and data flow.
-- [`docs/api.md`](docs/api.md): endpoint groups, auth rules, request/response conventions.
-- [`docs/features.md`](docs/features.md): user/admin/owner capabilities and business behavior.
-- [`docs/testing.md`](docs/testing.md): testing strategy, suite layout, execution commands, coverage summary.
-- [`docs/security.md`](docs/security.md): security controls and hardening posture (auth, RBAC, HMAC, headers, SSR safety).
-- [`docs/status.md`](docs/status.md): current verified state, constraints, and known risks.
-- [`docs/changelog.md`](docs/changelog.md): complete 42-item hardening audit log and outcomes.
-- [`docs/AGENTS.md`](docs/AGENTS.md): AI agent navigation map for faster codebase analysis and file discovery.
-- [`docs/prd.md`](docs/prd.md): product requirements and expected platform behavior.
-- [`docs/roadmap.md`](docs/roadmap.md): planned milestones and future enhancements.
+- Backend unit tests: 10 suites, 67 tests passing
+- Frontend production build: passes, with bundle and CSS budget warnings
+- Python functional and security suites: present in repo, not re-run during this documentation refresh
 
-## Project status (honest)
+## Notes
 
-- **Backend API**: implemented and verified via automated tests.
-- **Frontend**: Angular SSR build is verified; automated E2E UI tests are not yet present.
+- Swagger UI is mounted at /api-docs only when the backend is not running in production mode.
+- The frontend uses /api/v1 as its API base path and relies on Angular guards and HTTP interceptors for auth-aware navigation.

@@ -1,62 +1,47 @@
 # Setup
 
-This guide is written to make onboarding **deterministic**: if you follow the steps in order, you should be able to start the backend and run the automated tests.
+This guide covers the current local setup for the backend, frontend, and test tooling.
 
-## 1) Prerequisites
+## Prerequisites
 
-- **Node.js + npm**
-  - CI uses Node 20.
-- **Python**
-  - CI uses Python 3.10.
-- **MongoDB** reachable from your machine
-  - Must support transactions for order checkout (see below).
+- Node.js 20 or compatible
+- npm
+- Python 3.10 or compatible
+- MongoDB with transaction support for checkout flows
 
-## 2) Clone and install dependencies
+## Install dependencies
 
-### 2.1 Backend dependencies
+### Backend
 
-From `backend/`:
+From backend/:
 
 ```powershell
 npm ci
 ```
 
-Notes:
+### Frontend
 
-- `npm ci` installs exactly what is pinned in `backend/package-lock.json`.
-- If you see missing-module errors at runtime, `node_modules` is likely incomplete and should be reinstalled.
-
-### 2.2 Frontend dependencies (optional for backend/API work)
-
-From `frontend/`:
+From frontend/:
 
 ```powershell
 npm ci
 ```
 
-## 3) Configure environment variables
+### Python test environment
 
-### 3.1 Backend `.env`
+The repository already includes a local virtual environment directory at env/, but you can also use your own environment if preferred.
 
-The backend loads configuration from `backend/.env` (the file is intentionally **gitignored**).
+## Backend environment variables
 
-Minimum required to boot the API:
+Create backend/.env with at least:
 
 ```env
 NODE_ENV=development
 PORT=5000
-MONGODB_URI=mongodb+srv://... OR mongodb://...
-JWT_SECRET=...
+MONGODB_URI=mongodb://... or mongodb+srv://...
+JWT_SECRET=your-secret
 JWT_EXPIRE=7d
-BCRYPT_ROUNDS=12
 CORS_ORIGIN=http://localhost:4200
-```
-
-> **Startup validation**: the server checks that `MONGODB_URI`, `JWT_SECRET`, and `JWT_EXPIRE` are set. If any are missing, the process exits immediately with a clear error message.
-
-Required for Paymob payment initiation and webhook verification:
-
-```env
 PAYMOB_API_KEY=...
 PAYMOB_INTEGRATION_ID_CARD=...
 PAYMOB_INTEGRATION_ID_WALLET=...
@@ -65,105 +50,71 @@ PAYMOB_IFRAME_ID=...
 PAYMOB_HMAC_SECRET=...
 ```
 
-What breaks if missing:
+Notes:
 
-- Missing `MONGODB_URI`: server will fail to connect to the database.
-- Missing `JWT_SECRET`: protected endpoints cannot validate tokens.
-- Missing Paymob variables: payment initiation endpoints and webhook verification will fail.
+- The backend exits on startup if JWT_SECRET, JWT_EXPIRE, or MONGODB_URI is missing.
+- The current code does not consume BCRYPT_ROUNDS even if you define it.
+- CORS defaults to http://localhost:4200 when CORS_ORIGIN is not set.
 
-### 3.2 MongoDB transaction requirement
+## MongoDB requirement
 
-Order checkout uses `mongoose.startSession()` and a transaction.
+Order creation and cancellation use MongoDB transactions through mongoose.startSession(). Use a replica set or managed MongoDB deployment that supports transactions.
 
-Constraint:
+## Run the backend
 
-- MongoDB transactions typically require a **replica set** (or a managed cluster that supports transactions).
-- If MongoDB does not support transactions, checkout/order creation may fail or behave unexpectedly.
-
-## 4) Run the backend API
-
-From `backend/`:
+From backend/:
 
 ```powershell
 npm run dev
 ```
 
-Health check:
+Useful local endpoints:
 
-```text
-GET http://localhost:5000/api/v1/health
-```
+- API health: http://localhost:5000/api/v1/health
+- Swagger UI: http://localhost:5000/api-docs when NODE_ENV is not production
 
-Swagger UI:
+## Run the frontend
 
-```text
-http://localhost:5000/api-docs
-```
-
-## 5) Run the automated tests
-
-The Python system/security tests run against a live backend.
-
-### 5.1 Activate the repo’s Python virtual environment
-
-From the repo root:
-
-```powershell
-.\env\Scripts\Activate.ps1
-```
-
-### 5.2 Run pytest suites
-
-From the repo root (with backend running):
-
-```powershell
-pytest tests\functional tests\security -v
-```
-
-### 5.3 Run backend unit tests
-
-From `backend/`:
-
-```powershell
-npm test
-```
-
-## 6) Frontend development (optional)
-
-The frontend uses a dev proxy so the browser can call the backend without CORS complexity.
-
-From `frontend/`:
+From frontend/:
 
 ```powershell
 npm start -- --proxy-config proxy.conf.json
 ```
 
-Proxy behavior:
+The frontend uses /api/v1 as its base API URL. The dev proxy forwards /api requests to http://localhost:5000.
 
-- Requests to `/api/*` are forwarded to `http://localhost:5000`.
+## Run backend unit tests
 
-Environment files:
+From backend/:
 
-- `frontend/src/environments/environment.ts` — default (dev) config.
-- `frontend/src/environments/environment.prod.ts` — production config (`production: true`).
-- Angular CLI swaps these files automatically via `fileReplacements` in `angular.json` when building for production.
+```powershell
+npm test
+```
 
-## 7) Common failure modes (and how to diagnose)
+## Run Python functional and security tests
 
-- **“Cannot find module …” when starting backend**
-  - Likely a partial install.
-  - Fix: remove `backend/node_modules` and rerun `npm ci`.
-- **Backend boots but `/api/v1/health` fails**
-  - Check `PORT` and ensure the process is listening.
-- **Database connection errors**
-  - Validate `MONGODB_URI` and network access.
-- **Order creation errors related to transactions**
-  - Ensure MongoDB supports transactions (replica set/cluster).
+From the repository root:
 
-## 8) Related documentation
+```powershell
+.\env\Scripts\Activate.ps1
+pytest tests\functional tests\security -v
+```
 
-- [`docs/security.md`](security.md) — security controls and hardening measures
-- [`docs/changelog.md`](changelog.md) — 42-item codebase audit trail
-- [`docs/AGENTS.md`](AGENTS.md) — AI agent navigation guide
-- [`docs/testing.md`](testing.md) — test strategy, coverage, and run instructions
-- [`docs/api.md`](api.md) — endpoint reference
+These suites expect a live backend to be running.
+
+## Run the frontend production build
+
+From frontend/:
+
+```powershell
+npm run build
+```
+
+Current build status:
+
+- build succeeds
+- budget warnings are present for the main bundle, two component stylesheets, and inline Google Fonts CSS
+
+## Current local-payment note
+
+The Paymob redirect helper route sends users to http://localhost:4200/payment-callback. If you run the frontend on a different origin, that route will need code changes.

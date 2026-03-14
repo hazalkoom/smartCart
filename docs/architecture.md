@@ -1,153 +1,137 @@
 # Architecture
 
-This document describes SmartCart’s architecture as implemented in this repository. It is written to be a practical reference for contributors and operators.
+This document describes the current SmartCart implementation in this repository.
 
-## 1) System context
+## System overview
 
-SmartCart is a commerce platform providing:
+SmartCart consists of three major systems:
 
-- **A REST API** (Node.js/Express) for authentication, catalog, cart, orders, reviews, user administration, and Paymob payment flows.
-- **A web frontend** (Angular SSR) intended to consume the API.
-- **A test harness** that validates behavior over HTTP (pytest) and at the service/model level (Jest).
+- backend/: the authoritative commerce API and business logic
+- frontend/: the Angular SSR client application
+- tests/: API-level functional, security, and performance suites
 
-### Primary personas (for architectural reasoning)
+## Backend architecture
 
-- **Customer**: shops, checks out, reviews products.
-- **Admin**: manages catalog and order fulfillment.
-- **Owner**: top-level operator; can also manage users and roles.
+The backend uses a conventional service-layer flow:
 
-## 2) Repository structure and separations
+```text
+Route -> Controller -> Service -> Model
+```
 
-SmartCart is organized as three main “systems” in one repo:
+Main backend structure:
 
-- **Backend** (`backend/`)
-  - Authoritative business logic and data access.
-- **Frontend** (`frontend/`)
-  - Angular 20 SSR UI. Build verified (`ng build` — 0 errors). SSR safety guards, route protection, error handling, and console hygiene applied during codebase audit.
-- **Tests** (`tests/`)
-  - External/system tests that treat the backend as a black box HTTP service.
+- backend/src/server.js: process bootstrap, middleware registration, route mounting, health route, startup, and shutdown handling
+- backend/src/routes/: HTTP route definitions
+- backend/src/controllers/: request and response orchestration
+- backend/src/services/: business rules and multi-model workflows
+- backend/src/models/: Mongoose schemas and persistence rules
+- backend/src/middleware/: auth, validation, and centralized error handling
+- backend/src/utils/: async wrapper, token generation, logging, HMAC helpers, and Paymob client utilities
 
-This separation is important:
+### Important backend runtime behavior
 
-- backend changes must preserve **API contracts** and **security boundaries**
-- frontend changes should be treated as a client of the API
-- system tests are a contract suite for the API
+- Environment validation happens during startup for JWT_SECRET, JWT_EXPIRE, and MONGODB_URI.
+- MongoDB is connected before the server starts listening.
+- Helmet and CORS are applied globally.
+- express.json uses a 50kb request-body limit.
+- Production mode enables rate limiting under /api.
+- Swagger is mounted only outside production.
+- Graceful shutdown disconnects Mongoose on SIGTERM and SIGINT.
 
-## 3) Logical architecture (backend domains)
+## Backend domains
 
-The backend uses a **Service Layer** pattern:
+### Auth and profile
 
-- **Routes** (`backend/src/routes/*`) define HTTP paths + attach middleware.
-- **Controllers** (`backend/src/controllers/*`) are thin orchestration for request/response.
-- **Services** (`backend/src/services/*`) hold domain logic and cross-model orchestration.
-- **Models** (`backend/src/models/*`) define persistence schema (Mongoose).
+- JWT-based login and registration
+- Password reset token flow
+- User profile retrieval and first or last name updates
+- Wishlist and saved-address management for authenticated users
 
-### Domains and responsibilities
+### Catalog
 
-- **Identity & Access**
-  - Users, JWT auth, roles (`customer`/`admin`/`owner`)
-  - Password hashing + reset token flow
-- **Catalog**
-  - Categories (slug-based reads)
-  - Products (listing, filtering, soft delete)
-- **Cart**
-  - One cart per user, line items, subtotal
-  - Stock validation; price locking when added to cart
-- **Orders**
-  - Transactional checkout from cart
-  - Inventory decrement + cart clearing
-  - Strict order status transitions; cancellation restocks
-- **Reviews**
-  - One review per user/product
-  - Aggregated product rating and review count
-- **Payments (Paymob)**
-  - Payment initiation for card/wallet/Fawry
-  - Webhook verification via HMAC
-- **Owner operations**
-  - User listing (pagination)
-  - Role changes + deletion safeguards
+- Categories are slug-addressable
+- Products support filtering, sorting, pagination, ratings, and soft deletion
 
-## 4) Runtime architecture (processes and data flows)
+### Cart
 
-### 4.1 Processes
+- One server-side cart per user
+- Locked price snapshots inside cart items
+- Subtotal recalculation after every mutation
 
-In a typical development runtime:
+### Orders and payments
 
-- **Backend API process**
-  - Entry point: `backend/src/server.js`
-- **Frontend dev server / SSR server**
-  - Entry point: Angular CLI (see `frontend/angular.json`)
-- **MongoDB**
-  - External dependency configured via `MONGODB_URI`
+- Order creation reads the cart, snapshots item cost, decrements stock, and clears the cart in a MongoDB transaction
+- Order status transitions are constrained
+- Cancellation restocks inventory transactionally
+- Paymob payment initiation is separate from order creation
+- Webhook handling updates payment state after HMAC validation
 
-### 4.2 Request flow (API)
+### Reviews
 
-1.  Client calls `http://<host>:<port>/api/v1/...`
-2.  Router applies middleware:
-    - `helmet`, JSON body size limit
-    - `protect` (JWT) and `authorize` (RBAC) where required
-    - `express-validator` rules + `validate`
-3.  Controller invokes a domain service
-4.  Service reads/writes MongoDB via Mongoose models
-5.  Errors propagate to a centralized error handler returning a stable JSON envelope
+- One review per product and customer
+- Product rating and reviewCount are recomputed after review changes
 
-### 4.3 Order checkout flow (transactional)
+### User administration
 
-Implemented in `backend/src/services/orderService.js`:
+- Admin and owner can list users
+- Owner can create, update, and delete non-owner users
 
-- Reads cart
-- Validates stock
-- Builds an order snapshot (including item cost for owner analytics)
-- Bulk-updates product inventory
-- Creates order
-- Deletes cart
-- Uses `mongoose.startSession()` and a transaction with retry on transient errors
+## Frontend architecture
 
-## 5) Trust boundaries and security boundaries
+The frontend is an Angular 20 SSR app using NgModules rather than standalone route configuration.
 
-### 5.1 Boundary: public internet → API
+Key files:
 
-- **Trust boundary**: all inputs are untrusted.
-- Controls:
-  - Request validation (route-level)
-  - Payload limit (`10kb`)
-  - Security headers (`helmet`)
-  - Rate limiting in production mode (`express-rate-limit`)
+- frontend/src/main.ts: browser bootstrap
+- frontend/src/main.server.ts: server bootstrap entry
+- frontend/src/app/app-module.ts: root NgModule, declarations, hydration, and HTTP interceptor registration
+- frontend/src/app/app-routing-module.ts: primary route definitions
+- frontend/src/app/app.module.server.ts: SSR server module
+- frontend/src/app/core/: guards, interceptors, interfaces, reusable services, and shared UI components
+- frontend/src/app/features/: page-level and admin feature components
 
-### 5.2 Boundary: authenticated user → privileged actions
+### Frontend navigation model
 
-- **Authentication**: JWT via `Authorization: Bearer <token>`.
-- **Authorization**: role checks via `authorize('admin', 'owner')` etc.
-- Owner-only routes (e.g., `/api/v1/users`) enforce `authorize('owner')` for all operations.
+Primary routes include:
 
-### 5.3 Boundary: external payment provider → webhook
+- /, /products, /products/:slug
+- /cart, /checkout, /account, /wishlist, /orders/:id
+- /about, /help-center, /categories, /gift-finder, /payment-callback
+- /admin with child routes for dashboard, orders, users, products, and categories
 
-- Webhook endpoints under `/webhook/*` are expected to be called by Paymob.
-- Authenticity is validated via HMAC secret.
-- Assumption: a secure secret distribution mechanism exists outside this repo (because `.env` is gitignored).
+Route protection is implemented with:
 
-## 6) Deployment and environment assumptions
+- authGuard for authenticated customer routes
+- guestGuard for login and register
+- AdminGuard for the admin area
+- OwnerGuard for /admin/users
 
-- Backend configuration is provided via environment variables (loaded from `backend/.env` in development).
-- On startup the server validates that `MONGODB_URI`, `JWT_SECRET`, and `JWT_EXPIRE` are present; missing values cause a fail-fast exit.
-- MongoDB must support transactions for the checkout flow.
-  - Constraint: MongoDB transactions typically require a **replica set** configuration.
-- CORS:
-  - Allowed origins are configured via the `CORS_ORIGIN` environment variable.
-- Graceful shutdown handlers close the HTTP server and Mongoose connection on `SIGTERM`/`SIGINT`.
-- HTTP request logging via `morgan` streamed to a Winston logger.
-- Centralized error handler logs error context and returns stable error envelopes.
+### Frontend state and integration patterns
 
-## 8) Verified behavior (this repo)
+- AuthService stores the JWT in localStorage when running in the browser.
+- AuthInterceptor adds the bearer token to outgoing requests.
+- ErrorInterceptor handles network failures, token-related 401 flows, and server-error logging in development.
+- CartService mirrors cart state into localStorage and exposes a reactive cartCount$ stream.
+- RoutePersistenceService restores the last visited admin route in the browser.
 
-The following were verified during the documentation and hardening passes:
+## Data flow examples
 
-- Backend can start and respond to `/api/v1/health`.
-- Pytest system/security suites passed (`138 passed, 2 skipped`).
-- Jest unit tests passed (`10` suites, `60` tests).
-- Angular frontend builds cleanly (`ng build` — 0 errors).
-- 42-item codebase hardening audit completed (see [`docs/changelog.md`](changelog.md)).
+### Product browsing
 
-## 9) Open questions (documented, not guessed)
+1. The frontend product service calls GET /api/v1/products with filters.
+2. The backend product service runs an aggregation pipeline with category lookup, pagination, and sorting.
+3. The frontend renders paged product cards and product detail views.
 
-- **Frontend E2E testing**: frontend builds and compiles, but automated Cypress/Playwright tests are not present.
+### Checkout and payment
+
+1. CartService mutates the server-side cart.
+2. OrderService creates an order from the cart by posting shippingAddress.
+3. OrderService then initiates payment separately through POST /orders/:id/pay.
+4. Paymob calls the webhook endpoint.
+5. The frontend payment callback route reads redirected query parameters from Paymob.
+
+## Current constraints
+
+- MongoDB transactions are required for checkout and cancellation integrity.
+- The Paymob redirect route is currently hardcoded to a localhost frontend callback URL.
+- The frontend has no E2E browser test suite in this repository.

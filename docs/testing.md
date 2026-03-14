@@ -1,131 +1,113 @@
 # Testing
 
-SmartCart uses a layered testing strategy to keep feedback fast while still validating production-like behavior.
+SmartCart uses separate test layers for backend logic, API-level behavior, and load scenarios.
 
-For setup prerequisites, see [`docs/setup.md`](setup.md).
+## Test layers
 
-## 1) Testing strategy (testing pyramid)
+- Jest backend unit tests under backend/tests/unit/
+- Pytest functional tests under tests/functional/
+- Pytest security tests under tests/security/
+- Locust performance scripts under tests/performance/
 
-- **Unit tests (fast, isolated)**
-  - Validate service logic and model behavior without requiring a running HTTP server.
-- **System tests (end-to-end over HTTP)**
-  - Treat the backend as a black-box API and validate real workflows.
-- **Security tests (end-to-end over HTTP)**
-  - Validate hardening and common attack classes (auth bypass, injection patterns, webhook integrity, etc.).
-- **Performance tests (scenario-based load)**
-  - Locust scripts exist for load simulations; they are not part of the default CI execution path in this repo.
+## Verified during this documentation refresh
 
-This structure is intentional:
+### Backend unit tests
 
-- unit tests catch regressions quickly
-- system tests protect API contracts and business workflows
-- security tests prevent accidental regression in critical controls
-
-## 2) What’s covered
-
-### Backend unit tests (Jest)
-
-- Location: `backend/tests/unit/`
-- Command: run from `backend/`
-  - `npm test`
-- Config: `backend/jest.config.js`
-
-Coverage focus:
-
-- services (auth/cart/order/payments/reviews/users/products/categories)
-- model behavior (e.g., password hashing)
-- controllers (webhook HMAC verification, idempotency)
-
-Test files:
-| File | Tests | Focus |
-|------|------:|-------|
-| `authService.test.js` | 8 | register, login, token gen, password hash |
-| `cartService.test.js` | 14 | add/get/remove/clear cart, validation |
-| `categoryService.test.js` | 4 | CRUD |
-| `orderService.test.js` | 5 | checkout, status transitions |
-| `paymentService.test.js` | 3 | initiation flows |
-| `productService.test.js` | 9 | CRUD, soft delete, createProduct validation |
-| `reviewService.test.js` | 5 | create/update/delete, rating recalc |
-| `userModel.test.js` | 3 | bcrypt hook, schema |
-| `userService.test.js` | 3 | listing, role update, deletion |
-| `webhookController.test.js` | 6 | HMAC verify, idempotency, timing-safe |
-
-### System + security tests (Pytest)
-
-- Location:
-  - `tests/functional/`
-  - `tests/security/`
-- These tests run against a **live backend** and validate:
-  - customer workflows: register/login, catalog, cart, checkout, orders, reviews
-  - admin/owner workflows: catalog management, order status changes, user management
-  - security properties: RBAC enforcement, injection defenses, webhook HMAC validation, hardening headers
-
-### Performance tests (Locust)
-
-- Location: `tests/performance/`
-- Intended for load and scenario tests (e.g., checkout flows).
-
-## 3) What’s not covered (explicit)
-
-- **Frontend end-to-end UI tests** are not present.
-- **Production deployment validation** (infra manifests, runtime SLO enforcement) is not present.
-- Performance scripts exist but are not automatically executed as part of the standard test run.
-
-## 4) How to run tests (verified)
-
-### 4.1 Start the backend
-
-From `backend/`:
+Command run:
 
 ```powershell
-npm run dev
+cd backend
+npm test
 ```
 
-Confirm the backend is up:
+Observed result:
 
-```text
-GET http://localhost:5000/api/v1/health
+- 10 suites passed
+- 67 tests passed
+
+### Frontend build verification
+
+Command run:
+
+```powershell
+cd frontend
+npm run build
 ```
 
-### 4.2 Run system + security tests
+Observed result:
 
-From repo root:
+- production build completed successfully
+- warnings were emitted for bundle and stylesheet budgets
+
+## Not re-run during this refresh
+
+- tests/functional
+- tests/security
+- tests/performance
+
+## How to run the main suites
+
+### Backend unit tests
+
+From backend/:
+
+```powershell
+npm test
+```
+
+### Backend coverage
+
+From backend/:
+
+```powershell
+npm run test:coverage
+```
+
+### Functional and security suites
+
+From repository root with the backend running:
 
 ```powershell
 .\env\Scripts\Activate.ps1
 pytest tests\functional tests\security -v
 ```
 
-### 4.3 Run backend unit tests
+### Performance scripts
 
-From `backend/`:
+From repository root with the Python environment active:
 
 ```powershell
-npm test
+locust -f tests/performance/locustfile.py
 ```
 
-## 5) Verified results (latest documented run)
+## Coverage focus by layer
 
-- Pytest: **138 passed, 2 skipped**
-- Jest: **10** suites passed, **60** tests passed
-- Angular build: **0 errors** (2 pre-existing bundle-budget warnings)
+### Jest
 
-## 6) Extending tests safely
+Covers:
 
-### Adding a new endpoint
+- auth service
+- cart service
+- category service
+- order service
+- paymob service
+- product service
+- review service
+- user service
+- webhook controller
+- user model behavior
 
-- Add/extend unit tests in `backend/tests/unit/` to cover service-level rules.
-- Add/extend system tests in `tests/functional/` to cover the HTTP contract.
-- If the endpoint affects authorization, add/extend tests in `tests/security/`.
+### Pytest
 
-### Avoiding flaky tests
+Covers:
 
-- Prefer asserting on stable response fields (`success`, `data` shape, `error.code`).
-- Avoid relying on ordering unless the API explicitly sorts.
-- Keep tests isolated by creating their own users/products where appropriate.
+- customer account and storefront flows
+- admin and owner workflows
+- payment and webhook behavior
+- security regressions such as RBAC enforcement and hardening checks
 
-## 7) Environment and dependencies
+## Current testing gaps
 
-- Pytest uses a fixed base URL: `http://localhost:5000/api/v1` (see `tests/test_config.py`).
-- Order creation uses MongoDB transactions; MongoDB must support transactions for full checkout coverage.
-- **Test data isolation**: `tests/test_config.py` exports an `ensure_test_data()` function that guarantees at least one admin user, one customer, one category, and one product exist before system tests run. Import and call it in conftest or at module top if your tests need seed data.
+- no frontend E2E browser tests are present
+- Python suites were not re-executed during this documentation refresh
+- performance scripts exist but are not part of the default verification loop

@@ -12,7 +12,7 @@
 
 ---
 ## 1) Executive summary
-SmartCart is a full-stack e-commerce platform built around a production-grade backend API. It supports a multi-role model (customer/admin/owner), core commerce workflows (catalog → cart → checkout → orders), product reviews, and Paymob payment initiation with webhook verification.
+SmartCart is a full-stack e-commerce platform built around a production-grade backend API. It supports a multi-role model (customer/admin/owner), core commerce workflows (catalog -> cart -> checkout -> orders), customer wishlist and saved addresses, product reviews, and Paymob payment initiation with webhook verification.
 
 The system is designed to be:
 - **Secure by default** (RBAC, JWT, hardened middleware, validated inputs)
@@ -71,6 +71,7 @@ This section expresses the product as real workflows rather than endpoints.
 1. Customer registers with email/password/name.
 2. Customer logs in.
 3. Customer can fetch profile.
+4. Customer can manage wishlist items and saved shipping addresses.
 
 Success criteria:
 - Customer receives a JWT token.
@@ -151,8 +152,12 @@ Constraints:
 - **FR-IA-5**: The system supports roles: `customer`, `admin`, `owner`.
 - **FR-IA-6**: The system enforces RBAC for privileged endpoints.
 - **FR-IA-7**: Users can fetch their own profile.
-- **FR-IA-8**: Users can update basic profile details.
+- **FR-IA-8**: Users can update first and last name in their profile.
 - **FR-IA-9**: Users can initiate forgot-password and reset-password flows.
+- **FR-IA-10**: Authenticated users can toggle products in their wishlist.
+- **FR-IA-11**: Authenticated users can list wishlist products.
+- **FR-IA-12**: Authenticated users can add saved addresses.
+- **FR-IA-13**: Authenticated users can delete saved addresses.
 
 Notes:
 - Email delivery for password reset is **not** evidenced in this repo.
@@ -209,7 +214,7 @@ Notes:
 ### 5.7 Owner-only user management
 - **FR-OWN-1**: Owner can list users (paginated).
 - **FR-OWN-2**: Owner can view a user.
-- **FR-OWN-3**: Owner can update user roles.
+- **FR-OWN-3**: Owner can update user profile fields and role (with safeguards).
 - **FR-OWN-4**: Owner can delete users.
 - **FR-OWN-5**: System prevents deleting/changing the owner account.
 - **FR-OWN-6**: System prevents the owner from deleting themselves.
@@ -242,7 +247,7 @@ Constraint:
 
 ### 6.5 Observability
 - **NFR-OBS-1**: Requests are logged via Morgan/Winston.
-- **NFR-OBS-2**: Errors are logged centrally with request context.
+- **NFR-OBS-2**: Most API errors are handled centrally; some payment and webhook paths still log directly.
 
 ---
 ## 7) Data & domain model overview
