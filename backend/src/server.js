@@ -17,6 +17,7 @@ const webhookRoutes = require('./routes/webhookRoutes');
 const userRoutes = require('./routes/userRoutes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
+const socket = require('./utils/socket');
 
 dotenv.config({ path: '.env' });
 
@@ -78,7 +79,6 @@ app.get('/api/v1/health', (req, res) => {
 app.use(errorHandler);
 const PORT = process.env.PORT || 5000;
 
-// Fix #6: Await DB connection before accepting requests
 const startServer = async () => {
   await connectDB();
 
@@ -86,7 +86,24 @@ const startServer = async () => {
     logger.info(`Server running in ${process.env.NODE_ENV} mode at: http://localhost:${PORT}`);
   });
 
-  // Fix #9: Graceful shutdown — close connections cleanly on termination
+  // --- NEW SOCKET.IO INJECTION ---
+  const io = socket.init(server);
+  
+  io.on('connection', (socketConn) => {
+    logger.info(`A client connected via WebSocket: ${socketConn.id}`);
+
+    // Listen for the Angular app telling us which user just logged in
+    socketConn.on('joinRoom', (userId) => {
+      socketConn.join(userId.toString());
+      logger.info(`User ${userId} joined their private notification room.`);
+    });
+
+    socketConn.on('disconnect', () => {
+      logger.info(`Client disconnected: ${socketConn.id}`);
+    });
+  });
+  // -------------------------------
+
   const shutdown = async (signal) => {
     logger.info(`${signal} received. Shutting down gracefully...`);
     server.close(async () => {

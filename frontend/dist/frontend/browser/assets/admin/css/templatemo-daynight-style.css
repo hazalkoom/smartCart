@@ -1655,6 +1655,7 @@ tr:hover td {
     .date-picker {
         flex-wrap: wrap;
     }
+}
 
 
 /* ===== SmartCart Dark Admin Overrides ===== */
@@ -1992,9 +1993,9 @@ tr:hover td {
         padding: 1rem;
     }
 }
-    .user-name {
-        display: none;
-    }
+
+.user-name {
+    display: none;
 }
 
 /* ===== Settings 2-Column Layout ===== */

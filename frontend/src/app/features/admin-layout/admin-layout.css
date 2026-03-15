@@ -4,3 +4,9 @@
   height: 20px;
   object-fit: contain;
 }
+
+.topbar-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+}

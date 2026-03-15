@@ -33,6 +33,8 @@
         <span class="sc-badge sc-badge-primary" *ngIf="cartCount > 0">{{ cartCount }}</span>
       </a>
 
+      <app-notification-bell *ngIf="isLoggedIn"></app-notification-bell>
+
       <div class="dropdown" *ngIf="isLoggedIn">
         <button class="sc-user-btn dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
           <div class="sc-avatar"><i class="bi bi-person-fill"></i></div>

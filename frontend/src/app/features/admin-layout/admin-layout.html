@@ -161,11 +161,14 @@
           <line x1="3" y1="18" x2="21" y2="18"/>
         </svg>
       </button>
-      <div class="topbar-user">
-        <div class="user-avatar">{{ userInitial }}</div>
-        <div>
-          <strong>{{ currentUser?.firstName || 'User' }}</strong>
-          <p>{{ (currentUser?.role || 'admin') | titlecase }}</p>
+      <div class="topbar-right">
+        <app-notification-bell variant="admin"></app-notification-bell>
+        <div class="topbar-user">
+          <div class="user-avatar">{{ userInitial }}</div>
+          <div>
+            <strong>{{ currentUser?.firstName || 'User' }}</strong>
+            <p>{{ (currentUser?.role || 'admin') | titlecase }}</p>
+          </div>
         </div>
       </div>
     </header>

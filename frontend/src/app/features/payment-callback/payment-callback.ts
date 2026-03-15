@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { SocketService } from '../../core/services/socket';
 
 @Component({
   selector: 'app-payment-callback',
@@ -13,7 +14,10 @@ export class PaymentCallbackComponent implements OnInit, OnDestroy {
   isSuccess: boolean = false;
   private subscriptions: Subscription[] = [];
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(
+    private route: ActivatedRoute,
+    private socketService: SocketService
+  ) {}
 
   ngOnInit(): void {
     // Paymob sends parameters like: ?success=true&pending=false
@@ -25,6 +29,14 @@ export class PaymentCallbackComponent implements OnInit, OnDestroy {
       setTimeout(() => {
         // 'true' comes as a string from URL
         this.isSuccess = (success === 'true');
+
+        if (this.isSuccess) {
+          this.socketService.notifyPaymentSuccessLocally({
+            orderId: params['merchant_order_id'] || params['order'] || 'unknown',
+            message: 'Payment Successful! Your order is confirmed.'
+          });
+        }
+
         this.isLoading = false;
       }, 1000);
     });

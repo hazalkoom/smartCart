@@ -2,9 +2,10 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap, catchError, of, map } from 'rxjs';
+import { BehaviorSubject, Observable, tap, catchError, of, map, distinctUntilChanged } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { User, AuthResponse } from '../interfaces/user';
+import { SocketService } from './socket';
 
 @Injectable({
   providedIn: 'root'
@@ -22,8 +23,21 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
+    private socketService: SocketService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
+    this.currentUser$.subscribe((user) => {
+      if (user && user._id && this.isLoggedIn$.value) {
+        // 1. Always join the personal user room
+        this.socketService.joinUserRoom(user._id);
+        
+        // 2. If they are an admin/owner, put them in the VIP admin room too
+        if (user.role === 'admin' || user.role === 'owner') {
+          this.socketService.joinAdminRoom();
+        }
+      }
+    });
+
     // Initialize auth state from localStorage on service creation
     if (isPlatformBrowser(this.platformId)) {
       const token = localStorage.getItem('token');
@@ -196,6 +210,7 @@ export class AuthService {
 
   // Complete logout with state update and navigation
   logout(): void {
+    this.socketService.disconnect();
     this.clearAuthState();
     this.router.navigate(['/login']);
   }

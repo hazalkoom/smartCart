@@ -34,10 +34,11 @@ export class Header implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.updateScrollState();
+    this.isLoggedIn = this.authService.isAuthenticated();
 
     // 1. Subscribe to authentication state
     const authSub = this.authService.isLoggedIn$.subscribe(loggedIn => {
-      this.isLoggedIn = loggedIn;
+      this.isLoggedIn = loggedIn || this.authService.isAuthenticated();
       
       if (loggedIn) {
         this.cartService.getCart().subscribe();
@@ -51,6 +52,7 @@ export class Header implements OnInit, OnDestroy {
     // 2. Subscribe to user profile
     const userSub = this.authService.currentUser$.subscribe(user => {
       if (user) {
+        this.isLoggedIn = true;
         this.userName = user.firstName;
         this.isAdmin = user.role === 'admin' || user.role === 'owner';
         const normalizedWishlist = (user.wishlist || [])
@@ -113,7 +115,6 @@ export class Header implements OnInit, OnDestroy {
     this.mobileMenuOpen = false;
     this.searchOpen = false;
     this.authService.logout();
-    this.router.navigate(['/login']);
   }
 
   toggleMobileMenu(): void {

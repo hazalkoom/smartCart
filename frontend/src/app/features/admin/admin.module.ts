@@ -8,6 +8,7 @@ import { AdminOrdersComponent } from '../admin-orders/admin-orders.component';
 import { AdminUsersComponent } from '../admin-users/admin-users.component';
 import { AdminProductsComponent } from '../admin-products/admin-products.component';
 import { AdminCategoriesComponent } from '../admin-categories/admin-categories.component';
+import { NotificationBellComponent } from '../../core/components/notification-bell/notification-bell';
 
 @NgModule({
   declarations: [
@@ -22,6 +23,7 @@ import { AdminCategoriesComponent } from '../admin-categories/admin-categories.c
     CommonModule,
     FormsModule,
     AdminRoutingModule,
+    NotificationBellComponent,
   ],
 })
 export class AdminModule {}

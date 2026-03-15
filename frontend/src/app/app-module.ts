@@ -27,6 +27,7 @@ import { AboutComponent } from './features/about/about';
 import { HelpCenterComponent } from './features/help-center/help-center';
 import { WishlistComponent } from './features/wishlist/wishlist';
 import { GiftFinderComponent } from './features/gift-finder/gift-finder';
+import { NotificationBellComponent } from './core/components/notification-bell/notification-bell';
 
 @NgModule({
   declarations: [
@@ -54,7 +55,8 @@ import { GiftFinderComponent } from './features/gift-finder/gift-finder';
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    CommonModule
+    CommonModule,
+    NotificationBellComponent
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
