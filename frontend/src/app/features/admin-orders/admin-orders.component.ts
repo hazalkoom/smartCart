@@ -147,6 +147,11 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
     });
   }
 
+  getOrderTotal(order: Order): number {
+    const anyOrder = order as any;
+    return anyOrder.total || anyOrder.totalPrice || 0;
+  }
+
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;

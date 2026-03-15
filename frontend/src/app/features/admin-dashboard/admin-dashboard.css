@@ -1,28 +1,145 @@
-/* Stat card icon styles */
+.admin-page-header {
+  margin-bottom: 1.25rem;
+}
+
+.admin-page-header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.admin-page-header p {
+  color: var(--text-muted);
+  margin-top: 0.4rem;
+}
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-stat-card {
+  background: linear-gradient(160deg, rgba(10, 18, 32, 0.9), rgba(11, 20, 36, 0.78));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  min-height: 132px;
+  box-shadow: 0 12px 26px rgba(1, 5, 14, 0.44);
+}
+
+.stat-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.stat-top p {
+  color: var(--text-muted);
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+.stat-top h3 {
+  margin: 0.4rem 0 0;
+  font-size: 1.45rem;
+  color: #fff;
+}
+
+.admin-stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .stat-icon {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
 }
 
-.stat-icon-success {
-  color: #198754;
+.admin-stat-icon.revenue { background: rgba(34, 197, 94, 0.18); color: #6ee7b7; }
+.admin-stat-icon.orders { background: var(--primary-dim); color: var(--primary); }
+.admin-stat-icon.users { background: rgba(59, 130, 246, 0.18); color: #9fd2ff; }
+.admin-stat-icon.pending { background: rgba(245, 158, 11, 0.18); color: #facc15; }
+.admin-stat-icon.products { background: var(--accent-dim); color: #c4b5fd; }
+
+.sparkline {
+  width: 100%;
+  height: 34px;
+  margin-top: 0.75rem;
 }
 
-.stat-icon-primary {
-  color: #0d6efd;
+.sparkline path {
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px rgba(19, 214, 255, 0.45));
 }
 
-.stat-icon-info {
-  color: #0dcaf0;
+.admin-panel {
+  background: linear-gradient(160deg, rgba(9, 16, 29, 0.9), rgba(7, 13, 24, 0.88));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }
 
-.stat-icon-warning {
-  color: #ffc107;
+.admin-panel-header {
+  padding: 0.9rem 1rem;
+  border-bottom: 1px solid var(--border);
 }
 
-/* Responsive stat cards */
+.admin-panel-header h5 {
+  margin: 0;
+  color: #fff;
+}
+
+.admin-panel-body {
+  padding: 1rem;
+}
+
+.admin-table thead th {
+  color: #f6fbff;
+  background: rgba(16, 27, 46, 0.9);
+}
+
+.admin-table tbody td {
+  color: #eaf4ff;
+  background: rgba(8, 16, 30, 0.65);
+  border-color: var(--border);
+}
+
+.status-pill {
+  display: inline-flex;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+.status-pill.pending { background: rgba(245, 158, 11, 0.18); color: #facc15; }
+.status-pill.paid { background: var(--primary-dim); color: #99ebff; }
+.status-pill.shipped { background: var(--accent-dim); color: #c4b5fd; }
+.status-pill.delivered { background: rgba(34, 197, 94, 0.18); color: #86efac; }
+.status-pill.cancelled { background: rgba(239, 68, 68, 0.18); color: #fca5a5; }
+
+code {
+  color: var(--primary);
+  background: rgba(19, 214, 255, 0.08);
+  border-radius: 8px;
+  padding: 0.2rem 0.45rem;
+}
+
 @media (max-width: 767px) {
-  .card-body h3 {
-    font-size: 1.3rem;
+  .admin-page-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .stat-top h3 {
+    font-size: 1.2rem;
   }
 }

@@ -1,9 +1,7 @@
-<div class="container-fluid py-4">
-  <!-- Header -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <h1 class="h2">Products Management</h1>
-    </div>
+<section class="admin-page admin-products-page">
+  <div class="admin-page-header">
+    <h1>Products Management</h1>
+    <p>Control catalog, pricing, inventory, and category assignments from one panel.</p>
   </div>
 
   <!-- Success Message -->
@@ -19,14 +17,14 @@
   </div>
 
   <!-- Add / Edit Product Form -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white">
+  <div class="admin-panel admin-form-card mb-4">
+    <div class="admin-panel-header">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="mb-0">{{ isEditing ? 'Edit Product' : 'Add New Product' }}</h5>
-        <button class="btn btn-sm btn-light" *ngIf="isEditing" (click)="cancelEdit()">Cancel</button>
+        <button class="btn btn-sm btn-outline-light" *ngIf="isEditing" (click)="cancelEdit()">Cancel</button>
       </div>
     </div>
-    <div class="card-body">
+    <div class="admin-panel-body">
       <form (ngSubmit)="addProduct()">
         <div class="row">
           <div class="col-md-6 mb-3">
@@ -135,11 +133,11 @@
   </div>
 
   <!-- Products Table -->
-  <div class="card shadow-sm">
-    <div class="card-header bg-light">
+  <div class="admin-panel">
+    <div class="admin-panel-header">
       <h5 class="card-title mb-0">Products Inventory</h5>
     </div>
-    <div class="card-body">
+    <div class="admin-panel-body">
       <!-- Loading State -->
       <div *ngIf="isLoading" class="loading-indicator">
         <div class="loading-spinner"></div>
@@ -153,7 +151,7 @@
 
       <!-- Products Table -->
       <div *ngIf="!isLoading && products.length > 0" class="table-responsive">
-        <table class="table table-hover">
+        <table class="table table-hover admin-table">
           <thead>
             <tr>
               <th style="width: 80px;">Image</th>
@@ -177,7 +175,7 @@
                 <div class="product-name">{{ product.name }}</div>
               </td>
               <td>
-                <span class="badge bg-light text-dark">{{ product.sku || 'N/A' }}</span>
+                <span class="badge sku-badge">{{ product.sku || 'N/A' }}</span>
               </td>
               <td>
                 <span class="category-badge">
@@ -200,7 +198,7 @@
                 <div class="action-buttons">
                   <button class="btn btn-sm btn-outline-primary" (click)="startEdit(product)">Edit</button>
                   <button 
-                    class="btn btn-sm btn-danger"
+                    class="btn btn-sm btn-outline-danger"
                     [ngClass]="{'delete-btn-deleting': deletingProductId === product._id}"
                     (click)="deleteProduct(product._id)"
                     [disabled]="deletingProductId === product._id"
@@ -238,4 +236,4 @@
       </div>
     </div>
   </div>
-</div>
+</section>

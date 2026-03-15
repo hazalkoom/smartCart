@@ -1,9 +1,7 @@
-<div class="container-fluid py-4">
-  <!-- Header -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <h1 class="h2">Categories Management</h1>
-    </div>
+<section class="admin-page admin-categories-page">
+  <div class="admin-page-header">
+    <h1>Categories Management</h1>
+    <p>Build a clean taxonomy that keeps products organized and discoverable.</p>
   </div>
 
   <!-- Success Message -->
@@ -19,14 +17,14 @@
   </div>
 
   <!-- Add / Edit Category Form -->
-  <div class="card shadow-sm mb-4">
-    <div class="card-header bg-primary text-white">
+  <div class="admin-panel admin-form-card mb-4">
+    <div class="admin-panel-header">
       <div class="d-flex justify-content-between align-items-center">
         <h5 class="card-title mb-0">{{ isEditing ? 'Edit Category' : 'Add New Category' }}</h5>
-        <button class="btn btn-sm btn-light" *ngIf="isEditing" (click)="cancelEdit()">Cancel</button>
+        <button class="btn btn-sm btn-outline-light" *ngIf="isEditing" (click)="cancelEdit()">Cancel</button>
       </div>
     </div>
-    <div class="card-body">
+    <div class="admin-panel-body">
       <form (ngSubmit)="createCategory()">
         <div class="row">
           <div class="col-md-6 mb-3">
@@ -75,7 +73,7 @@
     <!-- Categories Grid -->
     <div *ngIf="!isLoading && categories.length > 0" class="category-grid">
       <div class="category-card" *ngFor="let category of categories">
-        <div class="category-icon">📁</div>
+        <div class="category-icon">C</div>
         <div>
           <h6 class="category-name">{{ category.name }}</h6>
           <p class="category-description">{{ category.description || 'No description provided' }}</p>
@@ -103,9 +101,9 @@
 
     <!-- Empty State -->
     <div *ngIf="!isLoading && categories.length === 0" class="category-list-empty">
-      <div class="empty-icon">📁</div>
+      <div class="empty-icon">C</div>
       <p>No categories found.</p>
       <p class="small text-muted">Create your first category using the form above!</p>
     </div>
   </div>
-</div>
+</section>
