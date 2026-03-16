@@ -9,4 +9,6 @@
   display: inline-flex;
   align-items: center;
   gap: 0.85rem;
+  margin-left: auto;
+  overflow: visible;
 }

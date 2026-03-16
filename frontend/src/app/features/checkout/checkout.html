@@ -232,19 +232,19 @@
 <!-- Order Success State -->
 <section class="sc-checkout-page" *ngIf="!isLoading && orderPlaced">
   <div class="container">
-    <div style="text-align: center; padding: 4rem 2rem;">
+    <div class="sc-success-state">
       <div class="sc-empty-icon" style="font-size: 4rem; margin-bottom: 1rem;">
         <i class="icon icon-check-circle" style="color: var(--success);"></i>
       </div>
       <h2>Order Placed Successfully!</h2>
       <p>Order #{{ placedOrderId }}</p>
       <p style="color: var(--text-muted);">Check your email for order confirmation.</p>
-      <div style="margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
-        <button class="btn btn-primary" (click)="completePaymentNow()" [disabled]="isPaymentProcessing">
+      <div class="sc-success-actions">
+        <button class="btn btn-primary sc-success-action" (click)="completePaymentNow()" [disabled]="isPaymentProcessing">
           {{ isPaymentProcessing ? 'Connecting to Paymob...' : 'Complete Payment Now' }}
         </button>
-        <a routerLink="/products" class="btn btn-primary">Continue Shopping</a>
-        <a routerLink="/account" class="btn btn-outline-primary">View My Orders</a>
+        <a routerLink="/products" class="btn btn-primary sc-success-action">Continue Shopping</a>
+        <a [routerLink]="['/account']" fragment="orders" class="btn btn-primary sc-success-action">View My Orders</a>
       </div>
     </div>
   </div>

@@ -23,7 +23,7 @@
         <i class="bi bi-search"></i>
       </button>
 
-      <a routerLink="/wishlist" class="sc-icon-btn" aria-label="Wishlist" *ngIf="isLoggedIn">
+      <a routerLink="/wishlist" class="sc-icon-btn" aria-label="Wishlist" *ngIf="authReady && hasAuthenticatedSession">
         <i class="bi bi-heart"></i>
         <span class="sc-badge" *ngIf="wishlistCount > 0">{{ wishlistCount }}</span>
       </a>
@@ -33,9 +33,9 @@
         <span class="sc-badge sc-badge-primary" *ngIf="cartCount > 0">{{ cartCount }}</span>
       </a>
 
-      <app-notification-bell *ngIf="isLoggedIn"></app-notification-bell>
+      <app-notification-bell *ngIf="authReady && hasAuthenticatedSession"></app-notification-bell>
 
-      <div class="dropdown" *ngIf="isLoggedIn">
+      <div class="dropdown" *ngIf="authReady && hasAuthenticatedSession">
         <button class="sc-user-btn dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
           <div class="sc-avatar"><i class="bi bi-person-fill"></i></div>
           <span class="sc-user-name">{{ userName || 'Account' }}</span>
@@ -50,7 +50,7 @@
         </ul>
       </div>
 
-      <div class="sc-auth-links" *ngIf="!isLoggedIn">
+      <div class="sc-auth-links" *ngIf="authReady && showGuestLinks">
         <a routerLink="/login" class="sc-auth-link">Login</a>
         <a routerLink="/register" class="sc-auth-link">Sign Up</a>
       </div>
@@ -77,12 +77,12 @@
     <a routerLink="/categories" (click)="closeMobileMenu()">Categories</a>
     <a routerLink="/gift-finder" (click)="closeMobileMenu()" class="sc-nav-special"><i class="bi bi-gift-fill"></i> Gift Finder</a>
     <a routerLink="/about" (click)="closeMobileMenu()">About</a>
-    <a routerLink="/wishlist" (click)="closeMobileMenu()" *ngIf="isLoggedIn">Wishlist</a>
-    <a routerLink="/account" (click)="closeMobileMenu()" *ngIf="isLoggedIn">Account</a>
-    <a [routerLink]="['/account']" fragment="orders" (click)="closeMobileMenu()" *ngIf="isLoggedIn">Orders</a>
+    <a routerLink="/wishlist" (click)="closeMobileMenu()" *ngIf="authReady && hasAuthenticatedSession">Wishlist</a>
+    <a routerLink="/account" (click)="closeMobileMenu()" *ngIf="authReady && hasAuthenticatedSession">Account</a>
+    <a [routerLink]="['/account']" fragment="orders" (click)="closeMobileMenu()" *ngIf="authReady && hasAuthenticatedSession">Orders</a>
     <a routerLink="/admin" (click)="closeMobileMenu()" *ngIf="isAdmin">Admin</a>
-    <a routerLink="/login" (click)="closeMobileMenu()" *ngIf="!isLoggedIn">Login</a>
-    <a routerLink="/register" (click)="closeMobileMenu()" *ngIf="!isLoggedIn">Register</a>
-    <a href="javascript:void(0)" (click)="logout()" *ngIf="isLoggedIn">Logout</a>
+    <a routerLink="/login" (click)="closeMobileMenu()" *ngIf="authReady && showGuestLinks">Login</a>
+    <a routerLink="/register" (click)="closeMobileMenu()" *ngIf="authReady && showGuestLinks">Register</a>
+    <a href="javascript:void(0)" (click)="logout()" *ngIf="authReady && hasAuthenticatedSession">Logout</a>
   </div>
 </header>

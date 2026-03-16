@@ -179,6 +179,8 @@
 }
 
 .notification-bell.admin-variant .notification-dropdown {
+  left: 0;
+  right: auto;
   background: var(--bg-primary, #ffffff);
   border-color: var(--border-color, #bfdbfe);
   color: var(--text-primary, #0f172a);
@@ -206,5 +208,10 @@
 @media (max-width: 640px) {
   .notification-dropdown {
     right: -42px;
+  }
+
+  .notification-bell.admin-variant .notification-dropdown {
+    left: auto;
+    right: 0;
   }
 }

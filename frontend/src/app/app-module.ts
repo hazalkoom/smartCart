@@ -1,4 +1,4 @@
-import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { NgModule, provideBrowserGlobalErrorListeners, APP_INITIALIZER } from '@angular/core';
 import { BrowserModule, provideClientHydration, withEventReplay } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'; // Needed for ngModel
@@ -28,6 +28,11 @@ import { HelpCenterComponent } from './features/help-center/help-center';
 import { WishlistComponent } from './features/wishlist/wishlist';
 import { GiftFinderComponent } from './features/gift-finder/gift-finder';
 import { NotificationBellComponent } from './core/components/notification-bell/notification-bell';
+import { AuthService } from './core/services/auth';
+
+export function initializeAuthFactory(authService: AuthService): () => Promise<void> {
+  return () => authService.initializeAuth();
+}
 
 @NgModule({
   declarations: [
@@ -71,6 +76,12 @@ import { NotificationBellComponent } from './core/components/notification-bell/n
     {
       provide: HTTP_INTERCEPTORS,
       useClass: ErrorInterceptor,
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeAuthFactory,
+      deps: [AuthService],
       multi: true
     }
   ],

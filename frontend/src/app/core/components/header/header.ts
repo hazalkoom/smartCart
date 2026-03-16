@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth';
 import { CartService } from '../../services/cart';
+import { User } from '../../interfaces/user';
 
 @Component({
   selector: 'app-header',
@@ -13,7 +14,10 @@ import { CartService } from '../../services/cart';
 })
 export class Header implements OnInit, OnDestroy {
 
+  authReady: boolean = false;
   isLoggedIn: boolean = false;
+  hasAuthenticatedSession: boolean = false;
+  showGuestLinks: boolean = true;
   isAdmin: boolean = false;
   cartCount: number = 0;
   wishlistCount: number = 0;
@@ -34,13 +38,19 @@ export class Header implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.updateScrollState();
-    this.isLoggedIn = this.authService.isAuthenticated();
+    this.refreshAuthState();
+
+    const authReadySub = this.authService.authReady$.subscribe((ready) => {
+      this.authReady = ready;
+      this.refreshAuthState(this.authService.currentUser$.value, this.authService.isLoggedIn$.value);
+    });
+    this.subscriptions.push(authReadySub);
 
     // 1. Subscribe to authentication state
     const authSub = this.authService.isLoggedIn$.subscribe(loggedIn => {
-      this.isLoggedIn = loggedIn || this.authService.isAuthenticated();
+      this.refreshAuthState(this.authService.currentUser$.value, loggedIn);
       
-      if (loggedIn) {
+      if (this.hasAuthenticatedSession) {
         this.cartService.getCart().subscribe();
       } else {
         this.cartCount = 0;
@@ -51,18 +61,7 @@ export class Header implements OnInit, OnDestroy {
 
     // 2. Subscribe to user profile
     const userSub = this.authService.currentUser$.subscribe(user => {
-      if (user) {
-        this.isLoggedIn = true;
-        this.userName = user.firstName;
-        this.isAdmin = user.role === 'admin' || user.role === 'owner';
-        const normalizedWishlist = (user.wishlist || [])
-          .map((item: any) => typeof item === 'string' ? item : item?._id)
-          .filter((id: string | undefined) => !!id);
-        this.wishlistCount = normalizedWishlist.length;
-      } else {
-        this.isAdmin = false;
-        this.wishlistCount = 0;
-      }
+      this.refreshAuthState(user, this.authService.isLoggedIn$.value);
     });
     this.subscriptions.push(userSub);
 
@@ -129,5 +128,36 @@ export class Header implements OnInit, OnDestroy {
     if (isPlatformBrowser(this.platformId)) {
       this.isScrolled = window.scrollY > 12;
     }
+  }
+
+  private refreshAuthState(
+    user: User | null = this.authService.currentUser$.value,
+    loggedIn: boolean = this.authService.isLoggedIn$.value
+  ): void {
+    const hasSession = loggedIn || this.authService.isAuthenticated() || !!user;
+
+    this.isLoggedIn = hasSession;
+    this.hasAuthenticatedSession = hasSession;
+    this.showGuestLinks = !hasSession;
+
+    if (!user) {
+      this.isAdmin = false;
+      this.wishlistCount = 0;
+
+      if (!hasSession) {
+        this.userName = '';
+      }
+
+      return;
+    }
+
+    this.userName = user.firstName;
+    this.isAdmin = user.role === 'admin' || user.role === 'owner';
+
+    const normalizedWishlist = (user.wishlist || [])
+      .map((item: any) => typeof item === 'string' ? item : item?._id)
+      .filter((id: string | undefined) => !!id);
+
+    this.wishlistCount = normalizedWishlist.length;
   }
 }

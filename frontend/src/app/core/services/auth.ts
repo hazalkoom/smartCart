@@ -2,7 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap, catchError, of, map, distinctUntilChanged } from 'rxjs';
+import { BehaviorSubject, Observable, tap, catchError, of, map, firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { User, AuthResponse } from '../interfaces/user';
 import { SocketService } from './socket';
@@ -19,6 +19,8 @@ export class AuthService {
   
   // BehaviorSubject to track current user profile
   public currentUser$ = new BehaviorSubject<User | null>(null);
+  public authReady$ = new BehaviorSubject<boolean>(false);
+  private authInitPromise: Promise<void> | null = null;
 
   constructor(
     private http: HttpClient,
@@ -38,26 +40,47 @@ export class AuthService {
       }
     });
 
-    // Initialize auth state from localStorage on service creation
-    if (isPlatformBrowser(this.platformId)) {
-      const token = localStorage.getItem('token');
-      if (token) {
-        this.isLoggedIn$.next(true);
-        // Optionally fetch user profile on initialization
-        // Don't clear auth state on error during initialization - let error interceptor handle it
-        this.getUserProfile().subscribe({
-          next: (user) => {
-            if (user) {
-              this.currentUser$.next(user);
-            }
-          },
-          error: () => {
-            // Silently fail during initialization - error interceptor will handle 401s
-            // Only clear if token is definitely invalid (handled by error interceptor)
-          }
-        });
-      }
+    // Initialize auth state early for non-initializer code paths as well.
+    this.initializeAuth();
+  }
+
+  initializeAuth(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) {
+      // Do NOT emit true on the server. If we do, SSR renders "Login / Sign Up",
+      // causing a flash when the client boots and parses local storage.
+      this.authReady$.next(false);
+      return Promise.resolve();
     }
+
+    if (this.authInitPromise) {
+      return this.authInitPromise;
+    }
+
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      this.isLoggedIn$.next(false);
+      this.currentUser$.next(null);
+      this.authReady$.next(true);
+      this.authInitPromise = Promise.resolve();
+      return this.authInitPromise;
+    }
+
+    this.isLoggedIn$.next(true);
+    this.authInitPromise = firstValueFrom(this.getUserProfile())
+      .then((user) => {
+        if (user) {
+          this.currentUser$.next(user);
+        }
+      })
+      .catch(() => {
+        // Keep token-based auth state; interceptor and protected routes handle invalid tokens.
+      })
+      .finally(() => {
+        this.authReady$.next(true);
+      });
+
+    return this.authInitPromise;
   }
 
   // POST /api/v1/auth/register
