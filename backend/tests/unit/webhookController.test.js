@@ -3,12 +3,19 @@ jest.mock('../../src/models/orderModel', () => ({
   findOneAndUpdate: jest.fn(),
 }));
 
+jest.mock('../../src/models/productModel', () => ({
+  findByIdAndUpdate: jest.fn(),
+}));
+
 jest.mock('../../src/utils/paymobHmac', () => ({
   validateHmac: jest.fn(),
 }));
 
 const Order = require('../../src/models/orderModel');
+const Product = require('../../src/models/productModel');
 const { validateHmac } = require('../../src/utils/paymobHmac');
+const redisClient = require('../../src/utils/redisClient');
+const socket = require('../../src/utils/socket');
 
 // The controller wraps the handler in asyncHandler, so we import the raw module
 // and call handlePaymobWebhook(req, res, next) to test.
@@ -127,6 +134,8 @@ describe('webhookController — handlePaymobWebhook', () => {
     expect(Order.findById).toHaveBeenCalledWith('order-123');
     expect(res.status).toHaveBeenCalledWith(200);
     expect(Order.findOneAndUpdate).not.toHaveBeenCalled();
+    expect(Product.findByIdAndUpdate).not.toHaveBeenCalled();
+    expect(redisClient.decrby).not.toHaveBeenCalled();
   });
 
   // --- Idempotency ---
@@ -141,14 +150,29 @@ describe('webhookController — handlePaymobWebhook', () => {
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(Order.findOneAndUpdate).not.toHaveBeenCalled();
+    expect(Product.findByIdAndUpdate).not.toHaveBeenCalled();
+    expect(redisClient.decrby).not.toHaveBeenCalled();
   });
 
   // --- Happy Path: Order Status Mutation ---
 
   it('atomically updates order to Paid on valid transaction', async () => {
     validateHmac.mockReturnValue(true);
-    Order.findById.mockResolvedValue({ _id: 'order-123', isPaid: false });
-    Order.findOneAndUpdate.mockResolvedValue({ _id: 'order-123', isPaid: true });
+    const existingOrder = {
+      _id: 'order-123',
+      isPaid: false,
+      userId: { toString: () => 'user-1' },
+      items: [{ productId: 'prod-1', quantity: 2 }],
+    };
+    const updatedOrder = {
+      _id: 'order-123',
+      isPaid: true,
+      userId: { toString: () => 'user-1' },
+      items: [{ productId: 'prod-1', quantity: 2 }],
+    };
+
+    Order.findById.mockResolvedValue(existingOrder);
+    Order.findOneAndUpdate.mockResolvedValue(updatedOrder);
     const req = makeReq();
     const res = makeRes();
 
@@ -166,6 +190,71 @@ describe('webhookController — handlePaymobWebhook', () => {
       },
       { new: true }
     );
+    expect(Product.findByIdAndUpdate).toHaveBeenCalledWith('prod-1', {
+      $inc: { stock: -2, purchases: 2 },
+    });
+    expect(redisClient.decrby).toHaveBeenCalledWith('locked_stock:prod-1', 2);
+    expect(socket.getIO).toHaveBeenCalled();
+    expect(socket.__mockSocketTo).toHaveBeenCalledWith('user-1');
+    expect(socket.__mockSocketTo).toHaveBeenCalledWith('admin_room');
+    expect(socket.__mockSocketEmit).toHaveBeenCalledWith(
+      'paymentSuccess',
+      expect.objectContaining({ orderId: 'order-123' })
+    );
+    expect(socket.__mockSocketEmit).toHaveBeenCalledWith(
+      'adminOrderPaid',
+      expect.objectContaining({ orderId: 'order-123' })
+    );
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('uses item.product fallback when productId is missing in order items', async () => {
+    validateHmac.mockReturnValue(true);
+    const existingOrder = {
+      _id: 'order-123',
+      isPaid: false,
+      userId: { toString: () => 'user-1' },
+      items: [{ product: 'prod-fallback', quantity: 1 }],
+    };
+
+    Order.findById.mockResolvedValue(existingOrder);
+    Order.findOneAndUpdate.mockResolvedValue(existingOrder);
+
+    const req = makeReq();
+    const res = makeRes();
+
+    await handlePaymobWebhook(req, res, next);
+
+    expect(Product.findByIdAndUpdate).toHaveBeenCalledWith('prod-fallback', {
+      $inc: { stock: -1, purchases: 1 },
+    });
+    expect(redisClient.decrby).toHaveBeenCalledWith('locked_stock:prod-fallback', 1);
+    expect(res.status).toHaveBeenCalledWith(200);
+  });
+
+  it('still returns 200 when socket emission fails after DB updates', async () => {
+    validateHmac.mockReturnValue(true);
+    const existingOrder = {
+      _id: 'order-123',
+      isPaid: false,
+      userId: { toString: () => 'user-1' },
+      items: [{ productId: 'prod-1', quantity: 1 }],
+    };
+    Order.findById.mockResolvedValue(existingOrder);
+    Order.findOneAndUpdate.mockResolvedValue(existingOrder);
+    socket.getIO.mockImplementation(() => {
+      throw new Error('socket down');
+    });
+
+    const req = makeReq();
+    const res = makeRes();
+
+    await handlePaymobWebhook(req, res, next);
+
+    expect(Product.findByIdAndUpdate).toHaveBeenCalledWith('prod-1', {
+      $inc: { stock: -1, purchases: 1 },
+    });
+    expect(redisClient.decrby).toHaveBeenCalledWith('locked_stock:prod-1', 1);
     expect(res.status).toHaveBeenCalledWith(200);
   });
 });

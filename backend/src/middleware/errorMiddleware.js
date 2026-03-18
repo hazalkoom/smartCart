@@ -11,7 +11,7 @@ const errorHandler = (err, req, res, next) => {
 
   let statusCode = err.statusCode ? err.statusCode : (res.statusCode === 200 ? 500 : res.statusCode);
   let message = err.message || 'Internal Server Error';
-  let errorCode = 'SERVER_ERROR';
+  let errorCode = err.errorCode || 'SERVER_ERROR';
 
   // --- Mongoose Errors ---
   if (err.name === 'CastError') {
@@ -33,7 +33,7 @@ const errorHandler = (err, req, res, next) => {
     errorCode = 'VALIDATION_ERROR';
   }
 
-  if (statusCode === 400 && err.name === 'Error') {
+  if (!err.errorCode && statusCode === 400 && err.name === 'Error') {
     errorCode = 'VALIDATION_ERROR';
   }
 
@@ -83,8 +83,8 @@ const errorHandler = (err, req, res, next) => {
     statusCode = 404;
     errorCode = 'NOT_FOUND';
   }
-  if (err.message.startsWith('Insufficient stock')) {
-    statusCode = 400;
+  if (err.message.startsWith('Insufficient stock') || err.message.startsWith('Over-selling prevented')) {
+    statusCode = 409;
     errorCode = 'INSUFFICIENT_STOCK';
   }
   if (err.message === 'Your cart is empty') {

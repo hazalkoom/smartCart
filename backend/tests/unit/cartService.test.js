@@ -9,12 +9,15 @@ jest.mock('../../src/models/productModel', () => ({
 
 const Cart = require('../../src/models/cartModel');
 const Product = require('../../src/models/productModel');
+const redisClient = require('../../src/utils/redisClient');
+const { cartQueue } = require('../../src/workers/queueSetup');
 
 const cartService = require('../../src/services/cartService');
 
 describe('CartService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    redisClient.get.mockResolvedValue('0');
   });
 
   const makeCart = ({ items = [], subtotal = 0 } = {}) => {
@@ -59,13 +62,25 @@ describe('CartService', () => {
     expect(result.items[0].quantity).toBe(5);
     expect(cart.save).toHaveBeenCalled();
     expect(cart.subtotal).toBe(10 * 5);
+    expect(redisClient.incrby).toHaveBeenCalledWith(`locked_stock:${productId}`, 3);
+    expect(cartQueue.add).toHaveBeenCalledWith(
+      'expireCartItem',
+      { userId: 'user-1', productId, quantity: 3 },
+      { delay: 10 * 60 * 1000 }
+    );
   });
 
   it('Stock: throws when attempting to add more quantity than available', async () => {
     Product.findById.mockResolvedValue({ _id: 'prod-2', price: 10, stock: 2 });
+    const addPromise = cartService.addItemToCart('user-1', 'prod-2', 3);
 
-    await expect(cartService.addItemToCart('user-1', 'prod-2', 3)).rejects.toThrow(
-      'Insufficient stock'
+    await expect(addPromise).rejects.toMatchObject({
+      statusCode: 409,
+      errorCode: 'INSUFFICIENT_STOCK',
+    });
+    await expect(addPromise).rejects.toHaveProperty(
+      'message',
+      expect.stringContaining('Over-selling prevented')
     );
   });
 
@@ -94,16 +109,17 @@ describe('CartService', () => {
   it('Validation: throws when adding duplicate item exceeds stock', async () => {
     const productId = 'prod-dup';
     Product.findById.mockResolvedValue({ _id: productId, price: 25, stock: 5 });
+    redisClient.get.mockResolvedValue('3');
 
     const cart = makeCart({
       items: [{ productId: { _id: { toString: () => productId } }, quantity: 3, price: 25 }],
     });
     Cart.findOne.mockResolvedValue(cart);
 
-    // Existing 3 + requesting 4 = 7, but stock is only 5
-    await expect(cartService.addItemToCart('user-1', productId, 4)).rejects.toThrow(
-      'Insufficient stock for updated quantity'
-    );
+    await expect(cartService.addItemToCart('user-1', productId, 4)).rejects.toMatchObject({
+      statusCode: 409,
+      errorCode: 'INSUFFICIENT_STOCK',
+    });
   });
 
   it('Logic: creates a new cart when none exists and adds the item', async () => {
@@ -182,10 +198,51 @@ describe('CartService', () => {
       cart.items.id.mockReturnValue(item);
 
       Product.findById.mockResolvedValue({ _id: 'prod-1', stock: 3 });
+      redisClient.get.mockResolvedValue('2');
 
-      await expect(cartService.updateItemQuantity('user-1', 'item-1', 5)).rejects.toThrow(
-        'Insufficient stock'
+      await expect(cartService.updateItemQuantity('user-1', 'item-1', 5)).rejects.toMatchObject({
+        statusCode: 409,
+        errorCode: 'INSUFFICIENT_STOCK',
+      });
+    });
+
+    it('locks only the quantity delta and schedules expiration when increasing quantity', async () => {
+      const item = { _id: 'item-1', productId: 'prod-1', quantity: 2, price: 10 };
+      const cart = makeCart({ items: [item] });
+      Cart.findOne.mockResolvedValue(cart);
+      cart.populate.mockResolvedValue(cart);
+      cart.items.id.mockReturnValue(item);
+
+      Product.findById.mockResolvedValue({ _id: 'prod-1', stock: 20 });
+      redisClient.get.mockResolvedValue('0');
+
+      await cartService.updateItemQuantity('user-1', 'item-1', 5);
+
+      expect(redisClient.incrby).toHaveBeenCalledWith('locked_stock:prod-1', 3);
+      expect(cartQueue.add).toHaveBeenCalledWith(
+        'expireCartItem',
+        { userId: 'user-1', productId: 'prod-1', quantity: 3 },
+        { delay: 10 * 60 * 1000 }
       );
+      expect(item.quantity).toBe(5);
+      expect(cart.save).toHaveBeenCalled();
+    });
+
+    it('releases only the quantity delta when reducing quantity', async () => {
+      const item = { _id: 'item-1', productId: 'prod-1', quantity: 5, price: 10 };
+      const cart = makeCart({ items: [item] });
+      Cart.findOne.mockResolvedValue(cart);
+      cart.populate.mockResolvedValue(cart);
+      cart.items.id.mockReturnValue(item);
+
+      Product.findById.mockResolvedValue({ _id: 'prod-1', stock: 20 });
+
+      await cartService.updateItemQuantity('user-1', 'item-1', 2);
+
+      expect(redisClient.decrby).toHaveBeenCalledWith('locked_stock:prod-1', 3);
+      expect(cartQueue.add).not.toHaveBeenCalled();
+      expect(item.quantity).toBe(2);
+      expect(cart.save).toHaveBeenCalled();
     });
   });
 
@@ -193,7 +250,7 @@ describe('CartService', () => {
     it('removes the item and recalculates subtotal', async () => {
       const item = {
         _id: 'item-1',
-        productId: 'prod-1',
+        productId: { _id: 'prod-1' },
         quantity: 2,
         price: 15,
         deleteOne: jest.fn(),
@@ -208,6 +265,8 @@ describe('CartService', () => {
 
       expect(item.deleteOne).toHaveBeenCalled();
       expect(cart.save).toHaveBeenCalled();
+      expect(redisClient.decrby).toHaveBeenCalledWith('locked_stock:prod-1', 2);
+      expect(result).toBe(cart);
     });
 
     it('throws when item is not found in cart', async () => {
@@ -225,7 +284,7 @@ describe('CartService', () => {
   describe('clearCart', () => {
     it('empties the items array and sets subtotal to 0', async () => {
       const cart = makeCart({
-        items: [{ price: 10, quantity: 2 }],
+        items: [{ productId: { _id: 'prod-1' }, price: 10, quantity: 2 }],
         subtotal: 20,
       });
       Cart.findOne.mockResolvedValue(cart);
@@ -236,6 +295,26 @@ describe('CartService', () => {
       expect(result.items).toEqual([]);
       expect(result.subtotal).toBe(0);
       expect(cart.save).toHaveBeenCalled();
+      expect(redisClient.decrby).toHaveBeenCalledWith('locked_stock:prod-1', 2);
+    });
+
+    it('releases lock for every item in the cart before clearing', async () => {
+      const cart = makeCart({
+        items: [
+          { productId: { _id: 'prod-1' }, price: 10, quantity: 2 },
+          { productId: { _id: 'prod-2' }, price: 5, quantity: 4 },
+        ],
+        subtotal: 40,
+      });
+      Cart.findOne.mockResolvedValue(cart);
+      cart.populate.mockResolvedValue(cart);
+
+      await cartService.clearCart('user-1');
+
+      expect(redisClient.decrby).toHaveBeenNthCalledWith(1, 'locked_stock:prod-1', 2);
+      expect(redisClient.decrby).toHaveBeenNthCalledWith(2, 'locked_stock:prod-2', 4);
+      expect(cart.items).toEqual([]);
+      expect(cart.subtotal).toBe(0);
     });
   });
 });

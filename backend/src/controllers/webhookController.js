@@ -63,7 +63,7 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
 
   // 5. Atomic Update
   // We use findOneAndUpdate to prevent race conditions
-  await Order.findOneAndUpdate(
+  const updatedOrder = await Order.findOneAndUpdate(
     { _id: orderId },
     {
       $set: {
@@ -78,14 +78,20 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
 
   // --- NEW: PERMANENT INVENTORY CLEANUP ---
   try {
-    for (const item of updatedOrder.items) {
+    const orderForInventory = updatedOrder || order;
+    const orderItems = Array.isArray(orderForInventory.items) ? orderForInventory.items : [];
+
+    for (const item of orderItems) {
+      const productId = item.productId || item.product;
+      if (!productId) continue;
+
       // 1. Permanently reduce the actual MongoDB stock and increase purchases
-      await Product.findByIdAndUpdate(item.productId || item.product, {
+      await Product.findByIdAndUpdate(productId, {
         $inc: { stock: -item.quantity, purchases: item.quantity }
       });
       
       // 2. Erase the temporary Redis hold so the math stays correct
-      await redisClient.decrby(`locked_stock:${item.productId || item.product}`, item.quantity);
+      await redisClient.decrby(`locked_stock:${productId}`, item.quantity);
     }
     console.log(`📦 [INVENTORY] Stock permanently updated and locks released for Order ${orderId}`);
   } catch (err) {

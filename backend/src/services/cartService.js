@@ -4,6 +4,14 @@ const redisClient = require('../utils/redisClient');
 const { cartQueue } = require('../workers/queueSetup');
 
 class CartService {
+  _buildStockConflictError(message) {
+    return {
+      statusCode: 409,
+      errorCode: 'INSUFFICIENT_STOCK',
+      message,
+    };
+  }
+
   async _getOrCreateCart(userId) {
     let cart = await Cart.findOne({ userId });
 
@@ -40,7 +48,9 @@ class CartService {
     const availableStock = product.stock - lockedStock;
 
     if (availableStock < quantity) {
-      throw new Error(`Over-selling prevented: Only ${availableStock} items available. The rest are reserved in other checkouts.`);
+      throw this._buildStockConflictError(
+        `Over-selling prevented: Only ${availableStock} items available. The rest are reserved in other checkouts.`
+      );
     }
 
     const cart = await this._getOrCreateCart(userId);
@@ -96,7 +106,9 @@ class CartService {
       const availableStock = product.stock - lockedStock;
 
       if (availableStock < quantityDifference) {
-        throw new Error(`Insufficient stock. Only ${availableStock} more available.`);
+        throw this._buildStockConflictError(
+          `Over-selling prevented: Only ${availableStock} items available. The rest are reserved in other checkouts.`
+        );
       }
       
       // Lock the additional items and start a new timer

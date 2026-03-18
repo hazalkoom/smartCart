@@ -117,7 +117,13 @@ def test_add_item_insufficient_stock(cart_ctx):
         json={"productId": cart_ctx['product_id'], "quantity": cart_ctx['product_stock'] + 100},
         headers=cart_ctx['owner_headers'],
     )
-    assert_error(res, 400, 'INSUFFICIENT_STOCK', 'Insufficient stock', 'add item insufficient stock')
+    assert_error(
+        res,
+        409,
+        'INSUFFICIENT_STOCK',
+        'Over-selling prevented',
+        'add item insufficient stock',
+    )
 
 
 @pytest.mark.run(order=48.5)
@@ -144,7 +150,7 @@ def test_add_item_zero_stock_product(cart_ctx):
     
     # Try to add it to cart - should fail
     res = requests.post(f"{cart_url}/items", json={"productId": zero_prod_id, "quantity": 1}, headers=cart_ctx['owner_headers'])
-    assert_error(res, 400, 'INSUFFICIENT_STOCK', 'stock', 'add zero-stock product')
+    assert_error(res, 409, 'INSUFFICIENT_STOCK', 'Over-selling prevented', 'add zero-stock product')
 
 
 @pytest.mark.run(order=49)
@@ -176,7 +182,13 @@ def test_update_item_insufficient_stock(cart_ctx):
         json={"quantity": cart_ctx['product_stock'] + 100},
         headers=cart_ctx['owner_headers'],
     )
-    assert_error(res, 400, 'INSUFFICIENT_STOCK', 'Insufficient stock', 'update item insufficient stock')
+    assert_error(
+        res,
+        409,
+        'INSUFFICIENT_STOCK',
+        'Over-selling prevented',
+        'update item insufficient stock',
+    )
 
 @pytest.mark.run(order=52)
 def test_update_item_happy_path(cart_ctx):
