@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:alpine
+    container_name: smartcart-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      # This is the Volume. It saves Redis data to a hidden Docker folder on your hard drive. Don't lose the data, ya ghabi.
+      - redis_data:/data 
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: smartcart-backend
+    ports:
+      - "5000:5000"
+    volumes:
+      # This mounts your live Windows folder straight into the Linux container.
+      - ./backend:/app
+      - /app/node_modules # Prevents Windows node_modules from overriding Linux node_modules
+    environment:
+      - PORT=5000
+      # Docker Networking: Notice how we don't use localhost. We literally use the name of the Redis container.
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: smartcart-frontend
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: smartcart-ngrok
+    command: "http backend:5000"
+    ports:
+      - "4040:4040"
+    depends_on:
+      - backend
+    env_file:
+      - ./backend/.env
+
+volumes:
+  redis_data:
