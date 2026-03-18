@@ -18,6 +18,7 @@ const userRoutes = require('./routes/userRoutes');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const socket = require('./utils/socket');
+const redisClient = require('./utils/redisClient');
 
 dotenv.config({ path: '.env' });
 
@@ -109,6 +110,7 @@ const startServer = async () => {
     server.close(async () => {
       const mongoose = require('mongoose');
       await mongoose.disconnect();
+      await redisClient.quit();
       logger.info('MongoDB disconnected. Process exiting.');
       process.exit(0);
     });
