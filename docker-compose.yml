@@ -43,6 +43,9 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    environment:
+      # Dev-only: allow localhost and LAN access (Angular 20 host validation)
+      NG_ALLOWED_HOSTS: "localhost,127.0.0.1,192.168.1.9,host.docker.internal,172.18.0.5"
     depends_on:
       - backend
     restart: unless-stopped
