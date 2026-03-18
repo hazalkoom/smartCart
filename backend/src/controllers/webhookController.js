@@ -1,7 +1,9 @@
 const Order = require('../models/orderModel');
+const Product = require('../models/productModel'); // NEW
 const { validateHmac } = require('../utils/paymobHmac');
 const asyncHandler = require('../utils/asyncHandler');
 const socket = require('../utils/socket');
+const redisClient = require('../utils/redisClient'); // NEW
 
 const handlePaymobWebhook = asyncHandler(async (req, res) => {
 
@@ -73,6 +75,22 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
     },
     { new: true }
   );
+
+  // --- NEW: PERMANENT INVENTORY CLEANUP ---
+  try {
+    for (const item of updatedOrder.items) {
+      // 1. Permanently reduce the actual MongoDB stock and increase purchases
+      await Product.findByIdAndUpdate(item.productId || item.product, {
+        $inc: { stock: -item.quantity, purchases: item.quantity }
+      });
+      
+      // 2. Erase the temporary Redis hold so the math stays correct
+      await redisClient.decrby(`locked_stock:${item.productId || item.product}`, item.quantity);
+    }
+    console.log(`📦 [INVENTORY] Stock permanently updated and locks released for Order ${orderId}`);
+  } catch (err) {
+    console.error('❌ [INVENTORY ERROR] Failed to update stock/locks:', err.message);
+  }
 
   try {
     const io = socket.getIO();

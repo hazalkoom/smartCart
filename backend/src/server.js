@@ -19,6 +19,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 const socket = require('./utils/socket');
 const redisClient = require('./utils/redisClient');
+require('./workers/cartWorker');
 
 dotenv.config({ path: '.env' });
 
