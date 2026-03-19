@@ -201,3 +201,4 @@ test-results/
 # Direnv / local env helpers
 .envrc
 .direnv/
+coverage/
