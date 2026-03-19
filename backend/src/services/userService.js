@@ -69,7 +69,7 @@ class UserService {
       throw { statusCode: 400, message: 'Invalid user ID' };
     }
 
-    const user = await User.findById(id).select('-password');
+    const user = await User.findById(String(id)).select('-password');
     if (!user) {
       throw { statusCode: 404, message: 'User not found' };
     }
@@ -82,7 +82,7 @@ class UserService {
       throw { statusCode: 400, message: 'Invalid user ID' };
     }
 
-    const user = await User.findById(id);
+    const user = await User.findById(String(id));
 
     if (!user) {
       throw { statusCode: 404, message: 'User not found' };
@@ -107,7 +107,7 @@ class UserService {
     }
 
     const { email, firstName, lastName, role, password } = userData;
-    const user = await User.findById(id).select('+password');
+    const user = await User.findById(String(id)).select('+password');
 
     if (!user) {
       throw { statusCode: 404, message: 'User not found' };
@@ -167,7 +167,7 @@ class UserService {
       throw { statusCode: 400, message: 'Invalid user ID' };
     }
 
-    const user = await User.findById(id);
+    const user = await User.findById(String(id));
 
     if (!user) {
       throw { statusCode: 404, message: 'User not found' };

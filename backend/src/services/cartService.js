@@ -93,7 +93,7 @@ class CartService {
     const item = cart.items.id(itemId);
     if (!item) throw new Error('Item not found in cart');
 
-    const product = await Product.findById(String(item.productId));
+    const product = await Product.findById(String(item.productId._id));
     if (!product) throw new Error('Product associated with this item no longer exists');
 
     // Calculate the difference. Are they adding more to the cart, or removing some?
