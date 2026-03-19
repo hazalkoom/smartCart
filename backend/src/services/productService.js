@@ -6,6 +6,45 @@ const Category = require('../models/categoryModel');
 const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 class ProductService {
+  async resolveCategoryTokensToIds(categoryFilter) {
+    if (!categoryFilter || typeof categoryFilter !== 'string') {
+      return [];
+    }
+
+    const tokens = categoryFilter
+      .split(',')
+      .map((token) => token.trim())
+      .filter(Boolean);
+
+    if (tokens.length === 0) {
+      return [];
+    }
+
+    const objectIds = [];
+    const slugTokens = [];
+
+    for (const token of tokens) {
+      if (mongoose.Types.ObjectId.isValid(token)) {
+        objectIds.push(new mongoose.Types.ObjectId(token));
+      } else {
+        slugTokens.push(token.toLowerCase());
+      }
+    }
+
+    if (slugTokens.length === 0) {
+      return objectIds;
+    }
+
+    const slugMatches = await Category.find({
+      slug: { $in: slugTokens },
+    }).select('_id');
+
+    return [
+      ...objectIds,
+      ...slugMatches.map((category) => category._id),
+    ];
+  }
+
   async createProduct(productData) {
     const { name, description, price, costPrice, sku, stock, categoryId, images } = productData;
 
@@ -39,7 +78,7 @@ class ProductService {
   async getAllProducts(query) {
     const {
       keyword,
-      category,     // Can be a single ID or comma-separated: 'id1,id2'
+      category,     // Can be IDs or slugs, comma-separated
       minPrice,
       maxPrice,
       minRating,
@@ -62,15 +101,13 @@ class ProductService {
 
     // 2. Faceted Category Filtering
     if (category) {
-      const categoryIds = category.split(',').map(id => {
-        if (mongoose.Types.ObjectId.isValid(id.trim())) {
-          return new mongoose.Types.ObjectId(id.trim());
-        }
-        return null;
-      }).filter(id => id !== null);
+      const categoryIds = await this.resolveCategoryTokensToIds(category);
 
       if (categoryIds.length > 0) {
         matchStage.categoryId = { $in: categoryIds };
+      } else {
+        // If an invalid category filter is provided, return no results.
+        matchStage.categoryId = { $in: [] };
       }
     }
 

@@ -231,20 +231,30 @@ body::before {
 .form-select {
     background: var(--bg-input);
     border: 1.5px solid var(--border);
-    color: var(--text);
+  color: #000;
     border-radius: var(--radius-sm);
     padding: 0.75rem 1rem;
     font-family: var(--font-body);
     transition: var(--transition);
 }
 
+.form-control:hover,
+.form-select:hover {
+  color: #fff;
+}
+
 .form-control:focus,
 .form-select:focus {
     background: var(--bg-input);
     border-color: var(--primary);
-    color: var(--text);
+  color: #fff;
     box-shadow: 0 0 0 3px var(--primary-dim);
     outline: none;
+}
+
+/* Keep entered text visible after typing for placeholder-based inputs only. */
+.form-control[placeholder]:not(:placeholder-shown) {
+  color: #fff;
 }
 
 .form-control::placeholder {
@@ -255,8 +265,13 @@ body::before {
     font-family: var(--font-heading);
     font-size: 0.7rem;
     letter-spacing: 0.1em;
-    color: var(--text-muted);
+  color: #000;
     margin-bottom: 0.4rem;
+}
+
+.sc-form-group:hover .form-label,
+.sc-form-group:focus-within .form-label {
+  color: #fff;
 }
 
 /* Progress bar */

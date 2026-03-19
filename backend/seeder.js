@@ -13,6 +13,7 @@ const categoriesData = [
   { name: 'Audio & Headphones', description: 'Premium wireless headphones, earbuds, and Bluetooth speakers.' },
   { name: 'Smart Home & Wearables', description: 'Smartwatches, fitness trackers, and smart home automation devices.' },
   { name: 'Gaming & Consoles', description: 'Video game consoles, VR headsets, and gaming accessories.' }
+  ,{ name: 'Apple Ecosystem', description: 'All things Apple: devices, accessories, and exclusive gear.' }
 ];
 
 const slugify = (text) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
@@ -94,6 +95,17 @@ const PRODUCT_IMAGE_LINKS = {
   'Corsair Vengeance i7500 Gaming PC': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316453/Corsair_Vengeance_i7500_Gaming_PC_tlkwxq.jpg',
   'MSI Aegis RS Gaming Desktop': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316371/MSI_Aegis_RS_Gaming_Desktop_bzumxc.jpg',
   'ASUS ROG Strix G35 Gaming Desktop': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316369/ASUS_ROG_Strix_G35_Gaming_Desktop_ekwfo4.jpg',
+  // Apple Ecosystem (empty links)
+  'Apple Vision Pro': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773912762/Apple_Vision_Pro_iq7wzo.jpg',
+  'Apple HomePod (2nd Gen)': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773912759/Apple_HomePod_2nd_Gen_gnadax.jpg',
+  'Apple AirTag 4-Pack': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773912762/Apple_AirTag_4-Pack_elbyoj.jpg',
+  'Apple Magic Keyboard with Touch ID': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773912760/Apple_Magic_Keyboard_with_Touch_ID_nzumoy.jpg',
+  'Apple Magic Mouse': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773912761/Apple_Magic_Mouse_ptzgdo.jpg',
+  'Apple Studio Display': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773912759/Apple_Studio_Display_iej7xf.jpg',
+  'Apple Thunderbolt 4 Pro Cable (3m)': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773912761/Apple_Thunderbolt_4_Pro_Cable_3m_zygkks.jpg',
+  'Apple Leather Wallet with MagSafe': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773912765/Apple_Leather_Wallet_with_MagSafe_m9hwi2.png',
+  'Apple 140W USB-C Power Adapter': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773912759/Apple_140W_USB-C_Power_Adapter_mxtom0.jpg',
+  'AppleCare+ for MacBook Pro': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773912759/AppleCare_for_MacBook_Pro_zsgxsn.jpg',
 };
 
 // Fallback just in case you miss one
@@ -125,6 +137,7 @@ const seedDatabase = async () => {
     const audioId  = createdCategories[2]._id;
     const homeId   = createdCategories[3]._id;
     const gamingId = createdCategories[4]._id;
+      const appleId  = createdCategories[5]._id;
 
     console.log('Generating 53 Realistic Products...');
     const productsData = [
@@ -200,6 +213,17 @@ const seedDatabase = async () => {
       { name: 'Corsair Vengeance i7500 Gaming PC', description: 'Premium custom-built gaming desktop with powerful liquid cooling.', price: 3299, stock: 12, categoryId: gamingId, images: img('Corsair Vengeance i7500 Gaming PC') },
       { name: 'MSI Aegis RS Gaming Desktop', description: 'Performance-focused gaming PC designed for esports and 4K gaming.', price: 2699, stock: 18, categoryId: gamingId, images: img('MSI Aegis RS Gaming Desktop') },
       { name: 'ASUS ROG Strix G35 Gaming Desktop', description: 'Aggressive RGB gaming tower built for high frame rate competitive gaming.', price: 2499, stock: 16, categoryId: gamingId, images: img('ASUS ROG Strix G35 Gaming Desktop') },
+        // Apple Ecosystem products
+        { name: 'Apple Vision Pro', description: 'Revolutionary spatial computer with ultra-high-resolution displays.', price: 3499, stock: 8, categoryId: appleId, images: img('Apple Vision Pro') },
+        { name: 'Apple HomePod (2nd Gen)', description: 'Smart speaker with room-filling sound and Siri integration.', price: 299, stock: 20, categoryId: appleId, images: img('Apple HomePod (2nd Gen)') },
+        { name: 'Apple AirTag 4-Pack', description: 'Track your items with precision finding.', price: 99, stock: 50, categoryId: appleId, images: img('Apple AirTag 4-Pack') },
+        { name: 'Apple Magic Keyboard with Touch ID', description: 'Wireless keyboard with secure authentication for Mac.', price: 149, stock: 30, categoryId: appleId, images: img('Apple Magic Keyboard with Touch ID') },
+        { name: 'Apple Magic Mouse', description: 'Multi-touch wireless mouse for Mac.', price: 79, stock: 40, categoryId: appleId, images: img('Apple Magic Mouse') },
+        { name: 'Apple Studio Display', description: '27-inch 5K Retina display with Center Stage.', price: 1599, stock: 10, categoryId: appleId, images: img('Apple Studio Display') },
+        { name: 'Apple Thunderbolt 4 Pro Cable (3m)', description: 'High-speed Thunderbolt 4 cable for pro workflows.', price: 159, stock: 25, categoryId: appleId, images: img('Apple Thunderbolt 4 Pro Cable (3m)') },
+        { name: 'Apple Leather Wallet with MagSafe', description: 'Attachable wallet for iPhone with Find My support.', price: 59, stock: 35, categoryId: appleId, images: img('Apple Leather Wallet with MagSafe') },
+        { name: 'Apple 140W USB-C Power Adapter', description: 'Fast charging for MacBook Pro and more.', price: 99, stock: 28, categoryId: appleId, images: img('Apple 140W USB-C Power Adapter') },
+        { name: 'AppleCare+ for MacBook Pro', description: 'Extended warranty and support for your MacBook Pro.', price: 399, stock: 100, categoryId: appleId, images: img('AppleCare+ for MacBook Pro') },
     ];
 
     const productsWithSlugs = productsData.map((prod, index) => ({ 
@@ -209,7 +233,8 @@ const seedDatabase = async () => {
     }));
     await Product.insertMany(productsWithSlugs);
 
-    console.log('🔥 68 REALISTIC PRODUCTS SEEDED SUCCESSFULLY! 🔥');
+    
+    console.log('🔥 78 REALISTIC PRODUCTS SEEDED SUCCESSFULLY! 🔥');
     process.exit();
 
   } catch (error) {

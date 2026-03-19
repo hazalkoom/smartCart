@@ -64,7 +64,7 @@ export class GiftFinderComponent {
           icon: 'icon-mouse', 
           filters: { 
             // Combines Laptops/Computers AND Gaming/Consoles
-            category: '69b2aa1aa9463715f6a72bdb,69b2aa1aa9463715f6a72bde', 
+            category: 'laptops-computers,gaming-consoles', 
             maxPrice: 150,
             sort: 'price_asc'
           } 
@@ -74,7 +74,7 @@ export class GiftFinderComponent {
           icon: 'icon-cpu', 
           filters: { 
             // Combines Laptops AND Gaming, strictly high-end
-            category: '69b2aa1aa9463715f6a72bdb,69b2aa1aa9463715f6a72bde', 
+            category: 'laptops-computers,gaming-consoles', 
             minPrice: 1500,
             sort: 'price_desc'
           } 
@@ -90,7 +90,7 @@ export class GiftFinderComponent {
           label: 'A Whole New Console', 
           icon: 'icon-box', 
           filters: { 
-            category: '69b2aa1aa9463715f6a72bde', 
+            category: 'gaming-consoles', 
             keyword: 'console',
             minPrice: 300 
           } 
@@ -99,7 +99,7 @@ export class GiftFinderComponent {
           label: 'Just Controllers & Gear', 
           icon: 'icon-crosshair', 
           filters: { 
-            category: '69b2aa1aa9463715f6a72bde', 
+            category: 'gaming-consoles', 
             keyword: 'controller',
             maxPrice: 200 
           } 
@@ -129,7 +129,7 @@ export class GiftFinderComponent {
           icon: 'icon-monitor', 
           filters: { 
             // Combines Laptops & Computers
-            category: '69b2aa1aa9463715f6a72bdb', 
+            category: 'laptops-computers', 
             keyword: 'monitor'
           } 
         },
@@ -138,7 +138,7 @@ export class GiftFinderComponent {
           icon: 'icon-hard-drive', 
           filters: { 
             // Combines Laptops & Computers AND Phones & Accessories
-            category: '69b2aa1aa9463715f6a72bdb,69b2aa1aa9463715f6a72bda',
+            category: 'laptops-computers,smartphones-accessories',
             keyword: 'hub'
           } 
         }
@@ -153,7 +153,7 @@ export class GiftFinderComponent {
           label: 'Studio Quality ($300+)', 
           icon: 'icon-headphones', 
           filters: { 
-            category: '69b2aa1aa9463715f6a72bdc', 
+            category: 'audio-headphones', 
             minPrice: 300,
             sort: 'top_rated'
           } 
@@ -162,7 +162,7 @@ export class GiftFinderComponent {
           label: 'Just Earbuds', 
           icon: 'icon-music', 
           filters: { 
-            category: '69b2aa1aa9463715f6a72bdc', 
+            category: 'audio-headphones', 
             keyword: 'bud',
             maxPrice: 250
           } 
@@ -182,7 +182,7 @@ export class GiftFinderComponent {
           label: 'Apple / iOS Ecosystem', 
           icon: 'icon-watch', 
           filters: { 
-            category: '69b2aa1aa9463715f6a72bdd', 
+            category: 'smart-home-wearables,apple-ecosystem', 
             keyword: 'apple'
           } 
         },
@@ -190,7 +190,7 @@ export class GiftFinderComponent {
           label: 'Android / Other', 
           icon: 'icon-activity', 
           filters: { 
-            category: '69b2aa1aa9463715f6a72bdd', 
+            category: 'smart-home-wearables', 
             keyword: 'samsung' // Could also be garmin, fitbit, etc.
           } 
         }
@@ -209,7 +209,7 @@ export class GiftFinderComponent {
           label: 'Traveling / Commuting', 
           icon: 'icon-briefcase', 
           filters: { 
-            category: '69b2aa1aa9463715f6a72bdc', 
+            category: 'audio-headphones', 
             keyword: 'noise canceling' 
           } 
         },
@@ -217,8 +217,8 @@ export class GiftFinderComponent {
           label: 'At Home (Smart Speakers)', 
           icon: 'icon-home', 
           filters: { 
-            // Combines Audio AND Smart Home categories
-            category: '69b2aa1aa9463715f6a72bdc,69b2aa1aa9463715f6a72bdd', 
+            // Combines Audio, Smart Home, and Apple Ecosystem
+            category: 'audio-headphones,smart-home-wearables,apple-ecosystem', 
             keyword: 'smart' 
           } 
         }

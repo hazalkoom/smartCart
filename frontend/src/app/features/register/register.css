@@ -26,6 +26,30 @@
 }
 .sc-pw-toggle:hover { color: var(--primary); }
 
+/* Page-scoped field colors: black at rest, white on interaction/typing */
+.sc-auth-page .form-control,
+.sc-auth-page .form-select {
+  color: #000;
+}
+
+.sc-auth-page .form-control:hover,
+.sc-auth-page .form-control:focus,
+.sc-auth-page .form-select:hover,
+.sc-auth-page .form-select:focus,
+.sc-auth-page .form-control.ng-dirty,
+.sc-auth-page .form-select.ng-dirty {
+  color: #fff;
+}
+
+.sc-auth-page .form-label {
+  color: #000;
+}
+
+.sc-auth-page .sc-form-group:hover .form-label,
+.sc-auth-page .sc-form-group:focus-within .form-label {
+  color: #fff;
+}
+
 /* Register-specific styles */
 
 .sc-reg-name-row {
