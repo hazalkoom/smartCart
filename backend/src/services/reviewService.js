@@ -46,7 +46,7 @@ class ReviewService {
   }
 
   async getReviewsByProduct(productId) {
-    const reviews = await Review.find({ productId })
+    const reviews = await Review.find({ productId: String(productId) })
       .populate('userId', 'firstName lastName') // Show reviewer name
       .sort({ createdAt: -1 }); // Newest first
 

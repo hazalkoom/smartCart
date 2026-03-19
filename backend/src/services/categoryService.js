@@ -4,7 +4,7 @@ class CategoryService {
   async createCategory(categoryData) {
     const { name, description } = categoryData;
 
-    const existingCategory = await Category.findOne({ name });
+    const existingCategory = await Category.findOne({ name: String(name) });
     if (existingCategory) {
       throw new Error("A category with this name already exists");
     }
@@ -22,7 +22,7 @@ class CategoryService {
   }
 
   async getCategoryBySlug(slug) {
-    const category = await Category.findOne({ slug });
+    const category = await Category.findOne({ slug: String(slug) });
 
     if (!category) {
       throw new Error('Category not found');
@@ -40,7 +40,7 @@ class CategoryService {
     }
 
     if (name && name !== category.name) {
-      const existing = await Category.findOne({ name });
+      const existing = await Category.findOne({ name: String(name) });
       if (existing) {
         throw new Error('A category with this name already exists');
       }

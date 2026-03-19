@@ -48,7 +48,7 @@ class ProductService {
   async createProduct(productData) {
     const { name, description, price, costPrice, sku, stock, categoryId, images } = productData;
 
-    const existingSku = await Product.findOne({ sku: sku.toUpperCase() });
+    const existingSku = await Product.findOne({ sku: String(sku).toUpperCase() });
     if (existingSku) {
       throw new Error('A product with this SKU already exists');
     }
@@ -203,7 +203,7 @@ class ProductService {
   }
 
   async getProductBySlug(slug) {
-    return await Product.findOne({ slug }).populate('categoryId', 'name slug');
+    return await Product.findOne({ slug: String(slug) }).populate('categoryId', 'name slug');
   }
 
   async updateProduct(productId, updateData) {
@@ -216,7 +216,7 @@ class ProductService {
     }
 
     if (sku && sku.toUpperCase() !== product.sku) {
-      const existingSku = await Product.findOne({ sku: sku.toUpperCase() });
+      const existingSku = await Product.findOne({ sku: String(sku).toUpperCase() });
       if (existingSku) {
         throw new Error('A product with this SKU already exists');
       }

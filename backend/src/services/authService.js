@@ -5,7 +5,7 @@ const crypto = require('crypto');
 class AuthService {
   async registerUser(userData) {
     const { email, password, firstName, lastName, phone } = userData;
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email: String(email) });
     if (userExists) {
       throw new Error("User already exists");
     }
@@ -22,7 +22,7 @@ class AuthService {
   }
 
   async loginUser(email, password) {
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email: String(email) }).select("+password");
     if (!user) throw new Error("Invalid credentials");
 
     const isMatch = await user.matchPassword(password);
@@ -40,7 +40,7 @@ class AuthService {
   }
 
   async forgotPassword(email) {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: String(email) });
     if (!user) {
       throw new Error('There is no user with that email');
     }
@@ -60,7 +60,7 @@ class AuthService {
 
     // 2. Find user with this token AND ensure it is not expired
     const user = await User.findOne({
-      resetPasswordToken,
+      resetPasswordToken: String(resetPasswordToken),
       resetPasswordExpire: { $gt: Date.now() },
     });
 
