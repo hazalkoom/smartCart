@@ -78,14 +78,14 @@ class AuthService {
   }
 
   async getUserById(userId) {
-    const user = await User.findById(userId);
+    const user = await User.findById(String(userId));
     return user;
   }
 
    async updateUserDetail(userId, updatedData) {
     const { firstName, lastName } = updatedData;
-    const user = await User.findByIdAndUpdate(
-      userId,
+    const user = await User.findByIdAndUpdate(String(
+      userId),
       { firstName, lastName },
       { new: true, runValidators: true }
     );
@@ -94,7 +94,7 @@ class AuthService {
   }
 
   async toggleWishlist(userId, productId) {
-    const user = await User.findById(userId);
+    const user = await User.findById(String(userId));
     if (!user) throw new Error('User not found');
     
     const isLiked = user.wishlist.some(id => id.toString() === productId.toString());
@@ -111,14 +111,14 @@ class AuthService {
 
   async getWishlist(userId) {
     // Populate pulls the actual product data instead of just IDs
-    const user = await User.findById(userId).populate('wishlist');
+    const user = await User.findById(String(userId)).populate('wishlist');
     if (!user) throw new Error('User not found');
     return user.wishlist;
   }
 
   // --- ADDRESS LOGIC ---
   async addAddress(userId, addressData) {
-    const user = await User.findById(userId);
+    const user = await User.findById(String(userId));
     if (!user) throw new Error('User not found');
 
     // If they set this as default, unset all other defaults
@@ -132,7 +132,7 @@ class AuthService {
   }
 
   async deleteAddress(userId, addressId) {
-    const user = await User.findById(userId);
+    const user = await User.findById(String(userId));
     if (!user) throw new Error('User not found');
 
     user.addresses.pull({ _id: addressId });

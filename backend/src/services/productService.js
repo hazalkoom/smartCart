@@ -53,7 +53,7 @@ class ProductService {
       throw new Error('A product with this SKU already exists');
     }
 
-    const category = await Category.findById(categoryId);
+    const category = await Category.findById(String(categoryId));
     if (!category) {
       throw new Error('Category not found');
     }
@@ -199,7 +199,7 @@ class ProductService {
   }
 
   async getProductById(productId) {
-    return await Product.findById(productId).populate('categoryId', 'name slug');
+    return await Product.findById(String(productId)).populate('categoryId', 'name slug');
   }
 
   async getProductBySlug(slug) {
@@ -209,7 +209,7 @@ class ProductService {
   async updateProduct(productId, updateData) {
     const { name, description, price, costPrice, sku, stock, categoryId, images } = updateData;
 
-    const product = await Product.findById(productId).select('+costPrice');
+    const product = await Product.findById(String(productId)).select('+costPrice');
     
     if (!product) {
       throw new Error('Product not found');
@@ -224,7 +224,7 @@ class ProductService {
     }
 
     if (categoryId && categoryId.toString() !== product.categoryId.toString()) {
-      const category = await Category.findById(categoryId);
+      const category = await Category.findById(String(categoryId));
       if (!category) {
         throw new Error('Category not found');
       }
@@ -245,7 +245,7 @@ class ProductService {
   }
 
   async deleteProduct(productId) {
-    const product = await Product.findById(productId);
+    const product = await Product.findById(String(productId));
 
     if (!product) {
       throw new Error('Product not found');

@@ -13,7 +13,7 @@ class CartService {
   }
 
   async _getOrCreateCart(userId) {
-    let cart = await Cart.findOne({ userId });
+    let cart = await Cart.findOne({ userId: String(userId) });
 
     if (!cart) {
       cart = await Cart.create({ userId, items: [], subtotal: 0 });
@@ -37,7 +37,7 @@ class CartService {
   async addItemToCart(userId, productId, quantity) {
     if (quantity < 1) throw new Error('Quantity must be at least 1');
     
-    const product = await Product.findById(productId);
+    const product = await Product.findById(String(productId));
     if (!product) throw new Error('Product not found');
 
     // 1. THE BOUNCER: Check Redis for how many are currently locked in other carts
@@ -93,7 +93,7 @@ class CartService {
     const item = cart.items.id(itemId);
     if (!item) throw new Error('Item not found in cart');
 
-    const product = await Product.findById(item.productId);
+    const product = await Product.findById(String(item.productId));
     if (!product) throw new Error('Product associated with this item no longer exists');
 
     // Calculate the difference. Are they adding more to the cart, or removing some?

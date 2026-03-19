@@ -33,7 +33,7 @@ class CategoryService {
   async updateCategory(categoryId, updatedData) {
     const { name, description } = updatedData;
 
-    const category = await Category.findById(categoryId);
+    const category = await Category.findById(String(categoryId));
 
     if (!category) {
       throw new Error('Category not found');
@@ -55,7 +55,7 @@ class CategoryService {
   }
 
   async deleteCategory(categoryId) {
-    const category = await Category.findById(categoryId);
+    const category = await Category.findById(String(categoryId));
 
     if (!category) {
       throw new Error('Category not found');

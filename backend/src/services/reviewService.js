@@ -6,7 +6,7 @@ class ReviewService {
     async createReview(userId, reviewData) {
     const { productId, rating, title, comment } = reviewData;
 
-    const product = await Product.findById(productId);
+    const product = await Product.findById(String(productId));
     if (!product) {
       const error = new Error('Product not found');
       error.statusCode = 404;
@@ -54,7 +54,7 @@ class ReviewService {
   }
 
   async updateReview(userId, reviewId, updateData) {
-    const review = await Review.findById(reviewId);
+    const review = await Review.findById(String(reviewId));
 
     if (!review) {
       const error = new Error('Review not found');
@@ -80,7 +80,7 @@ class ReviewService {
 
   // 4. Delete Review (Only if you own it or are Admin)
   async deleteReview(userId, userRole, reviewId) {
-    const review = await Review.findById(reviewId);
+    const review = await Review.findById(String(reviewId));
 
     if (!review) {
       const error = new Error('Review not found');
@@ -98,7 +98,7 @@ class ReviewService {
       throw error;
     }
 
-    await Review.findByIdAndDelete(reviewId); // This triggers .post('findOneAndDelete') middleware
+    await Review.findByIdAndDelete(String(reviewId)); // This triggers .post('findOneAndDelete') middleware
     return { message: 'Review deleted successfully' };
   }
 

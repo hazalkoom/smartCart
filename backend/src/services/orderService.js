@@ -122,7 +122,7 @@ class OrderService {
 
   // --- UPGRADED: Strict Status Flow & Restocking ---
   async updateOrderStatus(orderId, newStatus) {
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(String(orderId));
     if (!order) throw new Error('Order not found');
 
     const currentStatus = order.status;
@@ -194,7 +194,7 @@ class OrderService {
   }
 
   async getOrderById(userId, userRole, orderId) {
-    const order = await Order.findById(orderId).populate('items.productId', 'slug');
+    const order = await Order.findById(String(orderId)).populate('items.productId', 'slug');
     
     // Authorization Check
     if (!order) throw { statusCode: 404, message: 'Order not found' };
