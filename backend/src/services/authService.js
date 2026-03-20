@@ -84,11 +84,17 @@ class AuthService {
 
    async updateUserDetail(userId, updatedData) {
     const { firstName, lastName } = updatedData;
-    const user = await User.findByIdAndUpdate(String(
-      userId),
-      { firstName, lastName },
+    
+    const user = await User.findByIdAndUpdate(
+      String(userId),
+      { 
+        // Force the payload to be primitive strings so they cannot be operator objects
+        firstName: firstName ? String(firstName) : undefined, 
+        lastName: lastName ? String(lastName) : undefined 
+      },
       { new: true, runValidators: true }
     );
+    
     if (!user) throw new Error('User not found');
     return user;
   }
