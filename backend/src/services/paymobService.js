@@ -1,6 +1,6 @@
 const paymobClient = require('../utils/paymobClient');
 const Order = require('../models/orderModel');
-const cleanLog = (val) => String(val).replace(/[\r\n]+/g, '');
+const cleanLog = (val) => (val ? String(val).replace(/\n|\r/g, "") : "");
 
 class PaymobService {
   constructor() {

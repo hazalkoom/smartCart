@@ -4,7 +4,7 @@ const { validateHmac } = require('../utils/paymobHmac');
 const asyncHandler = require('../utils/asyncHandler');
 const socket = require('../utils/socket');
 const redisClient = require('../utils/redisClient'); // NEW
-const cleanLog = (val) => String(val).replace(/[\r\n]+/g, '');
+const cleanLog = (val) => (val ? String(val).replace(/\n|\r/g, "") : "");
 const handlePaymobWebhook = asyncHandler(async (req, res) => {
 
   if (req.body.type !== 'TRANSACTION') {
@@ -95,7 +95,7 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
     }
     console.log(`📦 [INVENTORY] Stock permanently updated and locks released for Order ${cleanLog(orderId)}`);
   } catch (err) {
-    console.error('❌ [INVENTORY ERROR] Failed to update stock/locks:', err.message);
+    console.error('❌ [INVENTORY ERROR] Failed to update stock/locks:', cleanLog(err.message));
   }
 
   try {
@@ -113,7 +113,7 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
     
     console.log(`[SOCKET] Live notification fired to user room: ${cleanLog(order.userId)}`);
   } catch (err) {
-    console.error('[SOCKET ERROR] Failed to emit paymentSuccess:', err.message);
+    console.error('[SOCKET ERROR] Failed to emit paymentSuccess:', cleanLog(err.message));
   }
   // ----------------------------------------
 

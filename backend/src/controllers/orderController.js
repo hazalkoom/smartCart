@@ -3,7 +3,7 @@ const OrderService = require('../services/orderService');
 const paymobService = require('../services/paymobService'); 
 const asyncHandler = require('../utils/asyncHandler');
 const socket = require('../utils/socket');
-const cleanLog = (val) => String(val).replace(/[\r\n]+/g, '');
+const cleanLog = (val) => (val ? String(val).replace(/\n|\r/g, "") : "");
 
 // Helper: Sanitize Order for Non-Owners
 const sanitizeOrderForAdmin = (order) => {

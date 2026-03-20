@@ -1,38 +1,40 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-
 const asyncHandler = require('../utils/asyncHandler');
+
+// Sanitize logs to prevent CRLF injection from forged JWT errors
+const cleanLog = (val) => String(val).replace(/[\r\n]+/g, '');
 
 const protect = asyncHandler(async (req, res, next) => {
   let token;
+  const authHeader = req.headers.authorization || req.headers.Authorization;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
+  // FIX: Added the space 'Bearer ' and strict string checking
+  if (authHeader && typeof authHeader === 'string' && authHeader.startsWith("Bearer ")) {
     try {
-      token = req.headers.authorization.split(" ")[1];
+      token = authHeader.split(" ")[1];
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      // Enforce the algorithm to prevent 'none' algorithm bypass attacks
+      const decoded = jwt.verify(token, process.env.JWT_SECRET, { algorithms: ['HS256'] });
 
-      req.user = await User.findById(decoded.id).select("-password");
+      // FIX: Cast decoded.id to String to prevent NoSQL injection via malicious JWT payloads
+      req.user = await User.findById(String(decoded.id)).select("-password");
 
       if (!req.user) {
-        throw new Error();
+        res.status(401);
+        throw new Error("Not authorized, user not found");
       }
 
-      next();
+      return next(); // FIX: Added return to stop function execution here
     } catch (error) {
-      console.error("Token verification failed:", error.message);
+      console.error("Token verification failed:", cleanLog(error.message));
       res.status(401);
       throw new Error("Not authorized, token failed");
     }
   }
 
-  if (!token) {
-    res.status(401);
-    throw new Error("Not authorized, no token");
-  }
+  res.status(401);
+  throw new Error("Not authorized, no token");
 });
 
 const authorize = (...roles) => {
@@ -49,7 +51,7 @@ const authorize = (...roles) => {
       );
     }
 
-    next();
+    return next(); // FIX: Added return
   };
 };
 

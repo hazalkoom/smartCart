@@ -1,10 +1,11 @@
 const logger = require('../utils/logger'); // <--- 1. NEW IMPORT
+const cleanLog = (val) => (val ? String(val).replace(/\n|\r/g, "") : "");
 
 const errorHandler = (err, req, res, next) => {
   // --- 2. NEW LOGGING LOGIC ---
   // We log the Error Message, URL, Method, and IP to the file.
   // We also attach the 'stack' trace object for deep debugging.
-  logger.error(`${err.message} - ${req.originalUrl} - ${req.method} - ${req.ip}`, {
+  logger.error(`${cleanLog(err.message)} - ${cleanLog(req.originalUrl)} - ${cleanLog(req.method)} - ${cleanLog(req.ip)}`, {
     stack: err.stack, 
   });
   // -----------------------------

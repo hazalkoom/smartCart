@@ -2,7 +2,7 @@ const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
 const redisClient = require('../utils/redisClient');
 const { cartQueue } = require('../workers/queueSetup');
-const cleanLog = (val) => String(val).replace(/[\r\n]+/g, '');
+const cleanLog = (val) => (val ? String(val).replace(/\n|\r/g, "") : "");
 
 class CartService {
   _buildStockConflictError(message) {
