@@ -3,6 +3,7 @@ const OrderService = require('../services/orderService');
 const paymobService = require('../services/paymobService'); 
 const asyncHandler = require('../utils/asyncHandler');
 const socket = require('../utils/socket');
+const cleanLog = (val) => String(val).replace(/[\r\n]+/g, '');
 
 // Helper: Sanitize Order for Non-Owners
 const sanitizeOrderForAdmin = (order) => {
@@ -88,9 +89,9 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
       status: status,
       message: `Your order status has been updated to: ${status}`
     });
-    console.log(`[SOCKET] Status update (${status}) sent to user ${order.userId}`);
+    console.log(`[SOCKET] Status update (${cleanLog(status)}) sent to user ${cleanLog(order.userId)}`);
   } catch (err) {
-    console.error('[SOCKET ERROR] Failed to emit orderStatusChanged:', err.message);
+    console.error('[SOCKET ERROR] Failed to emit orderStatusChanged:', cleanLog(err.message));
   }
 
   // 3. Send HTTP response to the admin who clicked the button
@@ -137,7 +138,7 @@ const payOrder = asyncHandler(async (req, res) => {
       data: paymentResponse,
     });
   } catch (error) {
-    console.error('Payment Initiation Failed:', error.message);
+    console.error('Payment Initiation Failed:', cleanLog(error.message));
     if (error.message.includes('Paymob') || error.message.includes('unavailable')) {
       res.status(502);
       throw new Error('Payment gateway is currently unavailable.');

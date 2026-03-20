@@ -4,7 +4,7 @@ const { validateHmac } = require('../utils/paymobHmac');
 const asyncHandler = require('../utils/asyncHandler');
 const socket = require('../utils/socket');
 const redisClient = require('../utils/redisClient'); // NEW
-
+const cleanLog = (val) => String(val).replace(/[\r\n]+/g, '');
 const handlePaymobWebhook = asyncHandler(async (req, res) => {
 
   if (req.body.type !== 'TRANSACTION') {
@@ -32,7 +32,7 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
   // 3. Check Success Status
   // Paymob sends success: true/false
   if (data.success !== true) {
-    console.log(`Paymob Transaction Failed: ${data.id}`);
+    console.log(`Paymob Transaction Failed: ${cleanLog(data.id)}`);
     // Return 200 to acknowledge receipt so Paymob stops retrying, but don't update DB
     return res.status(200).send();
   }
@@ -43,7 +43,7 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
     data.merchant_order_id;
   
   if (!rawMerchantOrderId) {
-      console.error('Paymob Webhook: merchant_order_id is missing from payload', data);
+      console.error('Paymob Webhook: merchant_order_id is missing from payload', cleanLog(JSON.stringify(data)));
       return res.status(200).send(); 
   }
 
@@ -52,7 +52,7 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
   const order = await Order.findById(orderId);
 
   if (!order) {
-    console.error(`Paymob Webhook: Order not found (Parsed ID: ${orderId})`);
+    console.error(`Paymob Webhook: Order not found (Parsed ID: ${cleanLog(orderId)})`);
     return res.status(200).send();
   }
 
@@ -93,7 +93,7 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
       // 2. Erase the temporary Redis hold so the math stays correct
       await redisClient.decrby(`locked_stock:${productId}`, item.quantity);
     }
-    console.log(`📦 [INVENTORY] Stock permanently updated and locks released for Order ${orderId}`);
+    console.log(`📦 [INVENTORY] Stock permanently updated and locks released for Order ${cleanLog(orderId)}`);
   } catch (err) {
     console.error('❌ [INVENTORY ERROR] Failed to update stock/locks:', err.message);
   }
@@ -111,7 +111,7 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
       message: `New Payment Received for Order ${orderId}`
     });
     
-    console.log(`[SOCKET] Live notification fired to user room: ${order.userId}`);
+    console.log(`[SOCKET] Live notification fired to user room: ${cleanLog(order.userId)}`);
   } catch (err) {
     console.error('[SOCKET ERROR] Failed to emit paymentSuccess:', err.message);
   }

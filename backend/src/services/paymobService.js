@@ -1,5 +1,6 @@
 const paymobClient = require('../utils/paymobClient');
 const Order = require('../models/orderModel');
+const cleanLog = (val) => String(val).replace(/[\r\n]+/g, '');
 
 class PaymobService {
   constructor() {
@@ -24,7 +25,7 @@ class PaymobService {
 
       return this._cachedToken;
     } catch (error) {
-      console.error('Paymob Auth Error:', error.response?.data || error.message);
+      console.error('Paymob Auth Error:', cleanLog(JSON.stringify(error.response?.data || error.message)));
       throw new Error('Payment service unavailable: Authentication failed');
     }
   }
@@ -50,7 +51,7 @@ class PaymobService {
 
       return response.data.id;
     } catch (error) {
-      console.error('Paymob Order Registration Error:', error.response?.data || error.message);
+      console.error('Paymob Order Registration Error:', cleanLog(JSON.stringify(error.response?.data || error.message)));
       throw new Error('Payment service unavailable: Order registration failed');
     }
   }
@@ -85,7 +86,7 @@ class PaymobService {
 
       return response.data.token;
     } catch (error) {
-      console.error('Paymob Payment Key Error:', error.response?.data || error.message);
+      console.error('Paymob Payment Key Error:', cleanLog(JSON.stringify(error.response?.data || error.message)));
       throw new Error('Payment service unavailable: Key request failed');
     }
   }

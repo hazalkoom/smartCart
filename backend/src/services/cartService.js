@@ -2,6 +2,7 @@ const Cart = require('../models/cartModel');
 const Product = require('../models/productModel');
 const redisClient = require('../utils/redisClient');
 const { cartQueue } = require('../workers/queueSetup');
+const cleanLog = (val) => String(val).replace(/[\r\n]+/g, '');
 
 class CartService {
   _buildStockConflictError(message) {
@@ -81,7 +82,7 @@ class CartService {
       { delay: 10 * 60 * 1000 } // 10 minutes in milliseconds
     );
 
-    console.log(`🔒 [LOCK] User ${userId} reserved ${quantity} of Product ${productId}`);
+    console.log(`🔒 [LOCK] User ${cleanLog(userId)} reserved ${cleanLog(quantity)} of Product ${cleanLog(productId)}`);
 
     return cart.populate('items.productId', 'name slug images price stock');
   }
@@ -137,7 +138,7 @@ class CartService {
 
     // UNLOCK: The user removed it manually, so we instantly release the inventory back to the public
     await redisClient.decrby(`locked_stock:${item.productId._id}`, item.quantity);
-    console.log(`🔓 [UNLOCK] User ${userId} released ${item.quantity} of Product ${item.productId._id}`);
+    console.log(`🔓 [UNLOCK] User ${cleanLog(userId)} released ${cleanLog(item.quantity)} of Product ${cleanLog(item.productId._id)}`);
 
     item.deleteOne();
     this._recalculateCart(cart);
