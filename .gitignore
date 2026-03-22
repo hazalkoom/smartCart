@@ -202,3 +202,5 @@ test-results/
 .envrc
 .direnv/
 coverage/
+dist/
+/dist

@@ -199,7 +199,7 @@ def test_pay_happy_card_iframe(payment_ctx):
     
     assert res.status_code == 200, f"Card Payment Init Failed: {res.text}"
     assert res.json()['data']['action'] == 'iframe'
-    assert "accept.paymob.com" in res.json()['data']['url']
+    assert res.json()['data']['url'].startswith("https://accept.paymob.com/")
     assert "payment_token=" in res.json()['data']['url']
 
 @pytest.mark.run(order=72)
