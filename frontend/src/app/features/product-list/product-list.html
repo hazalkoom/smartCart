@@ -12,170 +12,193 @@
       <div class="sc-search-pill">
         <i class="icon icon-search"></i>
         <input type="text" placeholder="Search products, brands, categories…"
-               [(ngModel)]="searchTerm" (keyup.enter)="applyFilters()">
-        <button class="sc-clear-btn" *ngIf="searchTerm" (click)="searchTerm=''; applyFilters()">
-          <i class="icon icon-x"></i>
-        </button>
+          [(ngModel)]="searchTerm" (keyup.enter)="applyFilters()">
+        @if (searchTerm) {
+          <button class="sc-clear-btn" (click)="searchTerm=''; applyFilters()">
+            <i class="icon icon-x"></i>
+          </button>
+        }
       </div>
     </div>
 
-		<!-- Filter Bar -->
-		<div class="row mb-3">
-			<div class="col-12 d-flex flex-wrap align-items-center justify-content-center gap-2 filters-controls">
+    <!-- Filter Bar -->
+    <div class="row mb-3">
+      <div class="col-12 d-flex flex-wrap align-items-center justify-content-center gap-2 filters-controls">
 
-				<select class="filter-pill" (change)="selectedCategories = $any($event.target).value ? [$any($event.target).value] : []; applyFilters()">
-					<option value="">All Categories</option>
-					<option *ngFor="let cat of categories" [value]="cat._id" [selected]="isCategorySelected(cat._id)">{{ cat.name }}</option>
-				</select>
+        <select class="filter-pill" (change)="selectedCategories = $any($event.target).value ? [$any($event.target).value] : []; applyFilters()">
+          <option value="">All Categories</option>
+          @for (cat of categories; track cat) {
+            <option [value]="cat._id" [selected]="isCategorySelected(cat._id)">{{ cat.name }}</option>
+          }
+        </select>
 
-				<select class="filter-pill" (change)="onStockChange($any($event.target).value)" [value]="stockStatus">
-					<option value="">Availability</option>
-					<option value="in">In Stock</option>
-					<option value="out">Out of Stock</option>
-				</select>
+        <select class="filter-pill" (change)="onStockChange($any($event.target).value)" [value]="stockStatus">
+          <option value="">Availability</option>
+          <option value="in">In Stock</option>
+          <option value="out">Out of Stock</option>
+        </select>
 
-				<select class="filter-pill" (change)="onSortChange($event)" [value]="sortOption">
-					<option value="newest">Newest</option>
-					<option value="price_asc">Price ↑</option>
-					<option value="price_desc">Price ↓</option>
-					<option value="top_rated">Top Rated</option>
-				</select>
+        <select class="filter-pill" (change)="onSortChange($event)" [value]="sortOption">
+          <option value="newest">Newest</option>
+          <option value="price_asc">Price ↑</option>
+          <option value="price_desc">Price ↓</option>
+          <option value="top_rated">Top Rated</option>
+        </select>
 
-				<!-- Price Filter -->
-				<div class="dropdown filter-dropdown">
-					<button class="filter-pill price-pill dropdown-toggle" type="button" id="priceDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-						{{ (minPrice || maxPrice) ? 'Price: $' + (minPrice || '0') + ' – $' + (maxPrice || '∞') : 'Price' }}
-					</button>
-					<div class="dropdown-menu price-dropdown-menu p-2" aria-labelledby="priceDropdown">
-						<p class="text-muted mb-2" style="font-size:0.75rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Price Range (USD)</p>
-						<div class="d-flex align-items-center gap-2 mb-2">
-							<input type="number" class="form-control form-control-sm price-input" placeholder="Min" [(ngModel)]="minPrice" min="0">
-							<span class="text-muted" style="font-size:0.8rem;">–</span>
-							<input type="number" class="form-control form-control-sm price-input" placeholder="Max" [(ngModel)]="maxPrice" min="0">
-						</div>
-						<button class="btn btn-primary btn-sm price-apply-btn" (click)="applyFilters()">Apply</button>
-					</div>
-				</div>
+        <!-- Price Filter -->
+        <div class="dropdown filter-dropdown">
+          <button class="filter-pill price-pill dropdown-toggle" type="button" id="priceDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            {{ (minPrice || maxPrice) ? 'Price: $' + (minPrice || '0') + ' – $' + (maxPrice || '∞') : 'Price' }}
+          </button>
+          <div class="dropdown-menu price-dropdown-menu p-2" aria-labelledby="priceDropdown">
+            <p class="text-muted mb-2" style="font-size:0.75rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;">Price Range (USD)</p>
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <input type="number" class="form-control form-control-sm price-input" placeholder="Min" [(ngModel)]="minPrice" min="0">
+              <span class="text-muted" style="font-size:0.8rem;">–</span>
+              <input type="number" class="form-control form-control-sm price-input" placeholder="Max" [(ngModel)]="maxPrice" min="0">
+            </div>
+            <button class="btn btn-primary btn-sm price-apply-btn" (click)="applyFilters()">Apply</button>
+          </div>
+        </div>
 
-				<!-- Clear All -->
-				<button *ngIf="searchTerm || minPrice || maxPrice || selectedCategories.length || stockStatus || sortOption !== 'newest'"
-						class="filter-clear-btn"
-						(click)="clearFilters()"
-						aria-label="Clear all filters">
-					<i class="icon icon-x" style="font-size:0.7rem;"></i> Clear
-				</button>
-			</div>
-		</div>
+        <!-- Clear All -->
+        @if (searchTerm || minPrice || maxPrice || selectedCategories.length || stockStatus || sortOption !== 'newest') {
+          <button
+            class="filter-clear-btn"
+            (click)="clearFilters()"
+            aria-label="Clear all filters">
+            <i class="icon icon-x" style="font-size:0.7rem;"></i> Clear
+          </button>
+        }
+      </div>
+    </div>
 
-		<!-- Active Filter Chips -->
-		<div class="row mb-4" *ngIf="searchTerm || minPrice || maxPrice || selectedCategories.length || stockStatus">
-			<div class="col-12 d-flex flex-wrap gap-2 justify-content-center">
-				<span class="active-chip" *ngIf="searchTerm">
-					"{{ searchTerm }}" <button class="chip-remove" (click)="searchTerm=''; applyFilters()"><i class="icon icon-x"></i></button>
-				</span>
-				<span class="active-chip" *ngFor="let cat of selectedCategories">
-					{{ getCategoryName(cat) }} <button class="chip-remove" (click)="toggleCategory(cat)"><i class="icon icon-x"></i></button>
-				</span>
-				<span class="active-chip" *ngIf="stockStatus">
-					{{ stockStatus === 'in' ? 'In Stock' : 'Out of Stock' }} <button class="chip-remove" (click)="onStockChange('')"><i class="icon icon-x"></i></button>
-				</span>
-				<span class="active-chip" *ngIf="minPrice || maxPrice">
-					${{ minPrice || 0 }} – ${{ maxPrice || '∞' }} <button class="chip-remove" (click)="minPrice=null; maxPrice=null; applyFilters()"><i class="icon icon-x"></i></button>
-				</span>
-			</div>
-		</div>
+    <!-- Active Filter Chips -->
+    @if (searchTerm || minPrice || maxPrice || selectedCategories.length || stockStatus) {
+      <div class="row mb-4">
+        <div class="col-12 d-flex flex-wrap gap-2 justify-content-center">
+          @if (searchTerm) {
+            <span class="active-chip">
+              "{{ searchTerm }}" <button class="chip-remove" (click)="searchTerm=''; applyFilters()"><i class="icon icon-x"></i></button>
+            </span>
+          }
+          @for (cat of selectedCategories; track cat) {
+            <span class="active-chip">
+              {{ getCategoryName(cat) }} <button class="chip-remove" (click)="toggleCategory(cat)"><i class="icon icon-x"></i></button>
+            </span>
+          }
+          @if (stockStatus) {
+            <span class="active-chip">
+              {{ stockStatus === 'in' ? 'In Stock' : 'Out of Stock' }} <button class="chip-remove" (click)="onStockChange('')"><i class="icon icon-x"></i></button>
+            </span>
+          }
+          @if (minPrice || maxPrice) {
+            <span class="active-chip">
+              ${{ minPrice || 0 }} – ${{ maxPrice || '∞' }} <button class="chip-remove" (click)="minPrice=null; maxPrice=null; applyFilters()"><i class="icon icon-x"></i></button>
+            </span>
+          }
+        </div>
+      </div>
+    }
 
-		<!-- Results Header -->
-		<div class="row">
-			<div class="col-12">
+    <!-- Results Header -->
+    <div class="row">
+      <div class="col-12">
 
-				<div class="d-flex justify-content-between align-items-center mb-4 px-1">
-					<h5 class="mb-0 fw-bold text-dark" style="font-size:1rem;">Products</h5>
-					<span class="text-muted" style="font-size:0.8rem;">{{ totalItems }} results</span>
-				</div>
+        <div class="d-flex justify-content-between align-items-center mb-4 px-1">
+          <h5 class="mb-0 fw-bold text-dark" style="font-size:1rem;">Products</h5>
+          <span class="text-muted" style="font-size:0.8rem;">{{ totalItems }} results</span>
+        </div>
 
-				<!-- Loading -->
-				<div *ngIf="isLoading" class="d-flex flex-column justify-content-center align-items-center py-5 my-5">
-					<div class="spinner-border text-primary mb-3" style="width:2.5rem;height:2.5rem;" role="status"></div>
-					<span class="text-muted small">Loading products…</span>
-				</div>
+        <!-- Loading -->
+        @if (isLoading) {
+          <div class="d-flex flex-column justify-content-center align-items-center py-5 my-5">
+            <div class="spinner-border text-primary mb-3" style="width:2.5rem;height:2.5rem;" role="status"></div>
+            <span class="text-muted small">Loading products…</span>
+          </div>
+        }
 
-				<!-- Error -->
-				<div *ngIf="error && !isLoading" class="alert bg-white text-danger shadow-sm border rounded-3 text-center py-4" role="alert">
-					<p class="mb-0 fw-medium">{{ error }}</p>
-				</div>
+        <!-- Error -->
+        @if (error && !isLoading) {
+          <div class="alert bg-white text-danger shadow-sm border rounded-3 text-center py-4" role="alert">
+            <p class="mb-0 fw-medium">{{ error }}</p>
+          </div>
+        }
 
-				<!-- Empty State -->
-				<div *ngIf="!isLoading && !error && products.length === 0" class="text-center py-5 my-5 bg-white rounded-4 shadow-sm border">
-					<i class="icon icon-search" style="font-size:2.5rem;color:#94a3b8;"></i>
-					<h5 class="fw-bold text-dark mt-3 mb-2">No products found</h5>
-					<p class="text-muted mb-4" style="font-size:0.9rem;">Try adjusting your search or filters.</p>
-					<button class="btn btn-primary rounded-pill px-4 py-2" style="font-size:0.875rem;" (click)="clearFilters()">
-						Clear Filters
-					</button>
-				</div>
+        <!-- Empty State -->
+        @if (!isLoading && !error && products.length === 0) {
+          <div class="text-center py-5 my-5 bg-white rounded-4 shadow-sm border">
+            <i class="icon icon-search" style="font-size:2.5rem;color:#94a3b8;"></i>
+            <h5 class="fw-bold text-dark mt-3 mb-2">No products found</h5>
+            <p class="text-muted mb-4" style="font-size:0.9rem;">Try adjusting your search or filters.</p>
+            <button class="btn btn-primary rounded-pill px-4 py-2" style="font-size:0.875rem;" (click)="clearFilters()">
+              Clear Filters
+            </button>
+          </div>
+        }
 
-				<!-- Product Grid -->
-				<div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3" *ngIf="!isLoading && !error && products.length > 0">
-					<div class="col" *ngFor="let product of products">
-						<div class="product-card h-100 d-flex flex-column bg-white rounded-3 border overflow-hidden position-relative">
+        <!-- Product Grid -->
+        @if (!isLoading && !error && products.length > 0) {
+          <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
+            @for (product of products; track product) {
+              <div class="col">
+                <div class="product-card h-100 d-flex flex-column bg-white rounded-3 border overflow-hidden position-relative">
+                  <!-- Wishlist -->
+                  <button class="wishlist-btn border-0" (click)="toggleWishlist($event, product)" [attr.aria-label]="isInWishlist(product) ? 'Remove from wishlist' : 'Add to wishlist'">
+                    <span>{{ isInWishlist(product) ? '❤️' : '🤍' }}</span>
+                  </button>
+                  <!-- Image -->
+                  <a [routerLink]="['/products', product.slug]" class="product-image-wrap d-flex align-items-center justify-content-center p-3" style="aspect-ratio:1/1;background:#f8fafc;overflow:hidden;">
+                    <img [src]="product.images[0] || 'assets/images/default.png'" [alt]="product.name" class="product-img img-fluid" style="object-fit:contain;max-height:100%;mix-blend-mode:multiply;transition:transform 0.4s ease;">
+                  </a>
+                  <!-- Info -->
+                  <div class="product-info p-3 d-flex flex-column grow" style="border-top:1px solid #f1f5f9;">
+                    <h6 class="product-name mb-1 fw-medium text-dark" style="font-size:0.85rem;line-height:1.4;">
+                      <a [routerLink]="['/products', product.slug]" class="text-dark text-decoration-none hover-primary">{{ product.name }}</a>
+                    </h6>
+                    <div class="d-flex align-items-center gap-1 mb-2">
+                      <span class="stars" style="font-size:0.65rem;letter-spacing:1px;">
+                        @for (s of [1,2,3,4,5]; track s) {
+                          <i class="icon icon-star" [style.color]="s <= (product.rating || 0) ? '#f59e0b' : '#cbd5e1'"></i>
+                        }
+                      </span>
+                      <span class="text-muted" style="font-size:0.7rem;">({{ product.reviewCount || 0 }})</span>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between mt-auto">
+                      <span class="fw-bold text-dark" style="font-size:0.95rem;">
+                        ${{ product.price.toFixed(2) }}
+                      </span>
+                      <button class="btn-add-cart" (click)="addToCart($event, product)" aria-label="Add to cart">
+                        <i class="icon icon-shopping-cart"></i> Add
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
 
-							<!-- Wishlist -->
-							<button class="wishlist-btn border-0" (click)="toggleWishlist($event, product)" [attr.aria-label]="isInWishlist(product) ? 'Remove from wishlist' : 'Add to wishlist'">
-								<span>{{ isInWishlist(product) ? '❤️' : '🤍' }}</span>
-							</button>
+        <!-- Pagination -->
+        @if (!isLoading && totalPages > 1) {
+          <div class="d-flex justify-content-center align-items-center gap-2 mt-5 pt-3">
+            <button type="button" class="btn-page btn-page-nav" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+              <i class="icon icon-chevron-left"></i> Prev
+            </button>
+            @for (page of pages; track page) {
+              <button type="button" class="btn-page"
+                [class.active]="page === currentPage"
+                (click)="goToPage(page)">
+                {{ page }}
+              </button>
+            }
+            <button type="button" class="btn-page btn-page-nav" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+              Next <i class="icon icon-chevron-right"></i>
+            </button>
+          </div>
+        }
 
-							<!-- Image -->
-							<a [routerLink]="['/products', product.slug]" class="product-image-wrap d-flex align-items-center justify-content-center p-3" style="aspect-ratio:1/1;background:#f8fafc;overflow:hidden;">
-								<img [src]="product.images[0] || 'assets/images/default.png'" [alt]="product.name" class="product-img img-fluid" style="object-fit:contain;max-height:100%;mix-blend-mode:multiply;transition:transform 0.4s ease;">
-							</a>
-
-							<!-- Info -->
-							<div class="product-info p-3 d-flex flex-column grow" style="border-top:1px solid #f1f5f9;">
-
-								<h6 class="product-name mb-1 fw-medium text-dark" style="font-size:0.85rem;line-height:1.4;">
-									<a [routerLink]="['/products', product.slug]" class="text-dark text-decoration-none hover-primary">{{ product.name }}</a>
-								</h6>
-
-								<div class="d-flex align-items-center gap-1 mb-2">
-									<span class="stars" style="font-size:0.65rem;letter-spacing:1px;">
-										<i class="icon icon-star" *ngFor="let s of [1,2,3,4,5]" [style.color]="s <= (product.rating || 0) ? '#f59e0b' : '#cbd5e1'"></i>
-									</span>
-									<span class="text-muted" style="font-size:0.7rem;">({{ product.reviewCount || 0 }})</span>
-								</div>
-
-								<div class="d-flex align-items-center justify-content-between mt-auto">
-									<span class="fw-bold text-dark" style="font-size:0.95rem;">
-										${{ product.price.toFixed(2) }}
-									</span>
-									<button class="btn-add-cart" (click)="addToCart($event, product)" aria-label="Add to cart">
-										<i class="icon icon-shopping-cart"></i> Add
-									</button>
-								</div>
-
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<!-- Pagination -->
-				<div class="d-flex justify-content-center align-items-center gap-2 mt-5 pt-3" *ngIf="!isLoading && totalPages > 1">
-					<button type="button" class="btn-page btn-page-nav" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
-						<i class="icon icon-chevron-left"></i> Prev
-					</button>
-
-					<button type="button" class="btn-page" *ngFor="let page of pages"
-						[class.active]="page === currentPage"
-						(click)="goToPage(page)">
-						{{ page }}
-					</button>
-
-					<button type="button" class="btn-page btn-page-nav" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
-						Next <i class="icon icon-chevron-right"></i>
-					</button>
-				</div>
-
-			</div>
-		</div>
-	</div>
+      </div>
+    </div>
+  </div>
 </section>

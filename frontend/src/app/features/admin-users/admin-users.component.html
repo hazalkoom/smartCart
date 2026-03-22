@@ -1,312 +1,352 @@
 <!-- Alerts -->
-<div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show mb-4" role="alert">
-  <strong>✓</strong> {{ successMessage }}
-  <button type="button" class="btn-close" (click)="successMessage = ''"></button>
-</div>
-<div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-  <strong>✗ Error!</strong> {{ errorMessage }}
-  <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
-</div>
+@if (successMessage) {
+  <div class="alert alert-success alert-dismissible fade show mb-4" role="alert">
+    <strong>✓</strong> {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+  </div>
+}
+@if (errorMessage) {
+  <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+    <strong>✗ Error!</strong> {{ errorMessage }}
+    <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+  </div>
+}
 
 <!-- Loading -->
-<div *ngIf="isLoading" class="text-center py-5">
-  <div class="spinner-border text-primary" role="status"></div>
-  <p class="mt-3 text-muted">Loading users...</p>
-</div>
-
-<div *ngIf="!isLoading">
-
-  <!-- Page Header -->
-  <div class="admin-page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
-    <div>
-      <h1>User Management</h1>
-      <p class="text-muted mb-0">Create and manage customers, admins, and staff.</p>
-    </div>
+@if (isLoading) {
+  <div class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="mt-3 text-muted">Loading users...</p>
   </div>
+}
 
-  <!-- User Form -->
-  <div class="admin-panel admin-form-card mb-4 user-form-card" *ngIf="isOwner">
-    <div class="admin-panel-header">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">{{ isEditing ? 'Edit User' : 'Create User' }}</h5>
-        <button class="btn btn-sm btn-outline-secondary" (click)="startCreate()" *ngIf="isEditing">
-          New User
-        </button>
+@if (!isLoading) {
+  <div>
+    <!-- Page Header -->
+    <div class="admin-page-header d-flex flex-wrap align-items-center justify-content-between mb-4">
+      <div>
+        <h1>User Management</h1>
+        <p class="text-muted mb-0">Create and manage customers, admins, and staff.</p>
       </div>
     </div>
-    <div class="admin-panel-body">
-      <form (ngSubmit)="submitUserForm()">
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label class="form-label">First Name *</label>
-            <input class="form-control" name="firstName" [(ngModel)]="userForm.firstName" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Last Name *</label>
-            <input class="form-control" name="lastName" [(ngModel)]="userForm.lastName" required>
-          </div>
-          <div class="col-md-6">
-            <label class="form-label">Email *</label>
-            <input type="email" class="form-control" name="email" [(ngModel)]="userForm.email" required>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Role</label>
-            <select class="form-select" name="role" [(ngModel)]="userForm.role">
-              <option value="customer">Customer</option>
-              <option value="admin">Admin</option>
-              <option value="owner" disabled>Owner</option>
-            </select>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Password {{ isEditing ? '(optional)' : '*' }}</label>
-            <input type="password" class="form-control" name="password" [(ngModel)]="userForm.password">
+    <!-- User Form -->
+    @if (isOwner) {
+      <div class="admin-panel admin-form-card mb-4 user-form-card">
+        <div class="admin-panel-header">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">{{ isEditing ? 'Edit User' : 'Create User' }}</h5>
+            @if (isEditing) {
+              <button class="btn btn-sm btn-outline-secondary" (click)="startCreate()">
+                New User
+              </button>
+            }
           </div>
         </div>
-        <div class="mt-3 d-flex gap-2">
-          <button class="btn btn-primary" type="submit" [disabled]="isSubmitting">
-            <span *ngIf="!isSubmitting">{{ isEditing ? 'Update User' : 'Create User' }}</span>
-            <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm" role="status"></span>
-          </button>
-          <button class="btn btn-outline-secondary" type="button" (click)="cancelEdit()" *ngIf="isEditing">
-            Cancel
-          </button>
+        <div class="admin-panel-body">
+          <form (ngSubmit)="submitUserForm()">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">First Name *</label>
+                <input class="form-control" name="firstName" [(ngModel)]="userForm.firstName" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Last Name *</label>
+                <input class="form-control" name="lastName" [(ngModel)]="userForm.lastName" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Email *</label>
+                <input type="email" class="form-control" name="email" [(ngModel)]="userForm.email" required>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Role</label>
+                <select class="form-select" name="role" [(ngModel)]="userForm.role">
+                  <option value="customer">Customer</option>
+                  <option value="admin">Admin</option>
+                  <option value="owner" disabled>Owner</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label">Password {{ isEditing ? '(optional)' : '*' }}</label>
+                <input type="password" class="form-control" name="password" [(ngModel)]="userForm.password">
+              </div>
+            </div>
+            <div class="mt-3 d-flex gap-2">
+              <button class="btn btn-primary" type="submit" [disabled]="isSubmitting">
+                @if (!isSubmitting) {
+                  <span>{{ isEditing ? 'Update User' : 'Create User' }}</span>
+                }
+                @if (isSubmitting) {
+                  <span class="spinner-border spinner-border-sm" role="status"></span>
+                }
+              </button>
+              @if (isEditing) {
+                <button class="btn btn-outline-secondary" type="button" (click)="cancelEdit()">
+                  Cancel
+                </button>
+              }
+            </div>
+          </form>
         </div>
-      </form>
+      </div>
+    }
+    <!-- Stats Row -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="admin-panel stat-card-customers">
+          <div class="card-body d-flex align-items-center gap-3 py-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 stat-avatar-blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" class="icon-sm">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div>
+              <div class="fs-4 fw-bold text-light">{{ totalCustomers }}</div>
+              <div class="text-muted small">Total Customers</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="admin-panel stat-card-employees">
+          <div class="card-body d-flex align-items-center gap-3 py-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 stat-avatar-indigo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" class="icon-sm">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div>
+              <div class="fs-4 fw-bold text-light">{{ totalEmployees }}</div>
+              <div class="text-muted small">Staff / Admins</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-
-  <!-- Stats Row -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-6">
-      <div class="admin-panel stat-card-customers">
-        <div class="card-body d-flex align-items-center gap-3 py-3">
-          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 stat-avatar-blue">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" class="icon-sm">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
-          </div>
+    <!-- Tabs -->
+    <div class="admin-panel">
+      <div class="admin-panel-header p-0 border-0 card-header-transparent">
+        <ul class="nav nav-tabs border-bottom px-3 pt-2" id="userTabs">
+          <li class="nav-item">
+            <button class="nav-link fw-semibold px-4 py-2"
+              [class.active]="activeTab === 'customers'"
+              (click)="activeTab = 'customers'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                class="icon-xs">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              Customers
+              <span class="badge rounded-pill ms-1"
+                [style.background]="activeTab==='customers' ? '#1d4ed8' : '#dee2e6'"
+                [style.color]="activeTab==='customers' ? 'white' : '#6c757d'">
+                {{ totalCustomers }}
+              </span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link fw-semibold px-4 py-2"
+              [class.active]="activeTab === 'employees'"
+              (click)="activeTab = 'employees'">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                class="icon-xs">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              Staff / Admins
+              <span class="badge rounded-pill ms-1"
+                [style.background]="activeTab==='employees' ? '#2563eb' : '#dee2e6'"
+                [style.color]="activeTab==='employees' ? 'white' : '#6c757d'">
+                {{ totalEmployees }}
+              </span>
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div class="admin-panel-body p-0">
+        <!-- ===== CUSTOMERS TAB ===== -->
+        @if (activeTab === 'customers') {
           <div>
-            <div class="fs-4 fw-bold text-light">{{ totalCustomers }}</div>
-            <div class="text-muted small">Total Customers</div>
+            @if (customers.length > 0) {
+              <div>
+                <div class="px-4 pt-3 pb-2 d-flex justify-content-between align-items-center border-bottom">
+                  <span class="text-muted small">
+                    Showing <strong>{{ (currentPageCustomers - 1) * pageSize + 1 }}</strong>–<strong>{{ Math.min(currentPageCustomers * pageSize, totalCustomers) }}</strong> of <strong>{{ totalCustomers }}</strong> customers
+                  </span>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="thead-customers">
+                      <tr>
+                        <th class="ps-4 py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">#</th>
+                        <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Name</th>
+                        <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Email</th>
+                        <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Joined</th>
+                        <th class="py-3 pe-4 border-0 text-uppercase text-muted fw-semibold text-center table-header-cell">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (user of getCustomersPage(); track user; let i = $index) {
+                        <tr class="border-bottom">
+                          <td class="ps-4 py-3 text-muted small">{{ (currentPageCustomers - 1) * pageSize + i + 1 }}</td>
+                          <td class="py-3">
+                            <div class="d-flex align-items-center gap-2">
+                              <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white user-avatar-sm">
+                                {{ user.firstName.charAt(0).toUpperCase() }}
+                              </div>
+                              <div class="fw-semibold text-light">{{ user.firstName }} {{ user.lastName }}</div>
+                            </div>
+                          </td>
+                          <td class="py-3 text-muted">{{ user.email }}</td>
+                          <td class="py-3 text-muted small">{{ formatDate(user.createdAt) }}</td>
+                          <td class="py-3 pe-4 text-center">
+                            @if (isOwner) {
+                              <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-sm btn-outline-primary" (click)="startEdit(user)">Edit</button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                  (click)="deleteUser(user._id)"
+                                  [disabled]="deletingUserId === user._id">
+                                  @if (deletingUserId !== user._id) {
+                                    <span>Delete</span>
+                                  }
+                                  @if (deletingUserId === user._id) {
+                                    <span>
+                                      <span class="spinner-border spinner-border-sm" role="status"></span>
+                                    </span>
+                                  }
+                                </button>
+                              </div>
+                            } @else {
+                              <span class="text-muted small">Owner only</span>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                @if (getTotalCustomersPages() > 1) {
+                  <div class="px-4 py-3 border-top d-flex justify-content-center">
+                    <ul class="pagination pagination-sm mb-0">
+                      <li class="page-item" [class.disabled]="currentPageCustomers === 1">
+                        <button class="page-link" (click)="goToCustomerPage(currentPageCustomers - 1)">&laquo;</button>
+                      </li>
+                      @for (p of getCustomerPageNumbers(); track p) {
+                        <li class="page-item" [class.active]="currentPageCustomers === p">
+                          <button class="page-link" (click)="goToCustomerPage(p)">{{ p }}</button>
+                        </li>
+                      }
+                      <li class="page-item" [class.disabled]="currentPageCustomers === getTotalCustomersPages()">
+                        <button class="page-link" (click)="goToCustomerPage(currentPageCustomers + 1)">&raquo;</button>
+                      </li>
+                    </ul>
+                  </div>
+                }
+              </div>
+            }
+            @if (customers.length === 0) {
+              <div class="text-center py-5">
+                <div class="mb-2 empty-emoji">👤</div>
+                <p class="text-muted">No customers found.</p>
+              </div>
+            }
           </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="admin-panel stat-card-employees">
-        <div class="card-body d-flex align-items-center gap-3 py-3">
-          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 stat-avatar-indigo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" class="icon-sm">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-          </div>
+        }
+        <!-- ===== EMPLOYEES TAB ===== -->
+        @if (activeTab === 'employees') {
           <div>
-            <div class="fs-4 fw-bold text-light">{{ totalEmployees }}</div>
-            <div class="text-muted small">Staff / Admins</div>
+            @if (employees.length > 0) {
+              <div>
+                <div class="px-4 pt-3 pb-2 d-flex justify-content-between align-items-center border-bottom">
+                  <span class="text-muted small">
+                    Showing <strong>{{ (currentPageEmployees - 1) * pageSize + 1 }}</strong>–<strong>{{ Math.min(currentPageEmployees * pageSize, totalEmployees) }}</strong> of <strong>{{ totalEmployees }}</strong> staff members
+                  </span>
+                </div>
+                <div class="table-responsive">
+                  <table class="table table-hover align-middle mb-0">
+                    <thead class="thead-employees">
+                      <tr>
+                        <th class="ps-4 py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">#</th>
+                        <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Name</th>
+                        <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Email</th>
+                        <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Role</th>
+                        <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Joined</th>
+                        <th class="py-3 pe-4 border-0 text-uppercase text-muted fw-semibold text-center table-header-cell">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (user of getEmployeesPage(); track user; let i = $index) {
+                        <tr class="border-bottom">
+                          <td class="ps-4 py-3 text-muted small">{{ (currentPageEmployees - 1) * pageSize + i + 1 }}</td>
+                          <td class="py-3">
+                            <div class="d-flex align-items-center gap-2">
+                              <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white user-avatar-sm-pink">
+                                {{ user.firstName.charAt(0).toUpperCase() }}
+                              </div>
+                              <div class="fw-semibold text-light">{{ user.firstName }} {{ user.lastName }}</div>
+                            </div>
+                          </td>
+                          <td class="py-3 text-muted">{{ user.email }}</td>
+                          <td class="py-3">
+                            <span class="badge rounded-pill px-3 py-1" [ngClass]="getRoleBadgeClass(user.role)">
+                              {{ user.role | titlecase }}
+                            </span>
+                          </td>
+                          <td class="py-3 text-muted small">{{ formatDate(user.createdAt) }}</td>
+                          <td class="py-3 pe-4 text-center">
+                            @if (isOwner) {
+                              <div class="d-flex justify-content-center gap-2">
+                                <button class="btn btn-sm btn-outline-primary" (click)="startEdit(user)">Edit</button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                  (click)="deleteUser(user._id)"
+                                  [disabled]="deletingUserId === user._id">
+                                  @if (deletingUserId !== user._id) {
+                                    <span>Delete</span>
+                                  }
+                                  @if (deletingUserId === user._id) {
+                                    <span>
+                                      <span class="spinner-border spinner-border-sm" role="status"></span>
+                                    </span>
+                                  }
+                                </button>
+                              </div>
+                            } @else {
+                              <span class="text-muted small">Owner only</span>
+                            }
+                          </td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+                @if (getTotalEmployeesPages() > 1) {
+                  <div class="px-4 py-3 border-top d-flex justify-content-center">
+                    <ul class="pagination pagination-sm mb-0">
+                      <li class="page-item" [class.disabled]="currentPageEmployees === 1">
+                        <button class="page-link" (click)="goToEmployeePage(currentPageEmployees - 1)">&laquo;</button>
+                      </li>
+                      @for (p of getEmployeePageNumbers(); track p) {
+                        <li class="page-item" [class.active]="currentPageEmployees === p">
+                          <button class="page-link" (click)="goToEmployeePage(p)">{{ p }}</button>
+                        </li>
+                      }
+                      <li class="page-item" [class.disabled]="currentPageEmployees === getTotalEmployeesPages()">
+                        <button class="page-link" (click)="goToEmployeePage(currentPageEmployees + 1)">&raquo;</button>
+                      </li>
+                    </ul>
+                  </div>
+                }
+              </div>
+            }
+            @if (employees.length === 0) {
+              <div class="text-center py-5">
+                <div class="mb-2 empty-emoji">👥</div>
+                <p class="text-muted">No staff members found.</p>
+              </div>
+            }
           </div>
-        </div>
+        }
       </div>
     </div>
   </div>
-
-  <!-- Tabs -->
-  <div class="admin-panel">
-    <div class="admin-panel-header p-0 border-0 card-header-transparent">
-      <ul class="nav nav-tabs border-bottom px-3 pt-2" id="userTabs">
-        <li class="nav-item">
-          <button class="nav-link fw-semibold px-4 py-2"
-                  [class.active]="activeTab === 'customers'"
-                  (click)="activeTab = 'customers'">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 class="icon-xs">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
-            Customers
-            <span class="badge rounded-pill ms-1"
-                  [style.background]="activeTab==='customers' ? '#1d4ed8' : '#dee2e6'"
-                  [style.color]="activeTab==='customers' ? 'white' : '#6c757d'">
-              {{ totalCustomers }}
-            </span>
-          </button>
-        </li>
-        <li class="nav-item">
-          <button class="nav-link fw-semibold px-4 py-2"
-                  [class.active]="activeTab === 'employees'"
-                  (click)="activeTab = 'employees'">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                 class="icon-xs">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-            </svg>
-            Staff / Admins
-            <span class="badge rounded-pill ms-1"
-                  [style.background]="activeTab==='employees' ? '#2563eb' : '#dee2e6'"
-                  [style.color]="activeTab==='employees' ? 'white' : '#6c757d'">
-              {{ totalEmployees }}
-            </span>
-          </button>
-        </li>
-      </ul>
-    </div>
-
-    <div class="admin-panel-body p-0">
-
-      <!-- ===== CUSTOMERS TAB ===== -->
-      <div *ngIf="activeTab === 'customers'">
-        <div *ngIf="customers.length > 0">
-          <div class="px-4 pt-3 pb-2 d-flex justify-content-between align-items-center border-bottom">
-            <span class="text-muted small">
-              Showing <strong>{{ (currentPageCustomers - 1) * pageSize + 1 }}</strong>–<strong>{{ Math.min(currentPageCustomers * pageSize, totalCustomers) }}</strong> of <strong>{{ totalCustomers }}</strong> customers
-            </span>
-          </div>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="thead-customers">
-                <tr>
-                  <th class="ps-4 py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">#</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Name</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Email</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Joined</th>
-                  <th class="py-3 pe-4 border-0 text-uppercase text-muted fw-semibold text-center table-header-cell">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let user of getCustomersPage(); let i = index" class="border-bottom">
-                  <td class="ps-4 py-3 text-muted small">{{ (currentPageCustomers - 1) * pageSize + i + 1 }}</td>
-                  <td class="py-3">
-                    <div class="d-flex align-items-center gap-2">
-                      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white user-avatar-sm">
-                        {{ user.firstName.charAt(0).toUpperCase() }}
-                      </div>
-                      <div class="fw-semibold text-light">{{ user.firstName }} {{ user.lastName }}</div>
-                    </div>
-                  </td>
-                  <td class="py-3 text-muted">{{ user.email }}</td>
-                  <td class="py-3 text-muted small">{{ formatDate(user.createdAt) }}</td>
-                  <td class="py-3 pe-4 text-center">
-                    <ng-container *ngIf="isOwner; else customerOwnerOnly">
-                      <div class="d-flex justify-content-center gap-2">
-                        <button class="btn btn-sm btn-outline-primary" (click)="startEdit(user)">Edit</button>
-                        <button class="btn btn-sm btn-outline-danger"
-                                (click)="deleteUser(user._id)"
-                                [disabled]="deletingUserId === user._id">
-                          <span *ngIf="deletingUserId !== user._id">Delete</span>
-                          <span *ngIf="deletingUserId === user._id">
-                            <span class="spinner-border spinner-border-sm" role="status"></span>
-                          </span>
-                        </button>
-                      </div>
-                    </ng-container>
-                    <ng-template #customerOwnerOnly>
-                      <span class="text-muted small">Owner only</span>
-                    </ng-template>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="px-4 py-3 border-top d-flex justify-content-center" *ngIf="getTotalCustomersPages() > 1">
-            <ul class="pagination pagination-sm mb-0">
-              <li class="page-item" [class.disabled]="currentPageCustomers === 1">
-                <button class="page-link" (click)="goToCustomerPage(currentPageCustomers - 1)">&laquo;</button>
-              </li>
-              <li *ngFor="let p of getCustomerPageNumbers()" class="page-item" [class.active]="currentPageCustomers === p">
-                <button class="page-link" (click)="goToCustomerPage(p)">{{ p }}</button>
-              </li>
-              <li class="page-item" [class.disabled]="currentPageCustomers === getTotalCustomersPages()">
-                <button class="page-link" (click)="goToCustomerPage(currentPageCustomers + 1)">&raquo;</button>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div *ngIf="customers.length === 0" class="text-center py-5">
-          <div class="mb-2 empty-emoji">👤</div>
-          <p class="text-muted">No customers found.</p>
-        </div>
-      </div>
-
-      <!-- ===== EMPLOYEES TAB ===== -->
-      <div *ngIf="activeTab === 'employees'">
-        <div *ngIf="employees.length > 0">
-          <div class="px-4 pt-3 pb-2 d-flex justify-content-between align-items-center border-bottom">
-            <span class="text-muted small">
-              Showing <strong>{{ (currentPageEmployees - 1) * pageSize + 1 }}</strong>–<strong>{{ Math.min(currentPageEmployees * pageSize, totalEmployees) }}</strong> of <strong>{{ totalEmployees }}</strong> staff members
-            </span>
-          </div>
-          <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-              <thead class="thead-employees">
-                <tr>
-                  <th class="ps-4 py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">#</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Name</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Email</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Role</th>
-                  <th class="py-3 border-0 text-uppercase text-muted fw-semibold table-header-cell">Joined</th>
-                  <th class="py-3 pe-4 border-0 text-uppercase text-muted fw-semibold text-center table-header-cell">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let user of getEmployeesPage(); let i = index" class="border-bottom">
-                  <td class="ps-4 py-3 text-muted small">{{ (currentPageEmployees - 1) * pageSize + i + 1 }}</td>
-                  <td class="py-3">
-                    <div class="d-flex align-items-center gap-2">
-                      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white user-avatar-sm-pink">
-                        {{ user.firstName.charAt(0).toUpperCase() }}
-                      </div>
-                      <div class="fw-semibold text-light">{{ user.firstName }} {{ user.lastName }}</div>
-                    </div>
-                  </td>
-                  <td class="py-3 text-muted">{{ user.email }}</td>
-                  <td class="py-3">
-                    <span class="badge rounded-pill px-3 py-1" [ngClass]="getRoleBadgeClass(user.role)">
-                      {{ user.role | titlecase }}
-                    </span>
-                  </td>
-                  <td class="py-3 text-muted small">{{ formatDate(user.createdAt) }}</td>
-                  <td class="py-3 pe-4 text-center">
-                    <ng-container *ngIf="isOwner; else employeeOwnerOnly">
-                      <div class="d-flex justify-content-center gap-2">
-                        <button class="btn btn-sm btn-outline-primary" (click)="startEdit(user)">Edit</button>
-                        <button class="btn btn-sm btn-outline-danger"
-                                (click)="deleteUser(user._id)"
-                                [disabled]="deletingUserId === user._id">
-                          <span *ngIf="deletingUserId !== user._id">Delete</span>
-                          <span *ngIf="deletingUserId === user._id">
-                            <span class="spinner-border spinner-border-sm" role="status"></span>
-                          </span>
-                        </button>
-                      </div>
-                    </ng-container>
-                    <ng-template #employeeOwnerOnly>
-                      <span class="text-muted small">Owner only</span>
-                    </ng-template>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div class="px-4 py-3 border-top d-flex justify-content-center" *ngIf="getTotalEmployeesPages() > 1">
-            <ul class="pagination pagination-sm mb-0">
-              <li class="page-item" [class.disabled]="currentPageEmployees === 1">
-                <button class="page-link" (click)="goToEmployeePage(currentPageEmployees - 1)">&laquo;</button>
-              </li>
-              <li *ngFor="let p of getEmployeePageNumbers()" class="page-item" [class.active]="currentPageEmployees === p">
-                <button class="page-link" (click)="goToEmployeePage(p)">{{ p }}</button>
-              </li>
-              <li class="page-item" [class.disabled]="currentPageEmployees === getTotalEmployeesPages()">
-                <button class="page-link" (click)="goToEmployeePage(currentPageEmployees + 1)">&raquo;</button>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div *ngIf="employees.length === 0" class="text-center py-5">
-          <div class="mb-2 empty-emoji">👥</div>
-          <p class="text-muted">No staff members found.</p>
-        </div>
-      </div>
-
-    </div>
-  </div>
-</div>
+}
 

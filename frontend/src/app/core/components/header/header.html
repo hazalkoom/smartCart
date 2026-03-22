@@ -15,7 +15,9 @@
         <i class="bi bi-gift-fill"></i> Gift Finder
       </a>
       <a routerLink="/about" routerLinkActive="active">About</a>
-      <a *ngIf="isAdmin" routerLink="/admin" routerLinkActive="active">Admin</a>
+      @if (isAdmin) {
+        <a routerLink="/admin" routerLinkActive="active">Admin</a>
+      }
     </nav>
 
     <div class="sc-nav-actions">
@@ -23,37 +25,51 @@
         <i class="bi bi-search"></i>
       </button>
 
-      <a routerLink="/wishlist" class="sc-icon-btn" aria-label="Wishlist" *ngIf="authReady && hasAuthenticatedSession">
-        <i class="bi bi-heart"></i>
-        <span class="sc-badge" *ngIf="wishlistCount > 0">{{ wishlistCount }}</span>
-      </a>
+      @if (authReady && hasAuthenticatedSession) {
+        <a routerLink="/wishlist" class="sc-icon-btn" aria-label="Wishlist">
+          <i class="bi bi-heart"></i>
+          @if (wishlistCount > 0) {
+            <span class="sc-badge">{{ wishlistCount }}</span>
+          }
+        </a>
+      }
 
       <a routerLink="/cart" class="sc-icon-btn" aria-label="Cart">
         <i class="bi bi-cart3"></i>
-        <span class="sc-badge sc-badge-primary" *ngIf="cartCount > 0">{{ cartCount }}</span>
+        @if (cartCount > 0) {
+          <span class="sc-badge sc-badge-primary">{{ cartCount }}</span>
+        }
       </a>
 
-      <app-notification-bell *ngIf="authReady && hasAuthenticatedSession"></app-notification-bell>
+      @if (authReady && hasAuthenticatedSession) {
+        <app-notification-bell></app-notification-bell>
+      }
 
-      <div class="dropdown" *ngIf="authReady && hasAuthenticatedSession">
-        <button class="sc-user-btn dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
-          <div class="sc-avatar"><i class="bi bi-person-fill"></i></div>
-          <span class="sc-user-name">{{ userName || 'Account' }}</span>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-          <li><a class="dropdown-item" routerLink="/account"><i class="bi bi-person"></i> My Account</a></li>
-          <li><a class="dropdown-item" [routerLink]="['/account']" fragment="orders"><i class="bi bi-box-seam"></i> Orders</a></li>
-          <li><a class="dropdown-item" routerLink="/wishlist"><i class="bi bi-heart"></i> Wishlist</a></li>
-          <li *ngIf="isAdmin"><a class="dropdown-item" routerLink="/admin"><i class="bi bi-grid-1x2"></i> Admin</a></li>
-          <li><hr class="dropdown-divider" style="border-color: var(--border)"></li>
-          <li><button class="dropdown-item text-danger" (click)="logout()" type="button"><i class="bi bi-box-arrow-right"></i> Logout</button></li>
-        </ul>
-      </div>
+      @if (authReady && hasAuthenticatedSession) {
+        <div class="dropdown">
+          <button class="sc-user-btn dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">
+            <div class="sc-avatar"><i class="bi bi-person-fill"></i></div>
+            <span class="sc-user-name">{{ userName || 'Account' }}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" routerLink="/account"><i class="bi bi-person"></i> My Account</a></li>
+            <li><a class="dropdown-item" [routerLink]="['/account']" fragment="orders"><i class="bi bi-box-seam"></i> Orders</a></li>
+            <li><a class="dropdown-item" routerLink="/wishlist"><i class="bi bi-heart"></i> Wishlist</a></li>
+            @if (isAdmin) {
+              <li><a class="dropdown-item" routerLink="/admin"><i class="bi bi-grid-1x2"></i> Admin</a></li>
+            }
+            <li><hr class="dropdown-divider" style="border-color: var(--border)"></li>
+            <li><button class="dropdown-item text-danger" (click)="logout()" type="button"><i class="bi bi-box-arrow-right"></i> Logout</button></li>
+          </ul>
+        </div>
+      }
 
-      <div class="sc-auth-links" *ngIf="authReady && showGuestLinks">
-        <a routerLink="/login" class="sc-auth-link">Login</a>
-        <a routerLink="/register" class="sc-auth-link">Sign Up</a>
-      </div>
+      @if (authReady && showGuestLinks) {
+        <div class="sc-auth-links">
+          <a routerLink="/login" class="sc-auth-link">Login</a>
+          <a routerLink="/register" class="sc-auth-link">Sign Up</a>
+        </div>
+      }
 
       <button class="sc-hamburger" (click)="toggleMobileMenu()" aria-label="Menu">
         <span [class.open]="mobileMenuOpen"></span>
@@ -77,12 +93,26 @@
     <a routerLink="/categories" (click)="closeMobileMenu()">Categories</a>
     <a routerLink="/gift-finder" (click)="closeMobileMenu()" class="sc-nav-special"><i class="bi bi-gift-fill"></i> Gift Finder</a>
     <a routerLink="/about" (click)="closeMobileMenu()">About</a>
-    <a routerLink="/wishlist" (click)="closeMobileMenu()" *ngIf="authReady && hasAuthenticatedSession">Wishlist</a>
-    <a routerLink="/account" (click)="closeMobileMenu()" *ngIf="authReady && hasAuthenticatedSession">Account</a>
-    <a [routerLink]="['/account']" fragment="orders" (click)="closeMobileMenu()" *ngIf="authReady && hasAuthenticatedSession">Orders</a>
-    <a routerLink="/admin" (click)="closeMobileMenu()" *ngIf="isAdmin">Admin</a>
-    <a routerLink="/login" (click)="closeMobileMenu()" *ngIf="authReady && showGuestLinks">Login</a>
-    <a routerLink="/register" (click)="closeMobileMenu()" *ngIf="authReady && showGuestLinks">Register</a>
-    <a href="javascript:void(0)" (click)="logout()" *ngIf="authReady && hasAuthenticatedSession">Logout</a>
+    @if (authReady && hasAuthenticatedSession) {
+      <a routerLink="/wishlist" (click)="closeMobileMenu()">Wishlist</a>
+    }
+    @if (authReady && hasAuthenticatedSession) {
+      <a routerLink="/account" (click)="closeMobileMenu()">Account</a>
+    }
+    @if (authReady && hasAuthenticatedSession) {
+      <a [routerLink]="['/account']" fragment="orders" (click)="closeMobileMenu()">Orders</a>
+    }
+    @if (isAdmin) {
+      <a routerLink="/admin" (click)="closeMobileMenu()">Admin</a>
+    }
+    @if (authReady && showGuestLinks) {
+      <a routerLink="/login" (click)="closeMobileMenu()">Login</a>
+    }
+    @if (authReady && showGuestLinks) {
+      <a routerLink="/register" (click)="closeMobileMenu()">Register</a>
+    }
+    @if (authReady && hasAuthenticatedSession) {
+      <a href="javascript:void(0)" (click)="logout()">Logout</a>
+    }
   </div>
 </header>

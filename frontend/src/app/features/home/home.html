@@ -1,6 +1,6 @@
 <!-- =====================================================
-     HOME PAGE — drop into home.html
-     ===================================================== -->
+HOME PAGE — drop into home.html
+===================================================== -->
 
 <!-- ── HERO SLIDER ── -->
 <section class="sc-hero">
@@ -9,18 +9,20 @@
   </button>
 
   <div class="sc-hero-track" [style.transform]="'translateX(-' + (currentSlide * 100) + '%)'">
-    <div class="sc-hero-slide" *ngFor="let product of heroProducts">
-      <img [src]="product.images[0] || 'assets/images/main-banner1.jpg'" [alt]="product.name" class="sc-hero-img">
-      <div class="sc-hero-overlay"></div>
-      <div class="sc-hero-content animate-fade-in-up">
-        <div class="sc-hero-eyebrow">FEATURED DROP</div>
-        <h1 class="sc-hero-title">{{ product.name }}</h1>
-        <p class="sc-hero-desc">{{ product.description | slice:0:150 }}{{ product.description.length > 150 ? '...' : '' }}</p>
-        <a [routerLink]="['/products', product.slug]" class="btn btn-primary sc-hero-btn">
-          Shop Now <i class="bi bi-arrow-right ms-2"></i>
-        </a>
+    @for (product of heroProducts; track product) {
+      <div class="sc-hero-slide">
+        <img [src]="product.images[0] || 'assets/images/main-banner1.jpg'" [alt]="product.name" class="sc-hero-img">
+        <div class="sc-hero-overlay"></div>
+        <div class="sc-hero-content animate-fade-in-up">
+          <div class="sc-hero-eyebrow">FEATURED DROP</div>
+          <h1 class="sc-hero-title">{{ product.name }}</h1>
+          <p class="sc-hero-desc">{{ product.description | slice:0:150 }}{{ product.description.length > 150 ? '...' : '' }}</p>
+          <a [routerLink]="['/products', product.slug]" class="btn btn-primary sc-hero-btn">
+            Shop Now <i class="bi bi-arrow-right ms-2"></i>
+          </a>
+        </div>
       </div>
-    </div>
+    }
   </div>
 
   <button class="sc-hero-arrow sc-hero-arrow--next" (click)="nextSlide()">
@@ -29,10 +31,12 @@
 
   <!-- Dots -->
   <div class="sc-hero-dots">
-    <button *ngFor="let p of heroProducts; let i = index"
-            class="sc-hero-dot"
-            [class.active]="i === currentSlide"
-            (click)="goToSlide(i)"></button>
+    @for (p of heroProducts; track p; let i = $index) {
+      <button
+        class="sc-hero-dot"
+        [class.active]="i === currentSlide"
+      (click)="goToSlide(i)"></button>
+    }
   </div>
 </section>
 
@@ -60,53 +64,67 @@
       <h2 class="section-title">Featured Products</h2>
     </div>
 
-    <div *ngIf="isLoading" class="loading-state">
-      <div class="sc-spinner"></div>
-    </div>
-
-    <div class="sc-product-grid" *ngIf="!isLoading">
-      <div class="sc-product-card" *ngFor="let product of featuredProducts">
-        <!-- Badge -->
-        <div class="sc-product-badges">
-          <span class="sc-product-badge sc-product-badge--hot" *ngIf="product.featured">HOT</span>
-          <span class="sc-product-badge sc-product-badge--sale" *ngIf="product.stock === 0">SOLD OUT</span>
-        </div>
-        <!-- Wishlist -->
-        <button class="sc-wishlist-btn" (click)="toggleWishlist($event, product)">
-          <i [ngClass]="isInWishlist(product) ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
-        </button>
-        <!-- Image -->
-        <a [routerLink]="['/products', product.slug]" class="sc-product-img-wrap">
-          <img [src]="product.images[0] || 'assets/images/default.png'" [alt]="product.name" class="sc-product-img" loading="lazy">
-        </a>
-        <!-- Info -->
-        <div class="sc-product-info">
-          <div class="sc-product-brand">{{ product.categoryId?.name || 'General' }}</div>
-          <h3 class="sc-product-name">
-            <a [routerLink]="['/products', product.slug]">{{ product.name }}</a>
-          </h3>
-          <div class="sc-product-rating">
-            <span class="sc-stars" [attr.data-rating]="product.rating | number:'1.0-0'">
-              <i class="bi bi-star-fill" *ngFor="let s of [1,2,3,4,5]"
-                 [class.filled]="s <= (product.rating || 0)"></i>
-            </span>
-            <span class="sc-review-count">({{ product.reviewCount || 0 }})</span>
-          </div>
-          <div class="sc-product-footer">
-            <div class="sc-product-price">
-              <span class="sc-price-current">${{ product.price | number:'1.2-2' }}</span>
-              <span class="sc-price-original" *ngIf="product.stock === 0">
-                Out of stock
-              </span>
-            </div>
-            <button class="sc-add-cart-btn" (click)="addToCart($event, product)"
-                    [disabled]="product.stock === 0" [title]="product.stock > 0 ? 'Add to cart' : 'Out of stock'">
-              <i class="bi bi-cart3"></i>
-            </button>
-          </div>
-        </div>
+    @if (isLoading) {
+      <div class="loading-state">
+        <div class="sc-spinner"></div>
       </div>
-    </div>
+    }
+
+    @if (!isLoading) {
+      <div class="sc-product-grid">
+        @for (product of featuredProducts; track product) {
+          <div class="sc-product-card">
+            <!-- Badge -->
+            <div class="sc-product-badges">
+              @if (product.featured) {
+                <span class="sc-product-badge sc-product-badge--hot">HOT</span>
+              }
+              @if (product.stock === 0) {
+                <span class="sc-product-badge sc-product-badge--sale">SOLD OUT</span>
+              }
+            </div>
+            <!-- Wishlist -->
+            <button class="sc-wishlist-btn" (click)="toggleWishlist($event, product)">
+              <i [ngClass]="isInWishlist(product) ? 'bi bi-heart-fill' : 'bi bi-heart'"></i>
+            </button>
+            <!-- Image -->
+            <a [routerLink]="['/products', product.slug]" class="sc-product-img-wrap">
+              <img [src]="product.images[0] || 'assets/images/default.png'" [alt]="product.name" class="sc-product-img" loading="lazy">
+            </a>
+            <!-- Info -->
+            <div class="sc-product-info">
+              <div class="sc-product-brand">{{ product.categoryId?.name || 'General' }}</div>
+              <h3 class="sc-product-name">
+                <a [routerLink]="['/products', product.slug]">{{ product.name }}</a>
+              </h3>
+              <div class="sc-product-rating">
+                <span class="sc-stars" [attr.data-rating]="product.rating | number:'1.0-0'">
+                  @for (s of [1,2,3,4,5]; track s) {
+                    <i class="bi bi-star-fill"
+                    [class.filled]="s <= (product.rating || 0)"></i>
+                  }
+                </span>
+                <span class="sc-review-count">({{ product.reviewCount || 0 }})</span>
+              </div>
+              <div class="sc-product-footer">
+                <div class="sc-product-price">
+                  <span class="sc-price-current">${{ product.price | number:'1.2-2' }}</span>
+                  @if (product.stock === 0) {
+                    <span class="sc-price-original">
+                      Out of stock
+                    </span>
+                  }
+                </div>
+                <button class="sc-add-cart-btn" (click)="addToCart($event, product)"
+                  [disabled]="product.stock === 0" [title]="product.stock > 0 ? 'Add to cart' : 'Out of stock'">
+                  <i class="bi bi-cart3"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
 
     <div class="sc-section-cta">
       <a routerLink="/products" class="btn btn-outline-primary">View All Products</a>
@@ -122,15 +140,17 @@
       <h2 class="section-title">Categories</h2>
     </div>
     <div class="sc-category-grid">
-      <a *ngFor="let cat of categories"
-         [routerLink]="['/categories']" [queryParams]="{cat: cat._id}"
-         class="sc-category-card">
-        <div class="sc-category-icon">
-          <i class="bi bi-tags-fill"></i>
-        </div>
-        <span class="sc-category-name">{{ cat.name }}</span>
-        <span class="sc-category-count">{{ cat.description || '' }}</span>
-      </a>
+      @for (cat of categories; track cat) {
+        <a
+          [routerLink]="['/categories']" [queryParams]="{cat: cat._id}"
+          class="sc-category-card">
+          <div class="sc-category-icon">
+            <i class="bi bi-tags-fill"></i>
+          </div>
+          <span class="sc-category-name">{{ cat.name }}</span>
+          <span class="sc-category-count">{{ cat.description || '' }}</span>
+        </a>
+      }
     </div>
   </div>
 </section>

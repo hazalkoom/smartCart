@@ -31,7 +31,9 @@
       <div class="sc-footer-col">
         <h5>Account</h5>
         <ul>
-          <li *ngIf="!(isLoggedIn$ | async)"><a routerLink="/login">Sign In</a></li>
+          @if (!(isLoggedIn$ | async)) {
+            <li><a routerLink="/login">Sign In</a></li>
+          }
           <li><a routerLink="/account">My Account</a></li>
           <li><a routerLink="/account" [queryParams]="{ tab: 'orders' }">Track Order</a></li>
         </ul>

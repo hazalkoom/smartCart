@@ -4,116 +4,121 @@
     <p>Live command center for orders, users, products, and revenue.</p>
   </div>
 
-  <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
-    {{ errorMessage }}
-    <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
-  </div>
-
-  <div *ngIf="isLoading" class="admin-loading text-center py-5">
-    <div class="spinner-border text-info" role="status">
-      <span class="visually-hidden">Loading...</span>
+  @if (errorMessage) {
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
     </div>
-    <p class="mt-3">Loading dashboard data...</p>
-  </div>
+  }
 
-  <div *ngIf="!isLoading" class="admin-stats-grid">
-    <article class="admin-stat-card revenue-card">
-      <div class="stat-top">
-        <div>
-          <p>Total Revenue</p>
-          <h3>{{ formatCurrency(totalRevenue) }}</h3>
-        </div>
-        <div class="admin-stat-icon revenue">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
-            <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-          </svg>
-        </div>
+  @if (isLoading) {
+    <div class="admin-loading text-center py-5">
+      <div class="spinner-border text-info" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
-      <svg class="sparkline" viewBox="0 0 100 32" preserveAspectRatio="none" aria-label="Revenue trend">
-        <path [attr.d]="sparklinePath"></path>
-      </svg>
-    </article>
-
-    <article class="admin-stat-card">
-      <div class="stat-top">
-        <div>
-          <p>Total Orders</p>
-          <h3>{{ totalOrders }}</h3>
-        </div>
-        <div class="admin-stat-icon orders">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
-            <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-          </svg>
-        </div>
-      </div>
-    </article>
-
-    <article class="admin-stat-card">
-      <div class="stat-top">
-        <div>
-          <p>Total Users</p>
-          <h3>{{ totalUsers }}</h3>
-        </div>
-        <div class="admin-stat-icon users">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-          </svg>
-        </div>
-      </div>
-    </article>
-
-    <article class="admin-stat-card">
-      <div class="stat-top">
-        <div>
-          <p>Pending Orders</p>
-          <h3>{{ pendingOrders }}</h3>
-        </div>
-        <div class="admin-stat-icon pending">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-        </div>
-      </div>
-    </article>
-
-    <article class="admin-stat-card">
-      <div class="stat-top">
-        <div>
-          <p>Total Products</p>
-          <h3>{{ totalProducts }}</h3>
-        </div>
-        <div class="admin-stat-icon products">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
-            <path d="M6 9h12M6 9l1 12c0 1 1 2 2 2h10c1 0 2-1 2-2l1-12M6 9l-1-3h14l-1 3M10 4h4c0-1-1-2-2-2s-2 1-2 2Z"/>
-          </svg>
-        </div>
-      </div>
-    </article>
-  </div>
-
-  <section *ngIf="!isLoading" class="admin-panel">
-    <div class="admin-panel-header">
-      <h5>Recent Orders</h5>
+      <p class="mt-3">Loading dashboard data...</p>
     </div>
-    <div class="admin-panel-body">
-      <div *ngIf="recentOrders.length > 0" class="table-responsive">
-        <table class="table admin-table align-middle">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Customer</th>
-              <th>Date</th>
-              <th>Total</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let order of recentOrders">
-              <td><code>{{ order._id | slice:0:8 }}...</code></td>
-              <td>{{ getCustomerName(order) }}</td>
-              <td>{{ formatDate(order.createdAt) }}</td>
-              <td><strong>{{ formatCurrency(order.total || order.totalPrice || 0) }}</strong></td>
-              <td>
+  }
+
+  @if (!isLoading) {
+    <div class="admin-stats-grid">
+      <article class="admin-stat-card revenue-card">
+        <div class="stat-top">
+          <div>
+            <p>Total Revenue</p>
+            <h3>{{ formatCurrency(totalRevenue) }}</h3>
+          </div>
+          <div class="admin-stat-icon revenue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
+              <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+          </div>
+        </div>
+        <svg class="sparkline" viewBox="0 0 100 32" preserveAspectRatio="none" aria-label="Revenue trend">
+          <path [attr.d]="sparklinePath"></path>
+        </svg>
+      </article>
+      <article class="admin-stat-card">
+        <div class="stat-top">
+          <div>
+            <p>Total Orders</p>
+            <h3>{{ totalOrders }}</h3>
+          </div>
+          <div class="admin-stat-icon orders">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
+              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+            </svg>
+          </div>
+        </div>
+      </article>
+      <article class="admin-stat-card">
+        <div class="stat-top">
+          <div>
+            <p>Total Users</p>
+            <h3>{{ totalUsers }}</h3>
+          </div>
+          <div class="admin-stat-icon users">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+          </div>
+        </div>
+      </article>
+      <article class="admin-stat-card">
+        <div class="stat-top">
+          <div>
+            <p>Pending Orders</p>
+            <h3>{{ pendingOrders }}</h3>
+          </div>
+          <div class="admin-stat-icon pending">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+        </div>
+      </article>
+      <article class="admin-stat-card">
+        <div class="stat-top">
+          <div>
+            <p>Total Products</p>
+            <h3>{{ totalProducts }}</h3>
+          </div>
+          <div class="admin-stat-icon products">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="stat-icon">
+              <path d="M6 9h12M6 9l1 12c0 1 1 2 2 2h10c1 0 2-1 2-2l1-12M6 9l-1-3h14l-1 3M10 4h4c0-1-1-2-2-2s-2 1-2 2Z"/>
+            </svg>
+          </div>
+        </div>
+      </article>
+    </div>
+  }
+
+  @if (!isLoading) {
+    <section class="admin-panel">
+      <div class="admin-panel-header">
+        <h5>Recent Orders</h5>
+      </div>
+      <div class="admin-panel-body">
+        @if (recentOrders.length > 0) {
+          <div class="table-responsive">
+            <table class="table admin-table align-middle">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Date</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (order of recentOrders; track order) {
+                  <tr>
+                    <td><code>{{ order._id | slice:0:8 }}...</code></td>
+                    <td>{{ getCustomerName(order) }}</td>
+                    <td>{{ formatDate(order.createdAt) }}</td>
+                    <td><strong>{{ formatCurrency(order.total || order.totalPrice || 0) }}</strong></td>
+                    <td>
                 <span class="status-pill" [ngClass]="{
                   'pending': order.status === 'Pending',
                   'paid': order.status === 'Paid',
@@ -121,16 +126,21 @@
                   'delivered': order.status === 'Delivered',
                   'cancelled': order.status === 'Cancelled'
                 }">
-                  {{ order.status }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                        {{ order.status }}
+                      </span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+        @if (recentOrders.length === 0) {
+          <div class="text-center py-4">
+            <p class="text-muted">No recent orders.</p>
+          </div>
+        }
       </div>
-      <div *ngIf="recentOrders.length === 0" class="text-center py-4">
-        <p class="text-muted">No recent orders.</p>
-      </div>
-    </div>
-  </section>
+    </section>
+  }
 </section>

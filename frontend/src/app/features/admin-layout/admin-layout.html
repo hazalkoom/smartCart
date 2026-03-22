@@ -35,15 +35,17 @@
       </svg>
       Orders
     </a>
-    <a routerLink="/admin/users" routerLinkActive="active" *ngIf="isOwner" (click)="closeAdminMobileMenu()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-        <circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-      Users
-    </a>
+    @if (isOwner) {
+      <a routerLink="/admin/users" routerLinkActive="active" (click)="closeAdminMobileMenu()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+        Users
+      </a>
+    }
     <a routerLink="/admin/products" routerLinkActive="active" (click)="closeAdminMobileMenu()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M6 9h12M6 9l1 12c0 1 1 2 2 2h10c1 0 2-1 2-2l1-12M6 9l-1-3h14l-1 3M10 4h4c0-1-1-2-2-2s-2 1-2 2Z"/>
@@ -108,15 +110,17 @@
         </svg>
         Orders
       </a>
-      <a routerLink="/admin/users" routerLinkActive="active" *ngIf="isOwner">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-        Users
-      </a>
+      @if (isOwner) {
+        <a routerLink="/admin/users" routerLinkActive="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Users
+        </a>
+      }
       <a routerLink="/admin/products" routerLinkActive="active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M6 9h12M6 9l1 12c0 1 1 2 2 2h10c1 0 2-1 2-2l1-12M6 9l-1-3h14l-1 3M10 4h4c0-1-1-2-2-2s-2 1-2 2Z"/>

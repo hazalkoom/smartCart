@@ -9,7 +9,7 @@ const protect = asyncHandler(async (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers.Authorization || '';
 
   // SECURITY PATCH: Use Regex to extract token to satisfy CodeQL taint analysis
-  const tokenMatch = authHeader.match(/^Bearer\s+(.+)$/i);
+  const tokenMatch = authHeader.match(/^Bearer\s+(\S+)$/i);
 
   if (!tokenMatch) {
     res.status(401);

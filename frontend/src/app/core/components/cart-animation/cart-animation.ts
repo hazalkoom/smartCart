@@ -7,17 +7,18 @@ import { CartAnimationService, CartAnimationData } from '../../services/cart-ani
   selector: 'app-cart-animation',
   standalone: false,
   template: `
-    <div 
-      *ngIf="animationData" 
-      #flyingItem
-      class="flying-item"
-      [style.left.px]="animationData.startX"
-      [style.top.px]="animationData.startY"
-      [style.--end-x.px]="endX"
-      [style.--end-y.px]="endY">
-      <img [src]="animationData.productImage" [alt]="animationData.productName">
-    </div>
-  `,
+    @if (animationData) {
+      <div
+        #flyingItem
+        class="flying-item"
+        [style.left.px]="animationData.startX"
+        [style.top.px]="animationData.startY"
+        [style.--end-x.px]="endX"
+        [style.--end-y.px]="endY">
+        <img [src]="animationData.productImage" [alt]="animationData.productName">
+      </div>
+    }
+    `,
   styles: [`
     .flying-item {
       position: fixed;

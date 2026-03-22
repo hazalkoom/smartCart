@@ -1,30 +1,34 @@
-<app-header *ngIf="!isAdminRoute"></app-header>
+@if (!isAdminRoute) {
+  <app-header></app-header>
+}
 <app-cart-animation></app-cart-animation>
 <router-outlet></router-outlet>
-<app-footer *ngIf="!isAdminRoute"></app-footer>
+@if (!isAdminRoute) {
+  <app-footer></app-footer>
+}
 
 <div
-	class="payment-toast"
-	[class.visible]="paymentToastVisible"
-	[class.admin-event]="paymentToastType === 'admin-order-paid'"
-	[class.status-event]="paymentToastType === 'order-status-changed'"
-	role="status"
-	aria-live="polite"
-	aria-atomic="true"
->
-	<div class="payment-toast__icon" aria-hidden="true">
-		<i class="bi bi-check2-circle"></i>
-	</div>
-	<div class="payment-toast__content">
-		<p class="payment-toast__title">{{ paymentToastTitle }}</p>
-		<p class="payment-toast__message">{{ paymentToastMessage }}</p>
-	</div>
-	<button
-		type="button"
-		class="payment-toast__close"
-		(click)="dismissPaymentToast()"
-		aria-label="Dismiss payment notification"
-	>
-		<i class="bi bi-x-lg"></i>
-	</button>
+  class="payment-toast"
+  [class.visible]="paymentToastVisible"
+  [class.admin-event]="paymentToastType === 'admin-order-paid'"
+  [class.status-event]="paymentToastType === 'order-status-changed'"
+  role="status"
+  aria-live="polite"
+  aria-atomic="true"
+  >
+  <div class="payment-toast__icon" aria-hidden="true">
+    <i class="bi bi-check2-circle"></i>
+  </div>
+  <div class="payment-toast__content">
+    <p class="payment-toast__title">{{ paymentToastTitle }}</p>
+    <p class="payment-toast__message">{{ paymentToastMessage }}</p>
+  </div>
+  <button
+    type="button"
+    class="payment-toast__close"
+    (click)="dismissPaymentToast()"
+    aria-label="Dismiss payment notification"
+    >
+    <i class="bi bi-x-lg"></i>
+  </button>
 </div>

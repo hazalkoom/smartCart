@@ -1,36 +1,42 @@
 <section class="py-5">
-    <div class="container">
-        
-        <div *ngIf="isLoading" class="text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Verifying payment...</span>
-            </div>
-            <p class="mt-3">Verifying your payment status...</p>
-        </div>
+  <div class="container">
 
-        <div *ngIf="!isLoading && isSuccess" class="callback-container">
-            <div class="status-icon success-icon">
-                <i class="icon icon-check-circle"></i>
-            </div>
-            <h2>Payment Successful!</h2>
-            <p>Thank you for your purchase. Your order has been confirmed.</p>
-            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <a routerLink="/account" class="btn btn-primary btn-lg px-4 gap-3">View My Orders</a>
-                <a routerLink="/products" class="btn btn-outline-secondary btn-lg px-4">Continue Shopping</a>
-            </div>
+    @if (isLoading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Verifying payment...</span>
         </div>
+        <p class="mt-3">Verifying your payment status...</p>
+      </div>
+    }
 
-        <div *ngIf="!isLoading && !isSuccess" class="callback-container">
-            <div class="status-icon error-icon">
-                <i class="icon icon-alert-circle"></i>
-            </div>
-            <h2>Payment Failed</h2>
-            <p>Something went wrong with the transaction. Don't worry, you haven't been charged.</p>
-            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                <a routerLink="/account" class="btn btn-primary btn-lg px-4 gap-3">Try Paying Again</a>
-                <a routerLink="/cart" class="btn btn-outline-dark btn-lg px-4">Return to Cart</a>
-            </div>
+    @if (!isLoading && isSuccess) {
+      <div class="callback-container">
+        <div class="status-icon success-icon">
+          <i class="icon icon-check-circle"></i>
         </div>
+        <h2>Payment Successful!</h2>
+        <p>Thank you for your purchase. Your order has been confirmed.</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+          <a routerLink="/account" class="btn btn-primary btn-lg px-4 gap-3">View My Orders</a>
+          <a routerLink="/products" class="btn btn-outline-secondary btn-lg px-4">Continue Shopping</a>
+        </div>
+      </div>
+    }
 
-    </div>
+    @if (!isLoading && !isSuccess) {
+      <div class="callback-container">
+        <div class="status-icon error-icon">
+          <i class="icon icon-alert-circle"></i>
+        </div>
+        <h2>Payment Failed</h2>
+        <p>Something went wrong with the transaction. Don't worry, you haven't been charged.</p>
+        <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+          <a routerLink="/account" class="btn btn-primary btn-lg px-4 gap-3">Try Paying Again</a>
+          <a routerLink="/cart" class="btn btn-outline-dark btn-lg px-4">Return to Cart</a>
+        </div>
+      </div>
+    }
+
+  </div>
 </section>

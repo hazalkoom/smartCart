@@ -5,43 +5,50 @@
     [class.sc-icon-btn]="variant === 'customer'"
     (click)="toggleDropdown($event)"
     aria-label="Open notifications"
-  >
+    >
     <i class="bi bi-bell"></i>
-    <span class="notification-bell__badge" *ngIf="(unreadCount$ | async) as unreadCount" [class.hidden]="unreadCount === 0">
-      {{ unreadCount > 99 ? '99+' : unreadCount }}
-    </span>
+    @if ((unreadCount$ | async); as unreadCount) {
+      <span class="notification-bell__badge" [class.hidden]="unreadCount === 0">
+        {{ unreadCount > 99 ? '99+' : unreadCount }}
+      </span>
+    }
   </button>
 
-  <div class="notification-dropdown" [class.open]="isOpen" *ngIf="isOpen">
-    <div class="notification-dropdown__header">
-      <h4>Notifications</h4>
-      <div class="notification-dropdown__actions">
-        <button type="button" (click)="markAllAsRead($event)">Mark all read</button>
-        <button type="button" (click)="clearAll($event)">Clear</button>
-      </div>
-    </div>
-
-    <div class="notification-dropdown__list" *ngIf="(notifications$ | async) as notifications">
-      <button
-        type="button"
-        class="notification-item"
-        [class.is-read]="notification.read"
-        *ngFor="let notification of notifications; trackBy: trackById"
-        (click)="markAsRead(notification, $event)"
-      >
-        <div class="notification-item__icon">
-          <i class="bi" [ngClass]="getNotificationIcon(notification)"></i>
+  @if (isOpen) {
+    <div class="notification-dropdown" [class.open]="isOpen">
+      <div class="notification-dropdown__header">
+        <h4>Notifications</h4>
+        <div class="notification-dropdown__actions">
+          <button type="button" (click)="markAllAsRead($event)">Mark all read</button>
+          <button type="button" (click)="clearAll($event)">Clear</button>
         </div>
-        <div class="notification-item__body">
-          <p class="notification-item__title">{{ getNotificationTitle(notification) }}</p>
-          <p class="notification-item__message">{{ notification.message }}</p>
-          <p class="notification-item__time">{{ notification.timestamp | date: 'MMM d, h:mm a' }}</p>
-        </div>
-      </button>
-
-      <div class="notification-dropdown__empty" *ngIf="notifications.length === 0">
-        No notifications yet.
       </div>
+      @if ((notifications$ | async); as notifications) {
+        <div class="notification-dropdown__list">
+          @for (notification of notifications; track trackById($index, notification)) {
+            <button
+              type="button"
+              class="notification-item"
+              [class.is-read]="notification.read"
+              (click)="markAsRead(notification, $event)"
+              >
+              <div class="notification-item__icon">
+                <i class="bi" [ngClass]="getNotificationIcon(notification)"></i>
+              </div>
+              <div class="notification-item__body">
+                <p class="notification-item__title">{{ getNotificationTitle(notification) }}</p>
+                <p class="notification-item__message">{{ notification.message }}</p>
+                <p class="notification-item__time">{{ notification.timestamp | date: 'MMM d, h:mm a' }}</p>
+              </div>
+            </button>
+          }
+          @if (notifications.length === 0) {
+            <div class="notification-dropdown__empty">
+              No notifications yet.
+            </div>
+          }
+        </div>
+      }
     </div>
-  </div>
+  }
 </div>

@@ -5,9 +5,11 @@
       <p>Tell us how we can help and we’ll get back to you.</p>
     </div>
 
-    <div *ngIf="submitted" class="alert alert-success mb-4" role="alert">
-      Thanks! Your request has been recorded.
-    </div>
+    @if (submitted) {
+      <div class="alert alert-success mb-4" role="alert">
+        Thanks! Your request has been recorded.
+      </div>
+    }
 
     <div class="card border-0 shadow-sm">
       <div class="card-body p-4 p-md-5">

@@ -2,70 +2,80 @@
   <div class="container">
     <div class="sc-page-header">
       <h1 class="sc-page-title">WISHLIST</h1>
-      <p class="sc-page-sub" *ngIf="wishlistItems.length > 0">{{ wishlistItems.length }} saved item{{ wishlistItems.length > 1 ? 's' : '' }}</p>
+      @if (wishlistItems.length > 0) {
+        <p class="sc-page-sub">{{ wishlistItems.length }} saved item{{ wishlistItems.length > 1 ? 's' : '' }}</p>
+      }
     </div>
 
-    <div *ngIf="isLoading" class="loading-state" style="min-height:50vh">
-      <div class="sc-spinner-ring"></div>
-      <p class="mt-3">Loading wishlist...</p>
-    </div>
-
-    <div *ngIf="!isLoading && error" class="error-state" style="min-height:40vh">
-      <div class="sc-empty-icon"><i class="icon icon-alert-triangle"></i></div>
-      <h3>{{ error }}</h3>
-      <a routerLink="/products" class="btn btn-outline-primary mt-2">Back to Shop</a>
-    </div>
-
-    <div *ngIf="!isLoading && !error && wishlistItems.length === 0" class="sc-empty-state sc-wishlist-empty">
-      <div class="sc-empty-icon"><i class="icon icon-heart"></i></div>
-      <h4>Your wishlist is empty</h4>
-      <p>Save products you like and they will appear here.</p>
-      <a routerLink="/products" class="btn btn-primary mt-2">Browse Products</a>
-    </div>
-
-    <div *ngIf="!isLoading && !error && wishlistItems.length > 0" class="sc-product-grid">
-      <div class="sc-product-card" *ngFor="let product of wishlistItems; trackBy: trackByProductId">
-        <button
-          type="button"
-          class="sc-wishlist-remove-btn"
-          (click)="removeFromWishlist(product._id)"
-          aria-label="Remove from wishlist"
-          title="Remove"
-        >
-          <i class="icon icon-x"></i>
-        </button>
-
-        <a [routerLink]="['/products', product.slug]" class="sc-product-img-wrap">
-          <img
-            [src]="product.images && product.images.length > 0 ? product.images[0] : 'assets/images/placeholder.jpg'"
-            [alt]="product.name"
-            class="sc-product-img"
-            loading="lazy"
-          />
-        </a>
-
-        <div class="sc-product-info">
-          <h3 class="sc-product-name">
-            <a [routerLink]="['/products', product.slug]">{{ product.name }}</a>
-          </h3>
-
-          <div class="sc-product-rating">
-            <div class="sc-stars">
-              <i class="icon icon-star" *ngFor="let s of [1,2,3,4,5]" [class.filled]="s <= (product.rating || 0)"></i>
-            </div>
-            <span class="sc-review-count">({{ product.reviewCount || 0 }})</span>
-          </div>
-
-          <div class="sc-product-footer">
-            <div class="sc-product-price">
-              <span class="sc-price-current">${{ product.price | number:'1.2-2' }}</span>
-            </div>
-            <a [routerLink]="['/products', product.slug]" class="sc-add-cart-btn" title="View product">
-              <i class="icon icon-arrow-right"></i>
-            </a>
-          </div>
-        </div>
+    @if (isLoading) {
+      <div class="loading-state" style="min-height:50vh">
+        <div class="sc-spinner-ring"></div>
+        <p class="mt-3">Loading wishlist...</p>
       </div>
-    </div>
+    }
+
+    @if (!isLoading && error) {
+      <div class="error-state" style="min-height:40vh">
+        <div class="sc-empty-icon"><i class="icon icon-alert-triangle"></i></div>
+        <h3>{{ error }}</h3>
+        <a routerLink="/products" class="btn btn-outline-primary mt-2">Back to Shop</a>
+      </div>
+    }
+
+    @if (!isLoading && !error && wishlistItems.length === 0) {
+      <div class="sc-empty-state sc-wishlist-empty">
+        <div class="sc-empty-icon"><i class="icon icon-heart"></i></div>
+        <h4>Your wishlist is empty</h4>
+        <p>Save products you like and they will appear here.</p>
+        <a routerLink="/products" class="btn btn-primary mt-2">Browse Products</a>
+      </div>
+    }
+
+    @if (!isLoading && !error && wishlistItems.length > 0) {
+      <div class="sc-product-grid">
+        @for (product of wishlistItems; track trackByProductId($index, product)) {
+          <div class="sc-product-card">
+            <button
+              type="button"
+              class="sc-wishlist-remove-btn"
+              (click)="removeFromWishlist(product._id)"
+              aria-label="Remove from wishlist"
+              title="Remove"
+              >
+              <i class="icon icon-x"></i>
+            </button>
+            <a [routerLink]="['/products', product.slug]" class="sc-product-img-wrap">
+              <img
+                [src]="product.images && product.images.length > 0 ? product.images[0] : 'assets/images/placeholder.jpg'"
+                [alt]="product.name"
+                class="sc-product-img"
+                loading="lazy"
+                />
+            </a>
+            <div class="sc-product-info">
+              <h3 class="sc-product-name">
+                <a [routerLink]="['/products', product.slug]">{{ product.name }}</a>
+              </h3>
+              <div class="sc-product-rating">
+                <div class="sc-stars">
+                  @for (s of [1,2,3,4,5]; track s) {
+                    <i class="icon icon-star" [class.filled]="s <= (product.rating || 0)"></i>
+                  }
+                </div>
+                <span class="sc-review-count">({{ product.reviewCount || 0 }})</span>
+              </div>
+              <div class="sc-product-footer">
+                <div class="sc-product-price">
+                  <span class="sc-price-current">${{ product.price | number:'1.2-2' }}</span>
+                </div>
+                <a [routerLink]="['/products', product.slug]" class="sc-add-cart-btn" title="View product">
+                  <i class="icon icon-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    }
   </div>
 </section>

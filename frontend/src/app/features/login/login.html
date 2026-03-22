@@ -1,6 +1,6 @@
 <!-- =====================================================
-     LOGIN PAGE
-     ===================================================== -->
+LOGIN PAGE
+===================================================== -->
 <section class="sc-auth-page">
   <div class="sc-auth-glow sc-auth-glow--cyan"></div>
   <div class="sc-auth-glow sc-auth-glow--purple"></div>
@@ -17,48 +17,54 @@
     <p class="sc-auth-sub">Sign in to your account to continue</p>
 
     <!-- Error alert -->
-    <div class="alert alert-danger" *ngIf="errorMessage">{{ errorMessage }}</div>
+    @if (errorMessage) {
+      <div class="alert alert-danger">{{ errorMessage }}</div>
+    }
 
     <form (ngSubmit)="onLogin()" #loginForm="ngForm" novalidate>
 
       <div class="sc-form-group">
         <label class="form-label">Email Address</label>
         <input type="email" class="form-control" [(ngModel)]="email" name="email"
-               placeholder="you@example.com" required autocomplete="email">
-      </div>
-
-      <div class="sc-form-group">
-        <label class="form-label">Password</label>
-        <div class="sc-pw-wrap">
-          <input [type]="showPassword ? 'text' : 'password'" class="form-control"
-                 [(ngModel)]="password" name="password" placeholder="Your password" required
-                 autocomplete="current-password">
-          <button type="button" class="sc-pw-toggle" (click)="showPassword = !showPassword">
-            <i class="icon" [class.icon-eye]="!showPassword" [class.icon-eye-off]="showPassword"></i>
-          </button>
+          placeholder="you@example.com" required autocomplete="email">
         </div>
+
+        <div class="sc-form-group">
+          <label class="form-label">Password</label>
+          <div class="sc-pw-wrap">
+            <input [type]="showPassword ? 'text' : 'password'" class="form-control"
+              [(ngModel)]="password" name="password" placeholder="Your password" required
+              autocomplete="current-password">
+              <button type="button" class="sc-pw-toggle" (click)="showPassword = !showPassword">
+                <i class="icon" [class.icon-eye]="!showPassword" [class.icon-eye-off]="showPassword"></i>
+              </button>
+            </div>
+          </div>
+
+          <div class="sc-auth-options">
+            <label class="sc-remember">
+              <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe">
+              <span>Remember me</span>
+            </label>
+            <a routerLink="/forgot-password" class="sc-forgot-link">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn btn-primary sc-auth-btn" [disabled]="loginForm.invalid || isLoading">
+            @if (!isLoading) {
+              <span>Sign In <i class="icon icon-arrow-right ms-2"></i></span>
+            }
+            @if (isLoading) {
+              <span class="sc-spinner-sm"></span>
+            }
+          </button>
+
+        </form>
+
+        <div class="sc-auth-divider"><span>or</span></div>
+
+        <p class="sc-auth-switch">
+          Don't have an account?
+          <a routerLink="/register">Create one</a>
+        </p>
       </div>
-
-      <div class="sc-auth-options">
-        <label class="sc-remember">
-          <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe">
-          <span>Remember me</span>
-        </label>
-        <a routerLink="/forgot-password" class="sc-forgot-link">Forgot password?</a>
-      </div>
-
-      <button type="submit" class="btn btn-primary sc-auth-btn" [disabled]="loginForm.invalid || isLoading">
-        <span *ngIf="!isLoading">Sign In <i class="icon icon-arrow-right ms-2"></i></span>
-        <span *ngIf="isLoading" class="sc-spinner-sm"></span>
-      </button>
-
-    </form>
-
-    <div class="sc-auth-divider"><span>or</span></div>
-
-    <p class="sc-auth-switch">
-      Don't have an account?
-      <a routerLink="/register">Create one</a>
-    </p>
-  </div>
-</section>
+    </section>

@@ -1,224 +1,245 @@
 <section id="account-page" class="py-5 my-5">
   <div class="container">
-    
-    <div class="welcome-banner" *ngIf="!isLoading && user">
-      <h2>Welcome back, {{ user.firstName }}! 👋</h2>
-      <p>Manage your account, track orders, and explore more</p>
-    </div>
 
-    <div *ngIf="isLoading" class="text-center py-5">
-      <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">Loading...</span>
+    @if (!isLoading && user) {
+      <div class="welcome-banner">
+        <h2>Welcome back, {{ user.firstName }}! 👋</h2>
+        <p>Manage your account, track orders, and explore more</p>
       </div>
-      <p class="mt-3">Loading your account...</p>
-    </div>
+    }
 
-    <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-      <i class="icon icon-alert-circle"></i>
-      {{ errorMessage }}
-    </div>
-
-    <div *ngIf="!isLoading && user">
-
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon"><i class="icon icon-shopping-bag"></i></div>
-          <div class="stat-value">{{ orders.length }}</div>
-          <div class="stat-label">Total Orders</div>
+    @if (isLoading) {
+      <div class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="icon icon-check-circle"></i></div>
-          <div class="stat-value">{{ getDeliveredOrdersCount() }}</div>
-          <div class="stat-label">Delivered</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-icon"><i class="icon icon-clock"></i></div>
-          <div class="stat-value">{{ getPendingOrdersCount() }}</div>
-          <div class="stat-label">Pending</div>
-        </div>
+        <p class="mt-3">Loading your account...</p>
       </div>
+    }
 
-      <div class="row mt-5">
-        <div class="col-lg-3 col-md-4 mb-4">
-          <div class="account-sidebar">
-            <div class="user-info text-center mb-4">
-              <div class="user-avatar">{{ getInitials() }}</div>
-              <h4 class="mb-0">{{ user.firstName }} {{ user.lastName }}</h4>
-              <p class="text-muted">{{ user.email }}</p>
-            </div>
-            <ul class="nav flex-column nav-pills">
-              <li class="nav-item">
-                <a class="nav-link" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">
-                  <i class="icon icon-user"></i> Profile Details
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" [class.active]="activeTab === 'orders'" (click)="activeTab = 'orders'">
-                  <i class="icon icon-shopping-cart"></i> Order History
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" [class.active]="activeTab === 'addresses'" (click)="activeTab = 'addresses'">
-                  <i class="icon icon-map-pin"></i> Saved Addresses
-                </a>
-              </li>
-              <li class="nav-item mt-3">
-                <a class="nav-link text-danger" href="javascript:void(0)" (click)="logout()">
-                  <i class="icon icon-log-out"></i> Logout
-                </a>
-              </li>
-            </ul>
+    @if (errorMessage) {
+      <div class="alert alert-danger" role="alert">
+        <i class="icon icon-alert-circle"></i>
+        {{ errorMessage }}
+      </div>
+    }
+
+    @if (!isLoading && user) {
+      <div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon"><i class="icon icon-shopping-bag"></i></div>
+            <div class="stat-value">{{ orders.length }}</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="icon icon-check-circle"></i></div>
+            <div class="stat-value">{{ getDeliveredOrdersCount() }}</div>
+            <div class="stat-label">Delivered</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon"><i class="icon icon-clock"></i></div>
+            <div class="stat-value">{{ getPendingOrdersCount() }}</div>
+            <div class="stat-label">Pending</div>
           </div>
         </div>
-
-        <div class="col-lg-9 col-md-8">
-          
-          <div class="tab-pane" *ngIf="activeTab === 'profile'">
-            <div class="form-wrapper">
-              <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3>Profile Details</h3>
-                <button class="btn btn-outline-primary btn-sm" (click)="toggleEdit()">
-                  <i class="icon icon-edit"></i> {{ isEditing ? 'Cancel' : 'Edit' }}
-                </button>
+        <div class="row mt-5">
+          <div class="col-lg-3 col-md-4 mb-4">
+            <div class="account-sidebar">
+              <div class="user-info text-center mb-4">
+                <div class="user-avatar">{{ getInitials() }}</div>
+                <h4 class="mb-0">{{ user.firstName }} {{ user.lastName }}</h4>
+                <p class="text-muted">{{ user.email }}</p>
               </div>
-              
-              <div *ngIf="updateMessage" class="alert alert-success mb-4">{{ updateMessage }}</div>
-
-              <form (ngSubmit)="saveProfile()">
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">First Name</label>
-                    <input type="text" class="form-control" name="firstName" [(ngModel)]="editData.firstName" [disabled]="!isEditing">
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Last Name</label>
-                    <input type="text" class="form-control" name="lastName" [(ngModel)]="editData.lastName" [disabled]="!isEditing">
-                  </div>
-                  <div class="col-md-12 mb-3">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" class="form-control" name="email" [(ngModel)]="editData.email" [disabled]="!isEditing">
-                  </div>
-                </div>
-                <button *ngIf="isEditing" type="submit" class="btn btn-primary mt-3">Save Changes</button>
-              </form>
+              <ul class="nav flex-column nav-pills">
+                <li class="nav-item">
+                  <a class="nav-link" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'">
+                    <i class="icon icon-user"></i> Profile Details
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" [class.active]="activeTab === 'orders'" (click)="activeTab = 'orders'">
+                    <i class="icon icon-shopping-cart"></i> Order History
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" [class.active]="activeTab === 'addresses'" (click)="activeTab = 'addresses'">
+                    <i class="icon icon-map-pin"></i> Saved Addresses
+                  </a>
+                </li>
+                <li class="nav-item mt-3">
+                  <a class="nav-link text-danger" href="javascript:void(0)" (click)="logout()">
+                    <i class="icon icon-log-out"></i> Logout
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
-
-          <div class="tab-pane" *ngIf="activeTab === 'orders'">
-            <div class="orders-wrapper">
-              <h3 class="mb-4">Order History</h3>
-              
-              <div *ngIf="orders.length === 0" class="text-center py-5">
-                <i class="icon icon-shopping-bag text-muted" style="font-size: 3rem;"></i>
-                <h5 class="mt-3">No orders yet</h5>
-                <p class="text-muted">When you place an order, it will appear here.</p>
-                <a routerLink="/shop" class="btn btn-primary mt-2">Start Shopping</a>
-              </div>
-
-              <div *ngFor="let order of orders" class="order-card mb-4">
-                <div class="order-card-header d-flex justify-content-between align-items-center">
-                  <div>
-                    <strong>Order #{{ order.orderNumber || order._id.substring(order._id.length - 6).toUpperCase() }}</strong>
-                    <span class="text-muted ms-2">{{ formatDate(order.createdAt) }}</span>
-                  </div>
-                  <span class="badge" [ngClass]="getOrderStatusClass(order.status)">{{ order.status }}</span>
-                </div>
-                <div class="order-card-body d-flex justify-content-between align-items-center">
-                  <div class="order-items">
-                    <p class="mb-0">{{ order.items.length }} Item(s) • Total: <strong>${{ order.total | number:'1.2-2' }}</strong></p>
-                  </div>
-                  <a [routerLink]="['/orders', order._id]" class="btn btn-outline-secondary btn-sm">View Details</a>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="tab-pane" *ngIf="activeTab === 'addresses'">
-            <div class="addresses-wrapper form-wrapper">
-              <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3>Saved Addresses</h3>
-                <button class="btn btn-primary btn-sm" (click)="isAddingAddress = !isAddingAddress">
-                  <i class="icon icon-plus"></i> Add New
-                </button>
-              </div>
-
-              <div *ngIf="addressSuccessMessage" class="alert alert-success">{{ addressSuccessMessage }}</div>
-              <div *ngIf="addressErrorMessage" class="alert alert-danger">{{ addressErrorMessage }}</div>
-
-              <div class="row mt-4" *ngIf="!isAddingAddress">
-                <div class="col-md-12" *ngIf="!user?.addresses || user?.addresses?.length === 0">
-                  <p class="text-muted">You have no saved addresses yet.</p>
-                </div>
-
-                <div class="col-md-6 mb-3" *ngFor="let address of user?.addresses">
-                  <div class="address-card border p-3 rounded position-relative">
-                    <h5>
-                      {{ address.alias }} 
-                      <span *ngIf="address.isDefault" class="badge bg-primary ms-2">Default</span>
-                    </h5>
-                    <p class="mb-1">{{ address.street }}</p>
-                    <p class="mb-1">{{ address.city }}<span *ngIf="address.state">, {{ address.state }}</span></p>
-                    <p class="mb-3">{{ address.country }} {{ address.postalCode }}</p>
-                    <button class="btn btn-sm btn-outline-danger" (click)="deleteAddress(address._id!)">
-                      <i class="icon icon-trash"></i> Delete
+          <div class="col-lg-9 col-md-8">
+            @if (activeTab === 'profile') {
+              <div class="tab-pane">
+                <div class="form-wrapper">
+                  <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>Profile Details</h3>
+                    <button class="btn btn-outline-primary btn-sm" (click)="toggleEdit()">
+                      <i class="icon icon-edit"></i> {{ isEditing ? 'Cancel' : 'Edit' }}
                     </button>
                   </div>
+                  @if (updateMessage) {
+                    <div class="alert alert-success mb-4">{{ updateMessage }}</div>
+                  }
+                  <form (ngSubmit)="saveProfile()">
+                    <div class="row">
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" name="firstName" [(ngModel)]="editData.firstName" [disabled]="!isEditing">
+                      </div>
+                      <div class="col-md-6 mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" name="lastName" [(ngModel)]="editData.lastName" [disabled]="!isEditing">
+                      </div>
+                      <div class="col-md-12 mb-3">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" name="email" [(ngModel)]="editData.email" [disabled]="!isEditing">
+                      </div>
+                    </div>
+                    @if (isEditing) {
+                      <button type="submit" class="btn btn-primary mt-3">Save Changes</button>
+                    }
+                  </form>
                 </div>
               </div>
-
-              <div *ngIf="isAddingAddress" class="add-address-form mt-4 p-4 border rounded bg-light">
-                <h5 class="mb-3">Add a New Address</h5>
-                
-                <div class="row">
-                  <div class="col-md-12 mb-3">
-                    <label class="form-label">Address Alias (e.g., Home, Work) <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="addressAlias" [(ngModel)]="newAddress.alias" placeholder="Home">
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-12 mb-3">
-                    <label class="form-label">Street Address <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="addressStreet" [(ngModel)]="newAddress.street" placeholder="123 Main Street">
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">City <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="addressCity" [(ngModel)]="newAddress.city" placeholder="Cairo">
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Country <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="addressCountry" [(ngModel)]="newAddress.country" placeholder="Egypt">
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">State</label>
-                    <input type="text" class="form-control" name="addressState" [(ngModel)]="newAddress.state" placeholder="Giza">
-                  </div>
-                  <div class="col-md-6 mb-3">
-                    <label class="form-label">Postal Code <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" name="addressPostalCode" [(ngModel)]="newAddress.postalCode" placeholder="11511">
-                  </div>
-                </div>
-                <div class="form-check mb-4">
-                  <input class="form-check-input" type="checkbox" name="isDefault" [(ngModel)]="newAddress.isDefault" id="defaultCheck">
-                  <label class="form-check-label" for="defaultCheck">
-                    Set as default address
-                  </label>
-                </div>
-                <div class="d-flex gap-2">
-                  <button type="button" class="btn btn-primary" (click)="saveAddress()">Save Address</button>
-                  <button type="button" class="btn btn-outline-secondary" (click)="isAddingAddress = false">Cancel</button>
+            }
+            @if (activeTab === 'orders') {
+              <div class="tab-pane">
+                <div class="orders-wrapper">
+                  <h3 class="mb-4">Order History</h3>
+                  @if (orders.length === 0) {
+                    <div class="text-center py-5">
+                      <i class="icon icon-shopping-bag text-muted" style="font-size: 3rem;"></i>
+                      <h5 class="mt-3">No orders yet</h5>
+                      <p class="text-muted">When you place an order, it will appear here.</p>
+                      <a routerLink="/shop" class="btn btn-primary mt-2">Start Shopping</a>
+                    </div>
+                  }
+                  @for (order of orders; track order) {
+                    <div class="order-card mb-4">
+                      <div class="order-card-header d-flex justify-content-between align-items-center">
+                        <div>
+                          <strong>Order #{{ order.orderNumber || order._id.substring(order._id.length - 6).toUpperCase() }}</strong>
+                          <span class="text-muted ms-2">{{ formatDate(order.createdAt) }}</span>
+                        </div>
+                        <span class="badge" [ngClass]="getOrderStatusClass(order.status)">{{ order.status }}</span>
+                      </div>
+                      <div class="order-card-body d-flex justify-content-between align-items-center">
+                        <div class="order-items">
+                          <p class="mb-0">{{ order.items.length }} Item(s) • Total: <strong>${{ order.total | number:'1.2-2' }}</strong></p>
+                        </div>
+                        <a [routerLink]="['/orders', order._id]" class="btn btn-outline-secondary btn-sm">View Details</a>
+                      </div>
+                    </div>
+                  }
                 </div>
               </div>
-
-            </div>
+            }
+            @if (activeTab === 'addresses') {
+              <div class="tab-pane">
+                <div class="addresses-wrapper form-wrapper">
+                  <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3>Saved Addresses</h3>
+                    <button class="btn btn-primary btn-sm" (click)="isAddingAddress = !isAddingAddress">
+                      <i class="icon icon-plus"></i> Add New
+                    </button>
+                  </div>
+                  @if (addressSuccessMessage) {
+                    <div class="alert alert-success">{{ addressSuccessMessage }}</div>
+                  }
+                  @if (addressErrorMessage) {
+                    <div class="alert alert-danger">{{ addressErrorMessage }}</div>
+                  }
+                  @if (!isAddingAddress) {
+                    <div class="row mt-4">
+                      @if ((user.addresses?.length ?? 0) === 0) {
+                        <div class="col-md-12">
+                          <p class="text-muted">You have no saved addresses yet.</p>
+                        </div>
+                      }
+                      @for (address of (user.addresses ?? []); track address) {
+                        <div class="col-md-6 mb-3">
+                          <div class="address-card border p-3 rounded position-relative">
+                            <h5>
+                              {{ address.alias }}
+                              @if (address.isDefault) {
+                                <span class="badge bg-primary ms-2">Default</span>
+                              }
+                            </h5>
+                            <p class="mb-1">{{ address.street }}</p>
+                            <p class="mb-1">{{ address.city }}@if (address.state) {
+                              <span>, {{ address.state }}</span>
+                            }</p>
+                            <p class="mb-3">{{ address.country }} {{ address.postalCode }}</p>
+                            <button class="btn btn-sm btn-outline-danger" (click)="deleteAddress(address._id!)">
+                              <i class="icon icon-trash"></i> Delete
+                            </button>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
+                  @if (isAddingAddress) {
+                    <div class="add-address-form mt-4 p-4 border rounded bg-light">
+                      <h5 class="mb-3">Add a New Address</h5>
+                      <div class="row">
+                        <div class="col-md-12 mb-3">
+                          <label class="form-label">Address Alias (e.g., Home, Work) <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" name="addressAlias" [(ngModel)]="newAddress.alias" placeholder="Home">
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-12 mb-3">
+                          <label class="form-label">Street Address <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" name="addressStreet" [(ngModel)]="newAddress.street" placeholder="123 Main Street">
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">City <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" name="addressCity" [(ngModel)]="newAddress.city" placeholder="Cairo">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Country <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" name="addressCountry" [(ngModel)]="newAddress.country" placeholder="Egypt">
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">State</label>
+                          <input type="text" class="form-control" name="addressState" [(ngModel)]="newAddress.state" placeholder="Giza">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Postal Code <span class="text-danger">*</span></label>
+                          <input type="text" class="form-control" name="addressPostalCode" [(ngModel)]="newAddress.postalCode" placeholder="11511">
+                        </div>
+                      </div>
+                      <div class="form-check mb-4">
+                        <input class="form-check-input" type="checkbox" name="isDefault" [(ngModel)]="newAddress.isDefault" id="defaultCheck">
+                        <label class="form-check-label" for="defaultCheck">
+                          Set as default address
+                        </label>
+                      </div>
+                      <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-primary" (click)="saveAddress()">Save Address</button>
+                        <button type="button" class="btn btn-outline-secondary" (click)="isAddingAddress = false">Cancel</button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
           </div>
-
         </div>
       </div>
-    </div>
+    }
 
   </div>
 </section>
