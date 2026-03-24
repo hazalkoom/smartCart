@@ -8,6 +8,7 @@ This guide covers the current local setup for the backend, frontend, and test to
 - npm
 - Python 3.10 or compatible
 - MongoDB with transaction support for checkout flows
+- Docker Desktop (optional, for compose-based local stack)
 
 ## Install dependencies
 
@@ -48,6 +49,8 @@ PAYMOB_INTEGRATION_ID_WALLET=...
 PAYMOB_INTEGRATION_ID_FAWRY=...
 PAYMOB_IFRAME_ID=...
 PAYMOB_HMAC_SECRET=...
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
 ```
 
 Notes:
@@ -55,6 +58,7 @@ Notes:
 - The backend exits on startup if JWT_SECRET, JWT_EXPIRE, or MONGODB_URI is missing.
 - The current code does not consume BCRYPT_ROUNDS even if you define it.
 - CORS defaults to http://localhost:4200 when CORS_ORIGIN is not set.
+- Redis defaults are available in code, but defining REDIS_HOST and REDIS_PORT is recommended for predictable environments.
 
 ## MongoDB requirement
 
@@ -82,6 +86,28 @@ npm start -- --proxy-config proxy.conf.json
 ```
 
 The frontend uses /api/v1 as its base API URL. The dev proxy forwards /api requests to http://localhost:5000.
+
+The frontend currently uses Angular 21 with NgModule routing and SSR.
+
+## Run with Docker Compose (optional)
+
+From repository root:
+
+```powershell
+docker-compose up --build
+```
+
+Current compose services:
+
+- frontend on http://localhost:4200
+- backend on http://localhost:5000
+- redis on 6379
+- ngrok web UI on http://localhost:4040
+
+Notes:
+
+- backend receives REDIS_HOST=redis and REDIS_PORT=6379 in compose.
+- frontend compose environment includes NG_ALLOWED_HOSTS for Angular host validation in Docker dev mode.
 
 ## Run backend unit tests
 

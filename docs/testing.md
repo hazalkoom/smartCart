@@ -22,8 +22,8 @@ npm test
 
 Observed result:
 
-- 10 suites passed
-- 67 tests passed
+- 15 suites passed
+- 87 tests passed
 
 ### Frontend build verification
 
@@ -38,6 +38,7 @@ Observed result:
 
 - production build completed successfully
 - warnings were emitted for bundle and stylesheet budgets
+- CommonJS optimization warnings were emitted for socket-related dependencies
 
 ## Not re-run during this refresh
 
@@ -87,11 +88,15 @@ locust -f tests/performance/locustfile.py
 Covers:
 
 - auth service
+- cart controller
 - cart service
+- cart worker
 - category service
+- order controller
 - order service
 - paymob service
 - product service
+- queue setup and Redis client infra behavior
 - review service
 - user service
 - webhook controller

@@ -55,6 +55,7 @@ Current behavior:
 - cart state is also cached in browser localStorage by the frontend service
 - order creation only requires shippingAddress at request time
 - the backend currently persists card as the initial order paymentMethod before explicit Paymob payment initiation
+- backend checkout and cancellation paths use MongoDB transactions for stock consistency
 
 ### Payments
 
@@ -116,6 +117,7 @@ Owner safeguards in the backend prevent:
 - route guards for guest, auth, admin, and owner flows
 - SSR server module and browser hydration support
 - auth and error interceptors for centralized HTTP handling
+- APP_INITIALIZER-driven auth hydration to sync initial navbar/auth state
 - admin route persistence in the browser through RoutePersistenceService
 - dedicated feature routes for wishlist, account, help center, gift finder, and payment callback
 

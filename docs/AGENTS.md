@@ -8,7 +8,7 @@ This file is for coding agents that need a fast, reliable map of the current rep
 | --- | --- |
 | Project | SmartCart |
 | Backend | Node.js, Express 5, Mongoose, MongoDB |
-| Frontend | Angular 20 SSR with NgModules |
+| Frontend | Angular 21 SSR with NgModules |
 | Tests | Jest, Pytest, Locust |
 | API prefix | /api/v1 |
 | Auth roles | customer, admin, owner |
@@ -142,6 +142,8 @@ core/interceptors/* -> request and error handling
 cd backend
 npm test
 ```
+
+Latest observed backend result in this refresh: 15 suites, 87 tests passing.
 
 ### Frontend production build
 

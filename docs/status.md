@@ -7,14 +7,14 @@ This document summarizes the current implementation state based on repository in
 ### Backend
 
 - Backend unit test suite passes.
-- Result: 10 suites, 67 tests passing.
+- Result: 15 suites, 87 tests passing.
 - Health route exists at GET /api/v1/health.
 - API route groups mounted in server.js: auth, categories, products, cart, orders, reviews, webhook, users.
 
 ### Frontend
 
 - Angular production build passes.
-- The frontend is an Angular 20 SSR app using app-module.ts and app-routing-module.ts.
+- The frontend is an Angular 21 SSR app using app-module.ts and app-routing-module.ts.
 - Route guards exist for guest, auth, admin, and owner flows.
 - Auth and error interceptors are registered through the root NgModule.
 
@@ -23,7 +23,8 @@ This document summarizes the current implementation state based on repository in
 - initial bundle budget exceeded
 - product-detail.css component-style budget exceeded
 - product-list.css component-style budget exceeded
-- inline Google Fonts CSS budget exceeded
+- src/assets/admin/css/templatemo-daynight-style.css budget exceeded
+- CommonJS optimization warnings for debug and xmlhttprequest-ssl from socket dependencies
 
 ## Implemented backend capabilities
 
@@ -56,3 +57,4 @@ This document summarizes the current implementation state based on repository in
 - order creation docs previously claimed paymentMethod was required, but the backend currently only validates shippingAddress and sets paymentMethod internally
 - the Paymob redirect endpoint currently points to a hardcoded localhost frontend URL
 - the user model currently hashes passwords with bcrypt salt rounds fixed at 10
+- Docker compose frontend host validation relies on NG_ALLOWED_HOSTS values for Angular dev-server behavior

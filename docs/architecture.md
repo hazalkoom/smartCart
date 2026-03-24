@@ -10,6 +10,10 @@ SmartCart consists of three major systems:
 - frontend/: the Angular SSR client application
 - tests/: API-level functional, security, and performance suites
 
+Local infrastructure commonly used in development:
+
+- docker-compose.yml: orchestrates frontend, backend, redis, and ngrok
+
 ## Backend architecture
 
 The backend uses a conventional service-layer flow:
@@ -27,6 +31,7 @@ Main backend structure:
 - backend/src/models/: Mongoose schemas and persistence rules
 - backend/src/middleware/: auth, validation, and centralized error handling
 - backend/src/utils/: async wrapper, token generation, logging, HMAC helpers, and Paymob client utilities
+- backend/src/workers/: BullMQ workers for background cart lock expiration
 
 ### Important backend runtime behavior
 
@@ -36,7 +41,7 @@ Main backend structure:
 - express.json uses a 50kb request-body limit.
 - Production mode enables rate limiting under /api.
 - Swagger is mounted only outside production.
-- Graceful shutdown disconnects Mongoose on SIGTERM and SIGINT.
+- Graceful shutdown disconnects Mongoose and quits Redis on SIGTERM and SIGINT.
 
 ## Backend domains
 
@@ -78,7 +83,7 @@ Main backend structure:
 
 ## Frontend architecture
 
-The frontend is an Angular 20 SSR app using NgModules rather than standalone route configuration.
+The frontend is an Angular 21 SSR app using NgModules rather than standalone route configuration.
 
 Key files:
 
@@ -135,3 +140,4 @@ Route protection is implemented with:
 - MongoDB transactions are required for checkout and cancellation integrity.
 - The Paymob redirect route is currently hardcoded to a localhost frontend callback URL.
 - The frontend has no E2E browser test suite in this repository.
+- Dockerized Angular dev-server host checks require NG_ALLOWED_HOSTS to include expected hostnames or IPs.

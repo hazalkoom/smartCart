@@ -136,6 +136,10 @@ Notes:
 | PATCH | /reviews/:id | Customer, Admin | Update a review |
 | DELETE | /reviews/:id | Customer, Admin, Owner | Delete a review |
 
+Note:
+
+- The current middleware allows `customer` and a legacy `user` alias on review write routes.
+
 Review query params:
 
 | Query param | Meaning |
@@ -168,3 +172,9 @@ Supported user query params:
 | GET | /webhook/paymob/redirect | Public | Redirect the browser back to the frontend payment callback route |
 
 The redirect endpoint currently forwards users to http://localhost:4200/payment-callback with the original Paymob query string.
+
+## Runtime hardening notes
+
+- Environment validation fails startup if JWT_SECRET, JWT_EXPIRE, or MONGODB_URI is missing.
+- Production mode enables rate limiting under /api.
+- express.json request payload limit is 50kb.

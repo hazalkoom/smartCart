@@ -44,10 +44,11 @@ Important safeguards in the code:
 - express.json is configured with a 50kb payload limit.
 - express-rate-limit is enabled only when NODE_ENV is production.
 - Swagger UI is disabled in production.
+- startup validation fails fast when JWT_SECRET, JWT_EXPIRE, or MONGODB_URI is missing.
 
 ## Payment security
 
-- Paymob webhook processing is publicly reachable but protected by HMAC verification logic.
+- Paymob webhook processing is publicly reachable but protected by HMAC verification logic (SHA-512 digest over Paymob field contract).
 - Already-paid orders are not re-processed.
 - payOrder blocks payment attempts for orders that are already paid.
 - wallet payments require a mobile number from the request or saved user profile.
@@ -56,7 +57,9 @@ Important safeguards in the code:
 
 - MongoDB connection credentials are not logged.
 - Startup fails fast if JWT_SECRET, JWT_EXPIRE, or MONGODB_URI is missing.
-- The backend still contains a few direct console.error or console.log calls in payment and webhook error paths, so console output is not fully centralized.
+- Order creation and cancellation use MongoDB transactions to keep stock and order state consistent under failure.
+- Graceful shutdown closes HTTP server, disconnects MongoDB, and quits Redis.
+- The backend still contains a few direct console.error or console.log calls in payment, worker, and webhook paths, so console output is not fully centralized.
 - The frontend error interceptor only logs network and 5xx errors in development mode.
 
 ## Frontend security behavior

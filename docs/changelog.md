@@ -2,6 +2,20 @@
 
 All notable changes to this project are listed here.
 
+## 2026-03-24
+
+### Documentation
+
+- Refreshed README, setup, status, architecture, API, features, security, testing, and AGENTS docs to match current code.
+- Updated frontend version references from Angular 20 to Angular 21.
+- Added Docker compose coverage for backend, frontend, redis, and ngrok runtime setup.
+- Clarified MongoDB transactional requirements and hardening notes for checkout and cancellation.
+
+### Verification
+
+- Backend unit tests: 15 suites passed, 87 tests passed.
+- Frontend production build: successful with budget and CommonJS warnings.
+
 ## 2026-03-14
 
 ### Documentation
