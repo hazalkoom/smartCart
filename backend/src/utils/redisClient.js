@@ -1,10 +1,10 @@
 const Redis = require('ioredis');
 
-// Initialize a single, shared Redis connection
-const redisClient = new Redis({
-  host: process.env.REDIS_HOST || '127.0.0.1',
-  port: process.env.REDIS_PORT || 6379,
-  maxRetriesPerRequest: null, // This MUST be null for BullMQ to work
+// If REDIS_URL exists (Production), use it. Otherwise, fallback to local docker (Development)
+const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+
+const redisClient = new Redis(redisUrl, {
+  maxRetriesPerRequest: null, // Required by BullMQ
 });
 
 redisClient.on('connect', () => {
