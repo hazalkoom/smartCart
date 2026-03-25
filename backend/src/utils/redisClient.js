@@ -1,10 +1,10 @@
 const Redis = require('ioredis');
 
-// If REDIS_URL exists (Production), use it. Otherwise, fallback to local docker (Development)
 const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 
 const redisClient = new Redis(redisUrl, {
   maxRetriesPerRequest: null, // Required by BullMQ
+  family: 4 // 🚀 FIX: Force IPv4 for AWS EC2
 });
 
 redisClient.on('connect', () => {
