@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CategoryService } from '../../core/services/category';
 import { Category } from '../../core/interfaces/category';
 import { Subscription } from 'rxjs';
@@ -27,7 +27,10 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription[] = [];
 
-  constructor(private categoryService: CategoryService) {}
+  constructor(
+    private categoryService: CategoryService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadCategories();
@@ -45,11 +48,13 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
       next: (res: any) => {
         this.categories = res.data || [];
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         if (!environment.production) console.error('Error loading categories:', err);
         this.errorMessage = 'Failed to load categories';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
     this.subscriptions.push(sub);

@@ -44,16 +44,8 @@ export class AdminLayoutComponent implements OnInit, OnDestroy {
       }
     });
 
-    const scriptId = 'admin-daynight-script';
-    if (document.getElementById(scriptId)) {
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.id = scriptId;
-    script.src = 'assets/admin/js/templatemo-daynight-script.js';
-    script.defer = true;
-    document.body.appendChild(script);
+    // Keep admin shell fully Angular-driven; legacy theme script mutates DOM
+    // outside Angular lifecycle and can delay view updates until user interaction.
   }
 
   ngOnDestroy(): void {

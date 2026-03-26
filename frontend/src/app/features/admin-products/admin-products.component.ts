@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ProductService } from '../../core/services/product';
 import { CategoryService } from '../../core/services/category';
 import { Category } from '../../core/interfaces/category';
@@ -56,7 +56,8 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
 
   constructor(
     private productService: ProductService,
-    private categoryService: CategoryService
+    private categoryService: CategoryService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -98,11 +99,13 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
         this.currentPage = 1;
         this.applyPagination();
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         if (!environment.production) console.error('Error loading products:', err);
         this.errorMessage = 'Failed to load products';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
     this.subscriptions.push(prodSub);

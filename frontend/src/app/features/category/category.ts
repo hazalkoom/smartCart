@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CategoryService } from '../../core/services/category';
 import { Category } from '../../core/interfaces/category';
 import { environment } from '../../../environments/environment';
@@ -39,18 +39,23 @@ export class CategoryComponent implements OnInit {
     'smart home': 'bi bi-house-gear-fill',
   };
 
-  constructor(private categoryService: CategoryService) {}
+  constructor(
+    private categoryService: CategoryService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.categoryService.getCategories().subscribe({
       next: (res) => {
         this.categories = res.data;
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         if (!environment.production) console.error(err);
         this.errorMessage = 'Failed to load categories. Please try again.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }

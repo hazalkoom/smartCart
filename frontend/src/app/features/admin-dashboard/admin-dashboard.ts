@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { OrderService } from '../../core/services/order';
 import { UserService } from '../../core/services/user';
 import { ProductService } from '../../core/services/product';
@@ -46,7 +46,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   constructor(
     private orderService: OrderService,
     private userService: UserService,
-    private productService: ProductService
+    private productService: ProductService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -68,8 +69,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     }).subscribe({
       next: (result: any) => {
         const orders = result.orders.data || [];
-        const usersCount = result.users.count ?? (result.users.data || []).length;
-        const productsCount = result.products.count ?? (result.products.data || []).length;
+        const usersCount = this.extractTotalCount(result.users);
+        const productsCount = this.extractTotalCount(result.products);
 
         // Calculate stats
         this.totalOrders = orders.length;
@@ -83,15 +84,21 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.recentOrders = orders.slice(0, 5);
 
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (error: any) => {
         if (!environment.production) console.error('Error loading dashboard data:', error);
         this.errorMessage = error?.error?.message || 'Failed to load dashboard data';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
 
     this.subscriptions.push(sub);
+  }
+
+  private extractTotalCount(response: any): number {
+    return response?.total ?? response?.count ?? response?.data?.length ?? 0;
   }
 
   private calculateRevenue(orders: Order[]): number {

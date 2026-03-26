@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
@@ -49,6 +49,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private http: HttpClient,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -125,10 +126,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.totalPages = res.pages || 1;
         this.pages = Array.from({ length: this.totalPages }, (_, i) => i + 1);
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         this.error = 'Failed to load products. ' + (err.error?.message || '');
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }

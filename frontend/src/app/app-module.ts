@@ -1,6 +1,6 @@
 import { NgModule, provideBrowserGlobalErrorListeners, APP_INITIALIZER } from '@angular/core';
-import { BrowserModule, provideClientHydration, withEventReplay } from '@angular/platform-browser';
-import { provideHttpClient, withFetch, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { BrowserModule } from '@angular/platform-browser';
+import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms'; // Needed for ngModel
 import { CommonModule } from '@angular/common'; // Needed for pipes like slice
 
@@ -65,8 +65,7 @@ export function initializeAuthFactory(authService: AuthService): () => Promise<v
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideClientHydration(withEventReplay()),
-    provideHttpClient(withFetch(), withInterceptorsFromDi()),
+    provideHttpClient(withInterceptorsFromDi()),
 
     {
       provide: HTTP_INTERCEPTORS,

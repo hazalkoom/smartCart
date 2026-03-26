@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { UserService, User } from '../../core/services/user';
 import { AuthService } from '../../core/services/auth';
 import { Subscription } from 'rxjs';
@@ -45,7 +45,8 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
 
   constructor(
     private userService: UserService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -69,6 +70,7 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
 
   private updateLoadingState(): void {
     this.isLoading = this.isLoadingCustomers || this.isLoadingEmployees;
+    this.cdr.detectChanges();
   }
 
   loadCustomers(): void {

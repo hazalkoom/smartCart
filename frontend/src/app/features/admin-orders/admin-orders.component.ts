@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { OrderService } from '../../core/services/order';
 import { Order } from '../../core/interfaces/order';
 import { Subscription } from 'rxjs';
@@ -32,7 +32,10 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
   };
   private subscriptions: Subscription[] = [];
 
-  constructor(private orderService: OrderService) {}
+  constructor(
+    private orderService: OrderService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadOrders();
@@ -59,11 +62,13 @@ export class AdminOrdersComponent implements OnInit, OnDestroy {
         this.totalOrders = this.allOrders.length;
         this.applyPagination();
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         if (!environment.production) console.error('Error fetching orders:', error);
         this.errorMessage = error?.error?.message || 'Failed to load orders';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
     this.subscriptions.push(sub);
