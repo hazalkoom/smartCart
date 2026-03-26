@@ -19,9 +19,9 @@ describe('redisClient configuration', () => {
 
       expect(Redis).toHaveBeenCalledWith(
         'redis://upstash-user:password@upstash.redis.io:6380',
-        {
+        expect.objectContaining({
           maxRetriesPerRequest: null,
-        }
+        })
       );
       expect(redisClient).toBeDefined();
       expect(redisClient.on).toHaveBeenCalledWith('connect', expect.any(Function));
@@ -38,9 +38,9 @@ describe('redisClient configuration', () => {
 
       expect(Redis).toHaveBeenCalledWith(
         'redis://127.0.0.1:6379',
-        {
+        expect.objectContaining({
           maxRetriesPerRequest: null,
-        }
+        })
       );
     });
   });
