@@ -6,6 +6,13 @@
 # 1. SECURITY & ENVIRONMENT (*** CRITICAL ***)
 # ------------------------------------------------------------------------------
 .env
+.env.dev
+.env.prod
+# Environment Variables (CRITICAL)
+/backend/.env
+/backend/.env.dev
+/backend/.env.prod
+.env
 .env.*
 !.env.example
 *.key
@@ -204,3 +211,4 @@ test-results/
 coverage/
 dist/
 /dist
+

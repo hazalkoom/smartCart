@@ -1,20 +1,17 @@
-# Use the lightweight Alpine Linux image
 FROM node:20-alpine
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy only the package files first (to cache the npm install step)
 COPY package*.json ./
+RUN npm ci --omit=dev && npm cache clean --force
 
-# Install ONLY production dependencies (ignores devDependencies like nodemon)
-RUN npm install --omit=dev
+COPY --chown=node:node . .
 
-# Copy the rest of your backend code
-COPY . .
+USER node
 
-# Expose the port your Express server runs on
 EXPOSE 5000
 
-# Run the actual node server
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD node -e "const http=require('http');const req=http.get('http://127.0.0.1:5000/api/v1/health',res=>process.exit(res.statusCode===200?0:1));req.on('error',()=>process.exit(1));req.setTimeout(4000,()=>{req.destroy();process.exit(1);});"
+
 CMD ["node", "src/server.js"]
