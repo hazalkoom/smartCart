@@ -1,5 +1,5 @@
 export const environment = {
-  production: false,
-  apiUrl: '/api/v1',
-  socketUrl: 'http://localhost:5000'
+  production: true,
+  apiUrl: 'https://electrofied-hazalkoom.duckdns.org/api/v1',
+  socketUrl: 'https://electrofied-hazalkoom.duckdns.org'
 };

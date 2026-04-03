@@ -2,12 +2,12 @@
 # Dependencies
 /backend/node_modules
 .env
+.env.dev
+.env.prod
 # Environment Variables (CRITICAL)
 /backend/.env
-/backend/.env.local
-/backend/.env.development
-/backend/.env.test
-/backend/.env.production
+/backend/.env.dev
+/backend/.env.prod
 
 # Logs
 /backend/logs

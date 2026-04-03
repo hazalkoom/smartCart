@@ -4,4 +4,4 @@ COPY package*.json ./
 RUN npm install -g @angular/cli
 RUN npm install --legacy-peer-deps
 # Angular needs to bind to 0.0.0.0 inside the container to be accessible from your Windows browser
-CMD ["ng", "serve", "--host", "0.0.0.0", "--poll", "2000", "--proxy-config", "proxy.conf.docker.json"]
+CMD ["ng", "serve", "--host", "0.0.0.0", "--poll", "2000", "--proxy-config", "proxy.conf.docker.json"

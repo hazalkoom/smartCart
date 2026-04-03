@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, PLATFORM_ID, Inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, PLATFORM_ID, Inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { Subscription } from 'rxjs';
@@ -26,6 +26,7 @@ export class CartComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private authService: AuthService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -60,11 +61,13 @@ export class CartComponent implements OnInit, OnDestroy {
           this.error = 'Failed to load cart';
         }
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         if (!environment.production) console.error('Error loading cart:', err);
         this.error = err.error?.message || 'Failed to load cart. Please try again.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
     this.subscriptions.push(cartSub);
@@ -101,11 +104,13 @@ export class CartComponent implements OnInit, OnDestroy {
           this.cart = response.data;
         }
         this.isUpdating[item._id] = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         if (!environment.production) console.error('Error updating quantity:', err);
         this.error = err.error?.message || 'Failed to update quantity. Please try again.';
         this.isUpdating[item._id] = false;
+        this.cdr.detectChanges();
         // Reload cart to get correct state
         this.loadCart();
       }
@@ -129,11 +134,13 @@ export class CartComponent implements OnInit, OnDestroy {
           this.cart = response.data;
         }
         this.isUpdating[itemId] = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         if (!environment.production) console.error('Error removing item:', err);
         this.error = err.error?.message || 'Failed to remove item. Please try again.';
         this.isUpdating[itemId] = false;
+        this.cdr.detectChanges();
         // Reload cart to get correct state
         this.loadCart();
       }

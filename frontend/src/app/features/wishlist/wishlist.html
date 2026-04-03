@@ -16,7 +16,7 @@
 
     @if (!isLoading && error) {
       <div class="error-state" style="min-height:40vh">
-        <div class="sc-empty-icon"><i class="icon icon-alert-triangle"></i></div>
+        <div class="sc-empty-icon"><i class="bi bi-exclamation-triangle"></i></div>
         <h3>{{ error }}</h3>
         <a routerLink="/products" class="btn btn-outline-primary mt-2">Back to Shop</a>
       </div>
@@ -24,7 +24,7 @@
 
     @if (!isLoading && !error && wishlistItems.length === 0) {
       <div class="sc-empty-state sc-wishlist-empty">
-        <div class="sc-empty-icon"><i class="icon icon-heart"></i></div>
+        <div class="sc-empty-icon"><i class="bi bi-heart-fill"></i></div>
         <h4>Your wishlist is empty</h4>
         <p>Save products you like and they will appear here.</p>
         <a routerLink="/products" class="btn btn-primary mt-2">Browse Products</a>
@@ -42,7 +42,7 @@
               aria-label="Remove from wishlist"
               title="Remove"
               >
-              <i class="icon icon-x"></i>
+              <i class="bi bi-x-lg"></i>
             </button>
             <a [routerLink]="['/products', product.slug]" class="sc-product-img-wrap">
               <img
@@ -59,7 +59,7 @@
               <div class="sc-product-rating">
                 <div class="sc-stars">
                   @for (s of [1,2,3,4,5]; track s) {
-                    <i class="icon icon-star" [class.filled]="s <= (product.rating || 0)"></i>
+                    <i class="bi" [class.bi-star-fill]="s <= (product.rating || 0)" [class.bi-star]="s > (product.rating || 0)" [class.filled]="s <= (product.rating || 0)"></i>
                   }
                 </div>
                 <span class="sc-review-count">({{ product.reviewCount || 0 }})</span>
@@ -69,7 +69,7 @@
                   <span class="sc-price-current">${{ product.price | number:'1.2-2' }}</span>
                 </div>
                 <a [routerLink]="['/products', product.slug]" class="sc-add-cart-btn" title="View product">
-                  <i class="icon icon-arrow-right"></i>
+                  <i class="bi bi-arrow-right"></i>
                 </a>
               </div>
             </div>

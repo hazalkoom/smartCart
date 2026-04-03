@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { ProductService } from '../../core/services/product';
@@ -46,6 +46,7 @@ export class Home implements OnInit, OnDestroy {
     private cartAnimationService: CartAnimationService,
     private authService: AuthService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -86,10 +87,12 @@ export class Home implements OnInit, OnDestroy {
 
         this.isLoading = false;
         this.refreshAnimations();
+        this.cdr.detectChanges();
       },
       error: (err) => {
         if (!environment.production) console.error(err);
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
     this.subscriptions.push(prodSub);

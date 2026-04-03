@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../core/services/auth';
 import { Product } from '../../core/interfaces/product';
@@ -17,7 +17,10 @@ export class WishlistComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription[] = [];
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadWishlist();
@@ -32,11 +35,13 @@ export class WishlistComponent implements OnInit, OnDestroy {
         const data = res?.data || [];
         this.wishlistItems = data.filter((item: any) => item && typeof item === 'object' && item._id);
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         if (!environment.production) console.error('Error loading wishlist:', err);
         this.error = 'Failed to load wishlist. Please try again.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
 
@@ -47,6 +52,7 @@ export class WishlistComponent implements OnInit, OnDestroy {
     const sub = this.authService.toggleWishlist(productId).subscribe({
       next: () => {
         this.wishlistItems = this.wishlistItems.filter((item) => item._id !== productId);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         if (!environment.production) console.error('Error removing wishlist item:', err);

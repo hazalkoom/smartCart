@@ -61,6 +61,7 @@
   font-size: 1rem;
 }
 .sc-detail-wishlist:hover, .sc-detail-wishlist.active { color: var(--danger); border-color: rgba(239,68,68,0.4); }
+.sc-detail-wishlist i { line-height: 1; }
 .sc-main-image { max-width: 100%; max-height: 100%; object-fit: contain; transition: transform 0.4s ease; }
 .sc-main-image-wrap:hover .sc-main-image { transform: scale(1.04); }
 .sc-image-zoom-hint {
@@ -114,6 +115,12 @@
   border-bottom: 1px solid var(--border);
 }
 .sc-rating-value { font-weight: 700; color: var(--warning); font-size: 1rem; }
+.sc-stars i {
+    color: var(--text-subtle);
+}
+.sc-stars i.filled {
+    color: var(--warning);
+}
 
 /* Price */
 .sc-detail-price-row {
@@ -201,6 +208,7 @@
   font-size: 1.1rem;
 }
 .sc-wishlist-icon-btn:hover, .sc-wishlist-icon-btn.active { color: var(--danger); border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.08); }
+.sc-wishlist-icon-btn i { line-height: 1; }
 
 /* Perks */
 .sc-detail-perks { display: flex; flex-direction: column; gap: 0.6rem; }

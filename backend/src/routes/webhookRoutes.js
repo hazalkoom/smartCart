@@ -8,11 +8,13 @@ const { handlePaymobWebhook } = require('../controllers/webhookController');
 router.post('/paymob', handlePaymobWebhook);
 
 router.get('/paymob/redirect', (req, res) => {
-    // Grab all the success/failure parameters Paymob puts in the URL
     const queryString = new URLSearchParams(req.query).toString();
     
-    // Slingshot the user back to your local Angular frontend!
-    res.redirect(`http://localhost:4200/payment-callback?${queryString}`);
+    // The code blindly trusts the environment variable. 
+    // If you forget to set it, it falls back to localhost just to avoid crashing.
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+    
+    res.redirect(`${frontendUrl}/payment-callback?${queryString}`);
 });
 
 module.exports = router;

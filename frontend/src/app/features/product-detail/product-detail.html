@@ -28,7 +28,7 @@
         <div class="sc-detail-images">
           <div class="sc-main-image-wrap">
             <button class="sc-detail-wishlist" (click)="toggleWishlist($event)" [class.active]="isInWishlist()">
-              <i class="icon icon-heart"></i>
+              <i class="bi bi-heart-fill"></i>
             </button>
             <img [src]="selectedImage" [alt]="product.name" class="sc-main-image">
             <!-- Zoom overlay hint -->
@@ -55,7 +55,7 @@
           <div class="sc-detail-rating">
             <div class="sc-stars">
               @for (s of [1,2,3,4,5]; track s) {
-                <i class="icon icon-star" [class.filled]="s <= (product.rating || 0)"></i>
+                <i class="bi" [class.bi-star-fill]="s <= (product.rating || 0)" [class.bi-star]="s > (product.rating || 0)" [class.filled]="s <= (product.rating || 0)"></i>
               }
             </div>
             <span class="sc-rating-value">{{ product.rating | number:'1.1-1' }}</span>
@@ -84,7 +84,7 @@
                 <i class="icon icon-shopping-cart me-2"></i> {{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}
               </button>
               <button class="sc-wishlist-icon-btn" (click)="toggleWishlist($event)" [class.active]="isInWishlist()" title="Wishlist">
-                <i class="icon icon-heart"></i>
+                <i class="bi bi-heart-fill"></i>
               </button>
             </div>
           }
@@ -104,7 +104,7 @@
           <div class="sc-rating-meta">
             <div class="sc-stars sc-stars-lg">
               @for (s of [1,2,3,4,5]; track s) {
-                <i class="icon icon-star" [class.filled]="s <= (product.rating || 0)"></i>
+                <i class="bi" [class.bi-star-fill]="s <= (product.rating || 0)" [class.bi-star]="s > (product.rating || 0)" [class.filled]="s <= (product.rating || 0)"></i>
               }
             </div>
             <div class="sc-review-total">{{ product.reviewCount || 0 }} reviews</div>
@@ -136,7 +136,7 @@
                     </div>
                     <div class="sc-review-stars">
                       @for (s of [1,2,3,4,5]; track s) {
-                        <i class="icon icon-star" [class.filled]="s <= review.rating"></i>
+                        <i class="bi" [class.bi-star-fill]="s <= review.rating" [class.bi-star]="s > review.rating" [class.filled]="s <= review.rating"></i>
                       }
                     </div>
                   </div>
@@ -178,7 +178,9 @@
                 <div class="sc-star-picker">
                   @for (s of [1,2,3,4,5]; track s) {
                     <i
-                      class="icon icon-star sc-star-pick"
+                      class="bi sc-star-pick"
+                      [class.bi-star-fill]="s <= (hoverRating || reviewForm.rating)"
+                      [class.bi-star]="s > (hoverRating || reviewForm.rating)"
                       [class.filled]="s <= (hoverRating || reviewForm.rating)"
                       (mouseenter)="hoverRating = s"
                       (mouseleave)="hoverRating = 0"

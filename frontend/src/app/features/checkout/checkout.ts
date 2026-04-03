@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { CartService } from '../../core/services/cart';
@@ -68,6 +68,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     private orderService: OrderService,
     private authService: AuthService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -131,10 +132,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           }
         }
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.error = 'Failed to load cart details';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -172,13 +175,18 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           this.isSubmitting = false;
           this.placedOrderId = orderId;
           this.orderPlaced = true;
+          this.cdr.detectChanges();
           
           this.cartService.getCart().subscribe({
-            next: (cartRes) => this.cart = cartRes.data
+            next: (cartRes) => {
+              this.cart = cartRes.data;
+              this.cdr.detectChanges();
+            }
           });
         } else {
           this.isSubmitting = false;
           this.error = 'Failed to create order. Please try again.';
+          this.cdr.detectChanges();
         }
       },
       error: (err) => {
@@ -189,6 +197,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         } else {
           this.error = err.error?.error?.message || err.error?.message || err.message || 'Failed to place order.';
         }
+        this.cdr.detectChanges();
       }
     });
   }
@@ -223,6 +232,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     this.orderService.payOrder(this.placedOrderId, paymentData).subscribe({
       next: (payRes: any) => {
         this.isPaymentProcessing = false;
+        this.cdr.detectChanges();
 
         const paymentUrl = payRes?.url || payRes?.data?.url || payRes?.data?.iframeUrl || payRes?.data?.redirectUrl || payRes?.iframeUrl || payRes?.redirectUrl;
         const fawryCode = payRes?.billReference || payRes?.data?.billReference;
@@ -243,6 +253,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         this.isPaymentProcessing = false;
         const errorMsg = payErr.error?.message || payErr.error?.error?.message || payErr.message || 'Payment connection failed';
         this.error = `${errorMsg}. You can pay later from your account.`;
+        this.cdr.detectChanges();
       }
     });
   }
