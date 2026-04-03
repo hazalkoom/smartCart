@@ -9,9 +9,9 @@ const rateLimit = require('express-rate-limit');
 const swaggerUi = require('swagger-ui-express');
 const mongoose = require('mongoose');
 
-const connectDB = require('./config/mongoDataBaseConnection');
+const connectDB = require('./config/mongoDataBaseConnection');      
 const logger = require('./utils/logger');
-const { errorHandler } = require('./middleware/errorMiddleware');
+const { errorHandler } = require('./middleware/errorMiddleware');   
 
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
@@ -62,7 +62,7 @@ app.use(express.json({ limit: '50kb' }));
 if (process.env.NODE_ENV === 'production') {
   const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 125,
+    max: 1000,
     message: 'Too many requests from this IP, please try again after 15 minutes',
   });
   app.use('/api', limiter);
