@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { OrderService } from '../../core/services/order'; 
@@ -22,6 +22,7 @@ export class OrderDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private orderService: OrderService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -33,6 +34,7 @@ export class OrderDetailComponent implements OnInit {
     } else {
       this.error = 'Invalid Order ID';
       this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -44,11 +46,13 @@ export class OrderDetailComponent implements OnInit {
           this.order = res.data;
         }
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         if (!environment.production) console.error(err);
         this.error = 'Order not found or you do not have permission to view it.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -61,6 +65,7 @@ export class OrderDetailComponent implements OnInit {
     this.orderService.payOrder(this.order._id, { paymentMethod: 'card' }).subscribe({
       next: (payRes: any) => {
         this.isProcessingPayment = false;
+        this.cdr.detectChanges();
         
         const paymentUrl = payRes?.url || 
                            payRes?.data?.url || 
@@ -81,6 +86,7 @@ export class OrderDetailComponent implements OnInit {
         this.isProcessingPayment = false;
         if (!environment.production) console.error('Recovery Payment Error:', err);
         alert('Failed to connect to payment provider.');
+        this.cdr.detectChanges();
       }
     });
   }
