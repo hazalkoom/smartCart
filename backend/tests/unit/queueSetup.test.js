@@ -11,6 +11,10 @@ describe('queueSetup', () => {
 
       expect(bullmq.Queue).toHaveBeenCalledWith('cart-expiration', {
         connection: redisClient,
+        defaultJobOptions: {
+        removeOnComplete: true,
+        removeOnFail: true,
+      }
       });
       expect(cartQueue).toBeDefined();
       expect(typeof cartQueue.add).toBe('function');
