@@ -34,7 +34,7 @@
         <div class="sc-cart-layout">
           <!-- ── ITEMS ── -->
           <div class="sc-cart-items">
-            @for (item of cart.items; track item; let i = $index) {
+            @for (item of cart.items; track item._id || i; let i = $index) {
               <div class="sc-cart-item">
                 <!-- Image -->
                 <a [routerLink]="['/products', item.productId.slug]" class="sc-cart-item-img-wrap">
@@ -56,17 +56,17 @@
                 <!-- Quantity control -->
                 <div class="sc-cart-item-qty">
                   <button (click)="decreaseQuantity(item)" [disabled]="item.quantity <= 1">
-                    <i class="icon icon-minus"></i>
+                    <i class="bi bi-dash-lg"></i>
                   </button>
                   <input type="number" [value]="item.quantity" min="1"
                     (change)="updateQuantity(item, $any($event.target).value)" class="sc-qty-input">
                   <button (click)="increaseQuantity(item)">
-                    <i class="icon icon-plus"></i>
+                    <i class="bi bi-plus-lg"></i>
                   </button>
                 </div>
                 <!-- Remove -->
                 <button class="sc-remove-btn" (click)="removeItem(item._id)" title="Remove">
-                  <i class="icon icon-trash-2"></i>
+                  <i class="bi bi-trash"></i>
                 </button>
               </div>
             }

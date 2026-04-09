@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, Inject, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, PLATFORM_ID, Inject, OnDestroy } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -47,6 +47,7 @@ export class Account implements OnInit, OnDestroy {
     private orderService: OrderService,
     private route: ActivatedRoute,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -70,11 +71,13 @@ export class Account implements OnInit, OnDestroy {
           this.fetchOrders();
         } else {
           this.isLoading = false;
+          this.cdr.detectChanges();
         }
       },
       error: (err) => {
         this.errorMessage = 'Failed to load user profile.';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
     this.subscriptions.push(authSub);
@@ -87,10 +90,12 @@ export class Account implements OnInit, OnDestroy {
           this.orders = response.data;
         }
         this.isLoading = false;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error fetching orders:', error);
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
     this.subscriptions.push(ordersSub);
@@ -114,9 +119,11 @@ export class Account implements OnInit, OnDestroy {
       next: (res) => {
         this.updateMessage = 'Profile updated successfully!';
         this.isEditing = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.errorMessage = 'Failed to update profile.';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -141,9 +148,11 @@ export class Account implements OnInit, OnDestroy {
         this.isAddingAddress = false;
         // Reset form
         this.newAddress = { alias: 'Home', street: '', city: '', state: '', postalCode: '', country: '', isDefault: false };
+        this.cdr.detectChanges();
       },
       error: (err) => {
         this.addressErrorMessage = err.error?.message || 'Failed to save address.';
+        this.cdr.detectChanges();
       }
     });
   }
@@ -153,9 +162,11 @@ export class Account implements OnInit, OnDestroy {
       this.authService.deleteAddress(addressId).subscribe({
         next: () => {
           this.addressSuccessMessage = 'Address removed.';
+          this.cdr.detectChanges();
         },
         error: (err) => {
           this.addressErrorMessage = 'Failed to delete address.';
+          this.cdr.detectChanges();
         }
       });
     }

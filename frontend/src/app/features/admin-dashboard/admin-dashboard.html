@@ -112,7 +112,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (order of recentOrders; track order) {
+                @for (order of recentOrders; track order._id) {
                   <tr>
                     <td><code>{{ order._id | slice:0:8 }}...</code></td>
                     <td>{{ getCustomerName(order) }}</td>

@@ -10,13 +10,17 @@
     <!-- Search bar -->
     <div class="sc-search-row">
       <div class="sc-search-pill">
-        <i class="icon icon-search"></i>
-        <input type="text" placeholder="Search products, brands, categories…"
+        <span class="sc-search-icon-wrap" aria-hidden="true">
+          <i class="icon icon-search"></i>
+        </span>
+        <input class="sc-search-input" type="text" placeholder="Search products, brands, categories…"
           [(ngModel)]="searchTerm" (keyup.enter)="applyFilters()">
         @if (searchTerm) {
-          <button class="sc-clear-btn" (click)="searchTerm=''; applyFilters()">
-            <i class="icon icon-x"></i>
+          <button class="sc-clear-btn" (click)="searchTerm=''; applyFilters()" aria-label="Clear search">
+            <span class="sc-clear-btn-glyph" aria-hidden="true">&times;</span>
           </button>
+        } @else {
+          <span class="sc-clear-spacer" aria-hidden="true"></span>
         }
       </div>
     </div>
@@ -140,7 +144,7 @@
         <!-- Product Grid -->
         @if (!isLoading && !error && products.length > 0) {
           <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
-            @for (product of products; track product) {
+            @for (product of products; track product._id) {
               <div class="col">
                 <div class="product-card h-100 d-flex flex-column bg-white rounded-3 border overflow-hidden position-relative">
                   <!-- Wishlist -->

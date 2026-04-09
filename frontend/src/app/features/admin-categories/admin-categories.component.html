@@ -85,7 +85,7 @@
         <!-- Categories Grid -->
         @if (!isLoading && categories.length > 0) {
           <div class="category-grid">
-            @for (category of categories; track category) {
+            @for (category of categories; track category._id) {
               <div class="category-card">
                 <div class="category-icon">C</div>
                 <div>

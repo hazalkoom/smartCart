@@ -181,8 +181,8 @@
   height: 48px;
   background: transparent;
   border: none;
-  color: var(--text-muted);
-  font-size: 0.9rem;
+    color: #fff;
+  font-size: 1rem;
   cursor: pointer;
   transition: color 0.2s;
   display: flex;
@@ -191,7 +191,26 @@
 }
 .sc-qty-control button:hover:not(:disabled) { color: var(--primary); }
 .sc-qty-control button:disabled { opacity: 0.3; cursor: not-allowed; }
-.sc-qty-value { padding: 0 1rem; font-family: var(--font-heading); font-size: 0.9rem; font-weight: 700; color: #fff; min-width: 2.5rem; text-align: center; }
+.sc-qty-control button i,
+.sc-wishlist-icon-btn i {
+    color: inherit;
+    line-height: 1;
+    display: block;
+}
+.sc-qty-value { 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  line-height: 48px;
+  padding: 0 1rem; 
+  font-family: var(--font-heading); 
+  font-size: 1rem; 
+  font-weight: 700; 
+  color: var(--text); 
+  min-width: 2.5rem; 
+  text-align: center; 
+}
 .sc-add-to-cart-btn { height: 48px; padding: 0 2rem; border-radius: var(--radius-md); font-size: 0.8rem; }
 .sc-wishlist-icon-btn {
   width: 48px;

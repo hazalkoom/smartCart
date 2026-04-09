@@ -95,9 +95,7 @@
 .sc-checkout-page .form-control:hover,
 .sc-checkout-page .form-control:focus,
 .sc-checkout-page .form-select:hover,
-.sc-checkout-page .form-select:focus,
-.sc-checkout-page .form-control.ng-dirty,
-.sc-checkout-page .form-select.ng-dirty {
+.sc-checkout-page .form-select:focus {
   color: #fff;
 }
 

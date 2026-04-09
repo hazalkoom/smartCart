@@ -31,19 +31,21 @@
 }
 
 .sc-search-pill {
-	display: flex;
+	display: grid;
+	grid-template-columns: 18px minmax(0, 1fr) 22px;
 	align-items: center;
-	gap: 0.9rem;
-	min-height: 54px;
+	column-gap: 10px;
+	height: 42px;
 	background: linear-gradient(180deg, rgba(5, 24, 53, 0.9), rgba(3, 19, 45, 0.9));
 	border: 1px solid rgba(125, 211, 252, 0.3);
 	border-radius: 999px;
-	padding: 0.45rem 1.25rem;
+	padding: 0 0.9rem;
 	width: 100%;
-	max-width: 660px;
+	max-width: 500px;
 	backdrop-filter: blur(8px);
 	box-shadow: 0 12px 30px rgba(2, 8, 23, 0.4), inset 0 1px 0 rgba(191, 219, 254, 0.12);
 	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+	position: relative;
 }
 
 .sc-search-pill:focus-within {
@@ -52,24 +54,42 @@
 	transform: translateY(-1px);
 }
 
-.sc-search-pill i {
-	color: #93c5fd;
-	font-size: 1rem;
-	flex-shrink: 0;
+.sc-search-icon-wrap {
+	width: 18px;
+	height: 18px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
 }
 
-.sc-search-pill input {
-	flex: 1;
+.sc-search-icon-wrap > i {
+	color: #93c5fd;
+	font-size: 0.95rem;
+}
+
+.sc-search-pill .sc-search-input {
+	width: 100%;
+	height: 100%;
+	box-sizing: border-box;
 	background: transparent;
 	border: none;
 	outline: none;
 	color: #e2e8f0;
 	font-family: var(--font-body);
-	font-size: 0.97rem;
+	font-size: 0.9rem;
+	line-height: 1;
+	padding: 0;
+	margin: 0;
+	text-align: center !important;
+	align-self: center;
+	appearance: none;
+	-webkit-appearance: none;
 }
 
-.sc-search-pill input::placeholder {
+.sc-search-pill .sc-search-input::placeholder {
 	color: #94a3b8;
+	text-align: center;
+	opacity: 1;
 }
 
 .sc-clear-btn {
@@ -78,17 +98,34 @@
 	border: none;
 	color: #cbd5e1;
 	cursor: pointer;
-	padding: 0.2rem;
+	padding: 0;
+	width: 22px;
+	height: 22px;
 	font-size: 0.8rem;
 	transition: color 0.2s ease, background-color 0.2s ease;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	justify-self: end;
+}
+
+.sc-clear-spacer {
+	width: 22px;
+	height: 22px;
+	justify-self: end;
 }
 
 .sc-clear-btn:hover {
 	color: #fff;
 	background: rgba(239, 68, 68, 0.4);
+}
+
+.sc-clear-btn-glyph {
+	font-size: 0.95rem;
+	font-weight: 700;
+	line-height: 1;
+	display: inline-block;
+	transform: translateY(-0.5px);
 }
 
 /* Filter bar */
@@ -334,19 +371,19 @@
 	-webkit-appearance: none;
 	display: inline-flex !important;
 	align-items: center !important;
-	height: 40px !important;
-	padding: 0 15px !important;
-	padding-right: 34px !important;
-	font-size: 0.8rem !important;
+	height: 34px !important;
+	padding: 0 12px !important;
+	padding-right: 30px !important;
+	font-size: 0.76rem !important;
 	font-weight: 500 !important;
 	line-height: 1 !important;
 	color: #dbeafe !important;
 	background-color: transparent !important;
 	background-image: linear-gradient(180deg, rgba(6, 28, 58, 0.88), rgba(4, 21, 47, 0.88)), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2393c5fd' stroke-width='2.25' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
 	background-repeat: no-repeat !important;
-	background-position: center, right 11px center !important;
+	background-position: center, right 10px center !important;
 	border: 1px solid rgba(125, 211, 252, 0.32) !important;
-	border-radius: var(--radius-pill) !important;
+	border-radius: 100px !important;
 	cursor: pointer !important;
 	transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, color 0.2s ease !important;
 	white-space: nowrap !important;
@@ -400,14 +437,14 @@ button.filter-pill {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
-	height: 40px;
+	height: 34px;
 	padding: 0 12px;
-	font-size: 0.8rem;
+	font-size: 0.75rem;
 	font-weight: 500;
 	color: #fecaca;
 	background: rgba(239, 68, 68, 0.12);
 	border: 1px solid rgba(248, 113, 113, 0.45);
-	border-radius: var(--radius-pill);
+	border-radius: 100px;
 	cursor: pointer;
 	transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 	white-space: nowrap;
@@ -656,7 +693,7 @@ button.filter-pill {
 	.filter-pill,
 	.filter-clear-btn {
 		font-size: 0.775rem;
-		height: 36px;
+		height: 34px;
 	}
 
 	.filter-dropdown {
@@ -694,8 +731,8 @@ button.filter-pill {
 
 /* 2) Search bar sizing */
 .sc-search-pill {
-	max-width: 660px;
-	padding: 0.45rem 1.25rem;
+	max-width: 500px;
+	padding: 0 0.9rem;
 }
 
 /* Final alignment overrides for filter controls */
@@ -713,7 +750,7 @@ button.filter-pill {
 
 .filters-controls .filter-pill,
 .filters-controls button.filter-pill {
-	height: 40px !important;
+	height: 34px !important;
 	line-height: 1 !important;
 	box-sizing: border-box !important;
 	padding-top: 0 !important;
@@ -734,8 +771,14 @@ button.filter-pill {
 @media (max-width: 576px) {
 	.sc-search-pill {
 		max-width: 100%;
-		min-height: 48px;
-		padding: 0.35rem 0.95rem;
+		height: 40px;
+		padding: 0 0.85rem;
+		column-gap: 9px;
+	}
+
+	.sc-search-pill .sc-search-input {
+		line-height: 1;
+		padding: 0;
 	}
 
 	.filters-controls>.filter-dropdown {

@@ -89,7 +89,7 @@
                 </h4>
               </div>
               <div class="card-body p-0">
-                @for (item of order.items; track item) {
+                @for (item of order.items; track item._id || $index) {
                   <div class="order-item-row">
                     <img [src]="item.image || 'assets/images/default.png'" [alt]="item.name" class="item-image">
                     <div class="item-details">

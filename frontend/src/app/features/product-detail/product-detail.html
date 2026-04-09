@@ -76,9 +76,9 @@
           @if (product.stock > 0) {
             <div class="sc-detail-actions">
               <div class="sc-qty-control">
-                <button (click)="quantity = quantity > 1 ? quantity - 1 : 1" [disabled]="quantity <= 1"><i class="icon icon-minus"></i></button>
+                <button (click)="quantity = quantity > 1 ? quantity - 1 : 1" [disabled]="quantity <= 1"><i class="bi bi-dash-lg"></i></button>
                 <span class="sc-qty-value">{{ quantity }}</span>
-                <button (click)="quantity = quantity + 1"><i class="icon icon-plus"></i></button>
+                <button (click)="quantity = quantity + 1"><i class="bi bi-plus-lg"></i></button>
               </div>
               <button class="btn btn-primary sc-add-to-cart-btn" (click)="addToCart()" [disabled]="isAddingToCart">
                 <i class="icon icon-shopping-cart me-2"></i> {{ isAddingToCart ? 'Adding...' : 'Add to Cart' }}
@@ -127,7 +127,7 @@
           }
           @if (reviews.length > 0) {
             <div class="sc-reviews-list">
-              @for (review of reviews; track review) {
+              @for (review of reviews; track review._id) {
                 <div class="sc-review-card">
                   <div class="sc-review-header">
                     <div class="sc-review-author">

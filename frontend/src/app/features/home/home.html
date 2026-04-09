@@ -9,7 +9,7 @@ HOME PAGE — drop into home.html
   </button>
 
   <div class="sc-hero-track" [style.transform]="'translateX(-' + (currentSlide * 100) + '%)'">
-    @for (product of heroProducts; track product) {
+    @for (product of heroProducts; track product._id) {
       <div class="sc-hero-slide">
         <img [src]="product.images[0] || 'assets/images/main-banner1.jpg'" [alt]="product.name" class="sc-hero-img">
         <div class="sc-hero-overlay"></div>
@@ -31,7 +31,7 @@ HOME PAGE — drop into home.html
 
   <!-- Dots -->
   <div class="sc-hero-dots">
-    @for (p of heroProducts; track p; let i = $index) {
+    @for (p of heroProducts; track p._id; let i = $index) {
       <button
         class="sc-hero-dot"
         [class.active]="i === currentSlide"
@@ -72,7 +72,7 @@ HOME PAGE — drop into home.html
 
     @if (!isLoading) {
       <div class="sc-product-grid">
-        @for (product of featuredProducts; track product) {
+        @for (product of featuredProducts; track product._id) {
           <div class="sc-product-card">
             <!-- Badge -->
             <div class="sc-product-badges">

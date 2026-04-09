@@ -33,9 +33,7 @@
 .sc-auth-page .form-control:hover,
 .sc-auth-page .form-control:focus,
 .sc-auth-page .form-select:hover,
-.sc-auth-page .form-select:focus,
-.sc-auth-page .form-control.ng-dirty,
-.sc-auth-page .form-select.ng-dirty {
+.sc-auth-page .form-select:focus {
   color: #fff;
 }
 

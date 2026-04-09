@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { ProductService } from '../../core/services/product';
@@ -32,6 +32,7 @@ export class ProductDetail implements OnInit, OnDestroy {
   showLoginPrompt: boolean = false;
   private subscriptions: Subscription[] = [];
   private wishlistIds: Set<string> = new Set<string>();
+  wishlistProcessing: Set<string> = new Set<string>();
 
   // Reviews state
   reviews: Review[] = [];
@@ -53,6 +54,7 @@ export class ProductDetail implements OnInit, OnDestroy {
     private authService: AuthService,
     private reviewService: ReviewService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -65,6 +67,7 @@ export class ProductDetail implements OnInit, OnDestroy {
       this.wishlistIds = new Set<string>(normalized);
       this.currentUserId = user?._id || '';
       this.currentUserRole = user?.role || '';
+      this.cdr.detectChanges();
     });
     this.subscriptions.push(userSub);
 
@@ -95,12 +98,14 @@ export class ProductDetail implements OnInit, OnDestroy {
           ? this.product.images[0] 
           : 'assets/images/placeholder.jpg';
         this.isLoading = false;
+        this.cdr.detectChanges();
         this.loadReviews();
       },
       error: (err) => {
         if (!environment.production) console.error(err);
         this.error = 'Product not found';
         this.isLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -112,10 +117,12 @@ export class ProductDetail implements OnInit, OnDestroy {
       next: (res) => {
         this.reviews = res.data;
         this.reviewsLoading = false;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         if (!environment.production) console.error('Failed to load reviews:', err);
         this.reviewsLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -127,9 +134,11 @@ export class ProductDetail implements OnInit, OnDestroy {
     this.productService.getProduct(this.product.slug).subscribe({
       next: (res) => {
         this.product = res.data;
+        this.cdr.detectChanges();
       },
       error: (err) => {
         if (!environment.production) console.error('Failed to refresh product rating:', err);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -161,12 +170,14 @@ export class ProductDetail implements OnInit, OnDestroy {
         this.reviewSuccess = 'Review submitted successfully!';
         this.reviewForm = { rating: 0, title: '', comment: '' };
         this.isSubmittingReview = false;
+        this.cdr.detectChanges();
         this.refreshReviewState();
       },
       error: (err) => {
         this.reviewError = err.error?.message || err.error?.error?.message || 'Failed to submit review.';
         this.reviewSuccess = '';
         this.isSubmittingReview = false;
+        this.cdr.detectChanges();
       }
     });
   }
@@ -177,11 +188,13 @@ export class ProductDetail implements OnInit, OnDestroy {
     this.reviewService.deleteReview(reviewId).subscribe({
       next: () => {
         this.reviewSuccess = 'Review deleted successfully.';
+        this.cdr.detectChanges();
         this.refreshReviewState();
       },
       error: (err) => {
         this.reviewError = err.error?.message || err.error?.error?.message || 'Failed to delete review.';
         if (!environment.production) console.error('Error deleting review:', err);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -245,6 +258,7 @@ export class ProductDetail implements OnInit, OnDestroy {
       next: (res) => {
         // Success - item added to cart
         this.isAddingToCart = false;
+        this.cdr.detectChanges();
         // Animation is handled by CartAnimationService
       },
       error: (err) => {
@@ -260,6 +274,7 @@ export class ProductDetail implements OnInit, OnDestroy {
           const errorMsg = err.error?.message || err.error?.error?.message || 'Failed to add to cart. Please try again.';
           this.error = errorMsg;
         }
+        this.cdr.detectChanges();
       }
     });
   }
@@ -288,6 +303,11 @@ export class ProductDetail implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.wishlistProcessing.has(this.product._id)) {
+      return;
+    }
+    this.wishlistProcessing.add(this.product._id);
+
     this.authService.toggleWishlist(this.product._id).subscribe({
       next: (res) => {
         const updatedWishlist = res?.data || [];
@@ -295,10 +315,14 @@ export class ProductDetail implements OnInit, OnDestroy {
           .map((item: any) => (typeof item === 'string' ? item : item?._id))
           .filter((id: string | undefined) => !!id);
         this.wishlistIds = new Set<string>(normalized);
+        this.wishlistProcessing.delete(this.product!._id);
+        this.cdr.detectChanges();
       },
       error: (err) => {
         if (!environment.production) console.error('Error toggling wishlist:', err);
         alert('Failed to update wishlist. Please try again.');
+        this.wishlistProcessing.delete(this.product!._id);
+        this.cdr.detectChanges();
       }
     });
   }

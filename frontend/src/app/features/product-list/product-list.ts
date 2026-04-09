@@ -40,6 +40,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription[] = [];
   private wishlistIds: Set<string> = new Set<string>();
+  wishlistProcessing: Set<string> = new Set<string>();
 
   constructor(
     private productService: ProductService,
@@ -248,11 +249,23 @@ export class ProductListComponent implements OnInit, OnDestroy {
       return;
     }
 
+    if (this.wishlistProcessing.has(product._id)) {
+      return;
+    }
+    this.wishlistProcessing.add(product._id);
+
     this.authService.toggleWishlist(product._id).subscribe({
       next: (res) => {
         const updatedWishlist = res?.data || [];
         const normalized = updatedWishlist.map((item: any) => typeof item === 'string' ? item : item?._id).filter((id: string) => !!id);
         this.wishlistIds = new Set<string>(normalized);
+        this.wishlistProcessing.delete(product._id);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        if (!environment.production) console.error('Error toggling wishlist:', err);
+        this.wishlistProcessing.delete(product._id);
+        this.cdr.detectChanges();
       }
     });
   }

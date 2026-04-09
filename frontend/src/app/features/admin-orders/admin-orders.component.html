@@ -55,7 +55,7 @@
                 </tr>
               </thead>
               <tbody>
-                @for (order of orders; track order) {
+                @for (order of orders; track order._id) {
                   <tr class="align-middle">
                     <td>
                       <code>{{ order._id | slice:0:8 }}...</code>
