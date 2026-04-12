@@ -4,6 +4,21 @@ import { Observable, retry, catchError, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Product, ProductResponse } from '../interfaces/product';
 
+export type ProductSort = 'price_asc' | 'price_desc' | 'top_rated' | 'newest';
+export type StockStatus = 'in' | 'out' | 'low';
+
+export interface ProductQueryParams {
+  keyword?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  minRating?: number;
+  stockStatus?: StockStatus;
+  sort?: ProductSort;
+  category?: string;
+  page?: number;
+  limit?: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -12,13 +27,14 @@ export class ProductService {
 
   constructor(private http: HttpClient) { }
 
-  getProducts(params?: any): Observable<ProductResponse> {
+  getProducts(params?: ProductQueryParams | Record<string, string | number | boolean | null | undefined>): Observable<ProductResponse> {
     let httpParams = new HttpParams();
     
     if (params) {
       Object.keys(params).forEach(key => {
-        if (params[key]) {
-          httpParams = httpParams.set(key, params[key]);
+        const value = params[key as keyof typeof params];
+        if (value !== undefined && value !== null && value !== '') {
+          httpParams = httpParams.set(key, String(value));
         }
       });
     }

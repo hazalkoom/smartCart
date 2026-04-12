@@ -7,30 +7,41 @@
 
           <div class="quiz-header mb-5">
             <div class="icon-wrap mb-3 mx-auto d-flex align-items-center justify-content-center bg-light rounded-circle" style="width: 80px; height: 80px;">
-              <i class="icon icon-gift fs-1 text-primary" style="background: -webkit-linear-gradient(135deg, #8b5cf6, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
+              <i class="bi bi-gift-fill fs-1 text-primary" style="background: -webkit-linear-gradient(135deg, #8b5cf6, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"></i>
             </div>
             <h1 class="fw-bold text-dark mb-2">{{ currentNode.question }}</h1>
             <p class="text-muted fs-5">{{ currentNode.subtitle }}</p>
+            @if (breadcrumbPath) {
+              <p class="breadcrumb-pill mt-3 mb-0">{{ breadcrumbPath }}</p>
+            }
           </div>
 
           <div class="row g-4 justify-content-center">
             @for (option of currentNode.options; track option) {
-              <div class="col-md-6">
-                <button class="quiz-option-btn w-100 h-100 p-4 border rounded-4 bg-white text-start d-flex align-items-center gap-3 transition-all" (click)="selectOption(option)">
+              <div class="col-12 col-md-6 d-flex">
+                <button class="quiz-option-btn w-100 h-100 p-4 border rounded-4 bg-white text-start d-flex align-items-start gap-3 transition-all" (click)="selectOption(option)">
                   <div class="option-icon bg-light rounded-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; flex-shrink: 0;">
                     <i class="fs-4 text-dark" [ngClass]="option.icon"></i>
                   </div>
-                  <span class="fw-bold fs-5 text-dark">{{ option.label }}</span>
-                  <i class="icon icon-chevron-right ms-auto text-muted"></i>
+                  <span class="option-label text-dark">
+                    <strong class="d-block option-label-title">{{ option.label }}</strong>
+                    @if (option.matchNote) {
+                      <small class="option-note d-block mt-1">{{ option.matchNote }}</small>
+                    }
+                  </span>
+                  <i class="option-arrow bi bi-chevron-right text-muted"></i>
                 </button>
               </div>
             }
           </div>
 
           @if (currentNodeId !== 'root') {
-            <div class="mt-5 pt-3 border-top">
+            <div class="mt-5 pt-3 border-top d-flex justify-content-between align-items-center flex-wrap gap-2">
+              <button class="btn btn-link text-muted text-decoration-none" (click)="goBack()" [disabled]="!canGoBack">
+                <i class="bi bi-arrow-left"></i> Back
+              </button>
               <button class="btn btn-link text-muted text-decoration-none" (click)="resetQuiz()">
-                <i class="icon icon-rotate-ccw"></i> Start Over
+                <i class="bi bi-arrow-counterclockwise"></i> Start Over
               </button>
             </div>
           }

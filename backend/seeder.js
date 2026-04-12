@@ -95,6 +95,18 @@ const PRODUCT_IMAGE_LINKS = {
   'Corsair Vengeance i7500 Gaming PC': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316453/Corsair_Vengeance_i7500_Gaming_PC_tlkwxq.jpg',
   'MSI Aegis RS Gaming Desktop': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316371/MSI_Aegis_RS_Gaming_Desktop_bzumxc.jpg',
   'ASUS ROG Strix G35 Gaming Desktop': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773316369/ASUS_ROG_Strix_G35_Gaming_Desktop_ekwfo4.jpg',
+  'Anker Prime 27650mAh Power Bank': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1776019876/Anker_Prime_27650mAh_Power_Bank_zlfk1l.jpg',
+  'Spigen MagFit Card Holder': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1776019876/Spigen_MagFit_Card_Holder_vnzpff.jpg',
+  'CalDigit TS4 Thunderbolt Dock': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1776019876/CalDigit_TS4_Thunderbolt_Dock_zlhsqn.jpg',
+  'BenQ PD3225U Designer Monitor': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1776019875/BenQ_PD3225U_Designer_Monitor_casudb.jpg',
+  'Sonos Era 100 Smart Speaker': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1776019875/Sonos_Era_100_Smart_Speaker_o2guzn.jpg',
+  'Shure MV7+ Podcast Microphone': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1776019875/Shure_MV7_Podcast_Microphone_oxwhsm.jpg',
+  'Aqara Smart Lock U100': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1776019875/Aqara_Smart_Lock_U100_jho7wx.jpg',
+  'Nanoleaf Shapes Hexagon Starter Kit': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1776019876/Nanoleaf_Shapes_Hexagon_Starter_Kit_wo4xds.jpg',
+  'Logitech G923 Racing Wheel': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1776019877/Logitech_G923_Racing_Wheel_agexe6.jpg',
+  'Elgato HD60 X Capture Card': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1776019877/Elgato_HD60_X_Capture_Card_axngda.jpg',
+  'Apple Pencil Pro': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1776019876/Apple_Pencil_Pro_re47hc.jpg',
+  'Apple AirPods Max (USB-C)': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1776019876/Apple_AirPods_Max_USB-C_s3n6ln.png',
   // Apple Ecosystem (empty links)
   'Apple Vision Pro': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773912762/Apple_Vision_Pro_iq7wzo.jpg',
   'Apple HomePod (2nd Gen)': 'https://res.cloudinary.com/dgysa5pgp/image/upload/v1773912759/Apple_HomePod_2nd_Gen_gnadax.jpg',
@@ -139,7 +151,7 @@ const seedDatabase = async () => {
     const gamingId = createdCategories[4]._id;
       const appleId  = createdCategories[5]._id;
 
-    console.log('Generating 53 Realistic Products...');
+    console.log('Generating 90 Realistic Products...');
     const productsData = [
       { name: 'iPhone 15 Pro Max', description: 'Titanium design, A17 Pro chip, 48MP Main camera.', price: 1199, stock: 45, categoryId: phoneId, images: img('iPhone 15 Pro Max') },
       { name: 'Samsung Galaxy S24 Ultra', description: 'Galaxy AI, titanium frame, built-in S Pen.', price: 1299, stock: 30, categoryId: phoneId, images: img('Samsung Galaxy S24 Ultra') },
@@ -153,6 +165,8 @@ const seedDatabase = async () => {
       { name: 'Belkin USB-C Hub 7-in-1', description: 'Expand your ports with 4K HDMI and power delivery.', price: 65, stock: 40, categoryId: phoneId, images: img('Belkin USB-C Hub 7-in-1') },
       { name: 'Baseus 20000mAh Power Bank', description: 'High-capacity portable charger with 65W fast output.', price: 59, stock: 55, categoryId: phoneId, images: img('Baseus 20000mAh Power Bank') },
       { name: 'Sony Xperia 1 V', description: 'Pro-level camera phone with 4K OLED display.', price: 1199, stock: 15, categoryId: phoneId, images: img('Sony Xperia 1 V') },
+      { name: 'Anker Prime 27650mAh Power Bank', description: 'Ultra-capacity power bank with high-speed USB-C output for laptops and phones.', price: 179, stock: 35, categoryId: phoneId, images: img('Anker Prime 27650mAh Power Bank') },
+      { name: 'Spigen MagFit Card Holder', description: 'Magnetic card wallet attachment for daily carry convenience.', price: 39, stock: 90, categoryId: phoneId, images: img('Spigen MagFit Card Holder') },
 
       { name: 'MacBook Pro 16-inch (M3 Max)', description: 'Mind-blowing speed. The ultimate pro laptop.', price: 3499, stock: 12, categoryId: laptopId, images: img('MacBook Pro 16-inch (M3 Max)') },
       { name: 'Dell XPS 15 OLED', description: 'Stunning 3.5K OLED display, Intel Core i7, compact powerhouse.', price: 1899, stock: 18, categoryId: laptopId, images: img('Dell XPS 15 OLED') },
@@ -166,6 +180,8 @@ const seedDatabase = async () => {
       { name: 'WD Black 2TB NVMe SSD', description: 'High-speed NVMe SSD for gaming and creative workloads.', price: 149, stock: 70, categoryId: laptopId, images: img('WD Black 2TB NVMe SSD') },
       { name: 'Elgato Thunderbolt 4 Dock', description: '11-port Thunderbolt 4 hub for a clean, powerful desktop setup.', price: 299, stock: 20, categoryId: laptopId, images: img('Elgato Thunderbolt 4 Dock') },
       { name: 'Apple Mac Mini M2', description: 'Compact desktop powerhouse.', price: 599, stock: 30, categoryId: laptopId, images: img('Apple Mac Mini M2') },
+      { name: 'CalDigit TS4 Thunderbolt Dock', description: 'Pro dock with wide connectivity for creator and workstation setups.', price: 399, stock: 16, categoryId: laptopId, images: img('CalDigit TS4 Thunderbolt Dock') },
+      { name: 'BenQ PD3225U Designer Monitor', description: 'Color-accurate 4K monitor tuned for professional design workflows.', price: 1199, stock: 9, categoryId: laptopId, images: img('BenQ PD3225U Designer Monitor') },
       
       { name: 'Sony WH-1000XM5', description: 'Industry leading noise canceling wireless headphones.', price: 398, stock: 55, categoryId: audioId, images: img('Sony WH-1000XM5') },
       { name: 'Apple AirPods Pro (2nd Gen)', description: 'Richer audio experience, 2x more ANC.', price: 249, stock: 120, categoryId: audioId, images: img('Apple AirPods Pro (2nd Gen)') },
@@ -177,6 +193,8 @@ const seedDatabase = async () => {
       { name: 'Bowers & Wilkins Px8', description: 'Luxury over-ear headphones with premium craftsmanship.', price: 699, stock: 8, categoryId: audioId, images: img('Bowers & Wilkins Px8') },
       { name: 'Sony LinkBuds S', description: 'Featherlight earbuds with ANC and ambient sound mode.', price: 149, stock: 60, categoryId: audioId, images: img('Sony LinkBuds S') },
       { name: 'Bose QuietComfort Ultra', description: 'World-class noise cancellation.', price: 429, stock: 40, categoryId: audioId, images: img('Bose QuietComfort Ultra') },
+      { name: 'Sonos Era 100 Smart Speaker', description: 'Compact smart speaker with rich stereo sound for every room.', price: 249, stock: 28, categoryId: audioId, images: img('Sonos Era 100 Smart Speaker') },
+      { name: 'Shure MV7+ Podcast Microphone', description: 'Hybrid USB/XLR dynamic microphone for streaming and podcast creators.', price: 299, stock: 24, categoryId: audioId, images: img('Shure MV7+ Podcast Microphone') },
 
       { name: 'Apple Watch Ultra 2', description: 'The most rugged and capable Apple Watch.', price: 799, stock: 18, categoryId: homeId, images: img('Apple Watch Ultra 2') },
       { name: 'Samsung Galaxy Watch 6 Classic', description: 'Timeless design with rotating bezel.', price: 399, stock: 25, categoryId: homeId, images: img('Samsung Galaxy Watch 6 Classic') },
@@ -189,6 +207,8 @@ const seedDatabase = async () => {
       { name: 'Arlo Pro 5 Security Camera', description: 'Wire-free outdoor 4K camera with color night vision.', price: 199, stock: 30, categoryId: homeId, images: img('Arlo Pro 5 Security Camera') },
       { name: 'Withings Body+ Smart Scale', description: 'Full body composition analysis synced to your phone.', price: 99, stock: 45, categoryId: homeId, images: img('Withings Body+ Smart Scale') },
       { name: 'Philips Hue Starter Kit', description: 'Smart ambient lighting for your entire room.', price: 199, stock: 25, categoryId: homeId, images: img('Philips Hue Starter Kit') },
+      { name: 'Aqara Smart Lock U100', description: 'Matter-ready smart lock with fingerprint and Apple Home support.', price: 189, stock: 26, categoryId: homeId, images: img('Aqara Smart Lock U100') },
+      { name: 'Nanoleaf Shapes Hexagon Starter Kit', description: 'Modular smart light panels for immersive room ambience.', price: 229, stock: 21, categoryId: homeId, images: img('Nanoleaf Shapes Hexagon Starter Kit') },
 
       { name: 'PlayStation 5 Slim Console', description: 'Next-gen gaming with lightning-fast SSD.', price: 499, stock: 45, categoryId: gamingId, images: img('PlayStation 5 Slim Console') },
       { name: 'Xbox Series X', description: 'The fastest, most powerful Xbox ever.', price: 499, stock: 40, categoryId: gamingId, images: img('Xbox Series X') },
@@ -213,6 +233,8 @@ const seedDatabase = async () => {
       { name: 'Corsair Vengeance i7500 Gaming PC', description: 'Premium custom-built gaming desktop with powerful liquid cooling.', price: 3299, stock: 12, categoryId: gamingId, images: img('Corsair Vengeance i7500 Gaming PC') },
       { name: 'MSI Aegis RS Gaming Desktop', description: 'Performance-focused gaming PC designed for esports and 4K gaming.', price: 2699, stock: 18, categoryId: gamingId, images: img('MSI Aegis RS Gaming Desktop') },
       { name: 'ASUS ROG Strix G35 Gaming Desktop', description: 'Aggressive RGB gaming tower built for high frame rate competitive gaming.', price: 2499, stock: 16, categoryId: gamingId, images: img('ASUS ROG Strix G35 Gaming Desktop') },
+      { name: 'Logitech G923 Racing Wheel', description: 'TRUEFORCE racing wheel with responsive force feedback for sim racing.', price: 349, stock: 20, categoryId: gamingId, images: img('Logitech G923 Racing Wheel') },
+      { name: 'Elgato HD60 X Capture Card', description: 'External capture card for streaming high-quality console gameplay.', price: 199, stock: 33, categoryId: gamingId, images: img('Elgato HD60 X Capture Card') },
         // Apple Ecosystem products
         { name: 'Apple Vision Pro', description: 'Revolutionary spatial computer with ultra-high-resolution displays.', price: 3499, stock: 8, categoryId: appleId, images: img('Apple Vision Pro') },
         { name: 'Apple HomePod (2nd Gen)', description: 'Smart speaker with room-filling sound and Siri integration.', price: 299, stock: 20, categoryId: appleId, images: img('Apple HomePod (2nd Gen)') },
@@ -224,6 +246,8 @@ const seedDatabase = async () => {
         { name: 'Apple Leather Wallet with MagSafe', description: 'Attachable wallet for iPhone with Find My support.', price: 59, stock: 35, categoryId: appleId, images: img('Apple Leather Wallet with MagSafe') },
         { name: 'Apple 140W USB-C Power Adapter', description: 'Fast charging for MacBook Pro and more.', price: 99, stock: 28, categoryId: appleId, images: img('Apple 140W USB-C Power Adapter') },
         { name: 'AppleCare+ for MacBook Pro', description: 'Extended warranty and support for your MacBook Pro.', price: 399, stock: 100, categoryId: appleId, images: img('AppleCare+ for MacBook Pro') },
+        { name: 'Apple Pencil Pro', description: 'Advanced stylus with squeeze gestures and precision control for creatives.', price: 129, stock: 42, categoryId: appleId, images: img('Apple Pencil Pro') },
+        { name: 'Apple AirPods Max (USB-C)', description: 'Premium over-ear headphones with immersive spatial audio and ANC.', price: 549, stock: 22, categoryId: appleId, images: img('Apple AirPods Max (USB-C)') },
     ];
 
     const productsWithSlugs = productsData.map((prod, index) => ({ 
@@ -234,7 +258,7 @@ const seedDatabase = async () => {
     await Product.insertMany(productsWithSlugs);
 
     
-    console.log('🔥 78 REALISTIC PRODUCTS SEEDED SUCCESSFULLY! 🔥');
+    console.log('🔥 90 REALISTIC PRODUCTS SEEDED SUCCESSFULLY! 🔥');
     process.exit();
 
   } catch (error) {

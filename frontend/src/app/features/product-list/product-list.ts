@@ -28,6 +28,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   searchTerm: string = '';
   minPrice: number | null = null;
   maxPrice: number | null = null;
+  minRating: number | null = null;
   selectedCategories: string[] = [];
   stockStatus: string = '';
   sortOption: string = 'newest';
@@ -63,6 +64,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
       this.searchTerm = params['keyword'] || '';
       this.minPrice = params['minPrice'] ? Number(params['minPrice']) : null;
       this.maxPrice = params['maxPrice'] ? Number(params['maxPrice']) : null;
+      this.minRating = params['minRating'] ? Number(params['minRating']) : null;
       this.stockStatus = params['stockStatus'] || '';
       this.sortOption = params['sort'] || 'newest';
       this.currentPage = params['page'] ? Number(params['page']) : 1;
@@ -113,6 +115,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     if (this.searchTerm) params.keyword = this.searchTerm;
     if (this.minPrice !== null) params.minPrice = this.minPrice;
     if (this.maxPrice !== null) params.maxPrice = this.maxPrice;
+    if (this.minRating !== null) params.minRating = this.minRating;
     if (this.stockStatus) params.stockStatus = this.stockStatus;
     if (this.sortOption) params.sort = this.sortOption;
     if (this.selectedCategories.length > 0) params.category = this.selectedCategories.join(',');
@@ -145,6 +148,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     if (this.searchTerm) queryParams.keyword = this.searchTerm;
     if (this.minPrice !== null) queryParams.minPrice = this.minPrice;
     if (this.maxPrice !== null) queryParams.maxPrice = this.maxPrice;
+    if (this.minRating !== null) queryParams.minRating = this.minRating;
     if (this.stockStatus) queryParams.stockStatus = this.stockStatus;
     if (this.sortOption !== 'newest') queryParams.sort = this.sortOption;
     if (this.selectedCategories.length > 0) queryParams.category = this.selectedCategories.join(',');
@@ -161,6 +165,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.searchTerm = '';
     this.minPrice = null;
     this.maxPrice = null;
+    this.minRating = null;
     this.selectedCategories = [];
     this.stockStatus = '';
     this.sortOption = 'newest';
