@@ -49,7 +49,8 @@ const cartWorker = new Worker('cart-expiration', async (job) => {
   stalledInterval: 300000, 
   lockDuration: 60000,     
   removeOnComplete: { count: 10 }, 
-  removeOnFail: { count: 10 }      
+  removeOnFail: { count: 10 },
+  drainDelay: 10
 });
 
 cartWorker.on('completed', (job) => {
@@ -59,5 +60,7 @@ cartWorker.on('completed', (job) => {
 cartWorker.on('failed', (job, err) => {
   console.error(`❌ [BULLMQ] Job ${job.id} failed:`, err.message);
 });
+
+
 
 module.exports = cartWorker;

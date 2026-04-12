@@ -9,6 +9,7 @@ import { AdminUsersComponent } from '../admin-users/admin-users.component';
 import { AdminProductsComponent } from '../admin-products/admin-products.component';
 import { AdminCategoriesComponent } from '../admin-categories/admin-categories.component';
 import { NotificationBellComponent } from '../../core/components/notification-bell/notification-bell';
+import { AdminFormDrawerComponent } from './shared/admin-form-drawer/admin-form-drawer.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { NotificationBellComponent } from '../../core/components/notification-be
     AdminUsersComponent,
     AdminProductsComponent,
     AdminCategoriesComponent,
+    AdminFormDrawerComponent,
   ],
   imports: [
     CommonModule,

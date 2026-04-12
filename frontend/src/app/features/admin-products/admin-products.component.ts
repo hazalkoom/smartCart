@@ -47,6 +47,7 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
   deletingProductId: string | null = null;
   isEditing: boolean = false;
   editingProductId: string | null = null;
+  isDrawerOpen: boolean = false;
 
   currentPage: number = 1;
   pageSize: number = 10;
@@ -115,6 +116,12 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     // File upload not currently supported, ignore
   }
 
+  openCreateDrawer(): void {
+    this.errorMessage = '';
+    this.resetForm();
+    this.isDrawerOpen = true;
+  }
+
   addProduct(): void {
     if (!this.productForm.name || !this.productForm.price || !this.productForm.stock || !this.productForm.category || !this.productForm.sku) {
       this.errorMessage = 'Please fill in all required fields (Name, Price, Stock, Category, SKU)';
@@ -144,6 +151,7 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     const sub = request$.subscribe({
       next: (res: any) => {
         this.successMessage = this.isEditing ? 'Product updated successfully!' : 'Product created successfully!';
+        this.isDrawerOpen = false;
         this.resetForm();
         this.loadData();
         this.isSubmitting = false;
@@ -207,7 +215,12 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
       stock: product.stock?.toString() || '',
       imageUrl: product.images && product.images.length > 0 ? product.images[0] : ''
     };
-    this.scrollToForm();
+  }
+
+  openEditDrawer(product: Product): void {
+    this.errorMessage = '';
+    this.startEdit(product);
+    this.isDrawerOpen = true;
   }
 
   getCategoryName(product: Product): string {
@@ -239,6 +252,12 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     this.resetForm();
   }
 
+  closeDrawer(): void {
+    this.isDrawerOpen = false;
+    this.cancelEdit();
+    this.isSubmitting = false;
+  }
+
   applyPagination(): void {
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
@@ -268,11 +287,6 @@ export class AdminProductsComponent implements OnInit, OnDestroy {
     }
 
     return 'assets/images/placeholder.jpg';
-  }
-
-  private scrollToForm(): void {
-    if (typeof window === 'undefined') return;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   getProductImage(product: Product): string {

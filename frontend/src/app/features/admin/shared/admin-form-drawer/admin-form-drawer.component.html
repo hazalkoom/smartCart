@@ -1,0 +1,28 @@
+<div class="admin-drawer-shell" [class.open]="isOpen" [attr.aria-hidden]="!isOpen">
+  <div class="admin-drawer-backdrop" (click)="onBackdropClick()"></div>
+
+  <aside
+    #panel
+    class="admin-drawer-panel"
+    [class.open]="isOpen"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="titleId"
+    tabindex="-1"
+    (keydown)="onPanelKeydown($event)">
+    <header class="admin-drawer-header">
+      <h5 [id]="titleId">{{ title }}</h5>
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary admin-drawer-close-btn"
+        aria-label="Close form panel"
+        (click)="requestClose()">
+        Close
+      </button>
+    </header>
+
+    <div class="admin-drawer-body">
+      <ng-content></ng-content>
+    </div>
+  </aside>
+</div>

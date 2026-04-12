@@ -1,7 +1,12 @@
 <section class="admin-page admin-categories-page">
-  <div class="admin-page-header">
-    <h1>Categories Management</h1>
-    <p>Build a clean taxonomy that keeps products organized and discoverable.</p>
+  <div class="admin-page-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <div>
+      <h1>Categories Management</h1>
+      <p>Build a clean taxonomy that keeps products organized and discoverable.</p>
+    </div>
+    <button class="btn btn-primary btn-sm" type="button" (click)="openCreateDrawer()">
+      {{ isEditing ? 'New Category' : 'Add Category' }}
+    </button>
   </div>
 
   <!-- Success Message -->
@@ -19,58 +24,6 @@
       <button type="button" class="btn-close" (click)="errorMessage = ''" aria-label="Close"></button>
     </div>
   }
-
-  <!-- Add / Edit Category Form -->
-  <div class="admin-panel admin-form-card mb-4">
-    <div class="admin-panel-header">
-      <div class="d-flex justify-content-between align-items-center">
-        <h5 class="card-title mb-0">{{ isEditing ? 'Edit Category' : 'Add New Category' }}</h5>
-        @if (isEditing) {
-          <button class="btn btn-sm btn-outline-light" (click)="cancelEdit()">Cancel</button>
-        }
-      </div>
-    </div>
-    <div class="admin-panel-body">
-      <form (ngSubmit)="createCategory()">
-        <div class="row">
-          <div class="col-md-6 mb-3">
-            <label class="form-label">Category Name *</label>
-            <input
-              type="text"
-              class="form-control"
-              placeholder="e.g., Electronics"
-              [(ngModel)]="categoryForm.name"
-              name="name"
-              required>
-            </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Description</label>
-              <input
-                type="text"
-                class="form-control"
-                placeholder="Brief description"
-                [(ngModel)]="categoryForm.description"
-                name="description">
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              class="btn btn-primary"
-              [disabled]="isSubmitting">
-              @if (!isSubmitting) {
-                <span>{{ isEditing ? 'Update Category' : '+ Add Category' }}</span>
-              }
-              @if (isSubmitting) {
-                <span>
-                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Saving...
-                </span>
-              }
-            </button>
-          </form>
-        </div>
-      </div>
 
       <!-- Categories Grid -->
       <div>
@@ -97,7 +50,7 @@
                     Created: {{ (category.createdAt | date:'MMM d, y') || 'N/A' }}
                   </small>
                   <div class="category-actions">
-                    <button class="btn btn-sm btn-outline-primary" (click)="startEdit(category)">Edit</button>
+                    <button class="btn btn-sm btn-outline-primary" (click)="openEditDrawer(category)">Edit</button>
                     <button
                       class="delete-category-btn"
                       (click)="deleteCategory(category._id)"
@@ -124,8 +77,57 @@
           <div class="category-list-empty">
             <div class="empty-icon">C</div>
             <p>No categories found.</p>
-            <p class="small text-muted">Create your first category using the form above!</p>
+            <p class="small text-muted">Create your first category using the Add Category button.</p>
           </div>
         }
       </div>
+
+      <app-admin-form-drawer
+        [isOpen]="isDrawerOpen"
+        [title]="isEditing ? 'Edit Category' : 'Add New Category'"
+        (close)="closeDrawer()">
+        <form (ngSubmit)="createCategory()" class="drawer-form">
+          <div class="row g-2">
+            <div class="col-12">
+              <label class="form-label">Category Name *</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="e.g., Electronics"
+                [(ngModel)]="categoryForm.name"
+                name="name"
+                required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <input
+                type="text"
+                class="form-control"
+                placeholder="Brief description"
+                [(ngModel)]="categoryForm.description"
+                name="description">
+            </div>
+          </div>
+
+          <div class="mt-3 d-flex gap-2">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="isSubmitting">
+              @if (!isSubmitting) {
+                <span>{{ isEditing ? 'Update Category' : '+ Add Category' }}</span>
+              }
+              @if (isSubmitting) {
+                <span>
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Saving...
+                </span>
+              }
+            </button>
+            <button class="btn btn-outline-secondary" type="button" (click)="closeDrawer()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </app-admin-form-drawer>
     </section>

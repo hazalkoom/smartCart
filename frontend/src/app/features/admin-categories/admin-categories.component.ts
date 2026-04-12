@@ -24,6 +24,7 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
   errorMessage: string = '';
   successMessage: string = '';
   deletingCategoryId: string | null = null;
+  isDrawerOpen: boolean = false;
 
   private subscriptions: Subscription[] = [];
 
@@ -60,6 +61,12 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
     this.subscriptions.push(sub);
   }
 
+  openCreateDrawer(): void {
+    this.errorMessage = '';
+    this.resetForm();
+    this.isDrawerOpen = true;
+  }
+
   createCategory(): void {
     if (!this.categoryForm.name.trim()) {
       this.errorMessage = 'Category name is required';
@@ -82,6 +89,7 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
     const sub = request$.subscribe({
       next: (res: any) => {
         this.successMessage = this.isEditing ? 'Category updated successfully!' : 'Category created successfully!';
+        this.isDrawerOpen = false;
         this.resetForm();
         this.loadCategories();
         this.isSubmitting = false;
@@ -133,15 +141,21 @@ export class AdminCategoriesComponent implements OnInit, OnDestroy {
       name: category.name,
       description: category.description || ''
     };
-    this.scrollToForm();
+  }
+
+  openEditDrawer(category: Category): void {
+    this.errorMessage = '';
+    this.startEdit(category);
+    this.isDrawerOpen = true;
   }
 
   cancelEdit(): void {
     this.resetForm();
   }
 
-  private scrollToForm(): void {
-    if (typeof window === 'undefined') return;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  closeDrawer(): void {
+    this.isDrawerOpen = false;
+    this.cancelEdit();
+    this.isSubmitting = false;
   }
 }

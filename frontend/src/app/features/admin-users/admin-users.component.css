@@ -15,12 +15,22 @@
 }
 
 .admin-panel-header {
-    padding: 1rem;
+    padding: 0.92rem;
     border-bottom: 1px solid var(--border);
 }
 
 .admin-panel-body {
-    padding: 1rem;
+    padding: 0.92rem;
+}
+
+.btn {
+    padding: 0.6rem 1.3rem;
+    font-size: 0.76rem;
+}
+
+.btn.btn-sm {
+    padding: 0.34rem 0.6rem;
+    font-size: 0.72rem;
 }
 
 .table-hover tbody tr:hover {
@@ -77,14 +87,14 @@
 }
 
 .stat-avatar-blue {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     background: linear-gradient(135deg, var(--primary), #0a8fa8);
 }
 
 .stat-avatar-indigo {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     background: linear-gradient(135deg, var(--accent), #4a3fa8);
 }
 
@@ -101,7 +111,7 @@
 }
 
 .table-header-cell {
-    font-size: 11px;
+    font-size: 10px;
     letter-spacing: 0.5px;
 }
 
@@ -116,9 +126,9 @@
 
 .user-avatar-sm,
 .user-avatar-sm-pink {
-    width: 36px;
-    height: 36px;
-    font-size: 13px;
+    width: 34px;
+    height: 34px;
+    font-size: 12px;
 }
 
 .user-avatar-sm {
@@ -149,6 +159,10 @@
     color: #eaf4ff;
     border-color: var(--border);
     box-shadow: none;
+    padding-top: 0.72rem;
+    padding-bottom: 0.72rem;
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
 }
 
 .table td,
@@ -204,4 +218,14 @@
 
 .form-label {
     color: #f5fbff;
+}
+
+.drawer-form .form-control,
+.drawer-form .form-select {
+    width: 100%;
+    min-height: 40px;
+}
+
+.drawer-form .form-select {
+    padding-right: 2rem;
 }

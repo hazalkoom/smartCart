@@ -26,6 +26,7 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
   isSubmitting: boolean = false;
   isEditing: boolean = false;
   editingUserId: string | null = null;
+  isDrawerOpen: boolean = false;
   userForm = {
     firstName: '',
     lastName: '',
@@ -149,6 +150,12 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
     this.resetForm();
   }
 
+  openCreateDrawer(): void {
+    this.errorMessage = '';
+    this.startCreate();
+    this.isDrawerOpen = true;
+  }
+
   startEdit(user: User): void {
     this.isEditing = true;
     this.editingUserId = user._id;
@@ -159,11 +166,22 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
       role: user.role,
       password: ''
     };
-    this.scrollToForm();
+  }
+
+  openEditDrawer(user: User): void {
+    this.errorMessage = '';
+    this.startEdit(user);
+    this.isDrawerOpen = true;
   }
 
   cancelEdit(): void {
     this.startCreate();
+  }
+
+  closeDrawer(): void {
+    this.isDrawerOpen = false;
+    this.cancelEdit();
+    this.isSubmitting = false;
   }
 
   submitUserForm(): void {
@@ -204,6 +222,7 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
         this.successMessage = this.isEditing ? 'User updated successfully' : 'User created successfully';
         setTimeout(() => this.successMessage = '', 3000);
         this.isSubmitting = false;
+        this.isDrawerOpen = false;
         this.startCreate();
         this.loadAllUsers();
       },
@@ -224,11 +243,6 @@ export class AdminUsersComponent implements OnInit, OnDestroy {
       role: 'customer',
       password: ''
     };
-  }
-
-  private scrollToForm(): void {
-    if (typeof window === 'undefined') return;
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   formatDate(date: string): string {
