@@ -1,6 +1,22 @@
 const mongoose = require('mongoose');
 const logger = require('../utils/logger');
-const { MongoMemoryServer } = require('mongodb-memory-server');
+
+let MongoMemoryServer = null;
+
+const getMongoMemoryServer = () => {
+  if (MongoMemoryServer) {
+    return MongoMemoryServer;
+  }
+
+  try {
+    ({ MongoMemoryServer } = require('mongodb-memory-server'));
+    return MongoMemoryServer;
+  } catch (error) {
+    throw new Error(
+      'mongodb-memory-server is required for local fallback when MONGODB_URI is unavailable. Install dev dependencies or provide a reachable MONGODB_URI.'
+    );
+  }
+};
 
 let memoryServer = null;
 
@@ -10,22 +26,24 @@ const connectDB = async () => {
       family: 4,
       serverSelectionTimeoutMS: 5000,
     });
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
+    logger.info('MongoDB Connected: ' + conn.connection.host);
   } catch (error) {
     if (process.env.NODE_ENV === 'production') {
-      console.error(`Error: ${error.message}`);
+      logger.error('MongoDB connection failed in production: ' + error.message);
       process.exit(1);
     }
 
-    console.warn(`MongoDB primary connection failed (${error.message}). Falling back to in-memory MongoDB for local development/testing.`);
+    logger.warn('MongoDB primary connection failed (' + error.message + '). Falling back to in-memory MongoDB for local development/testing.');
 
-    memoryServer = await MongoMemoryServer.create();
+    const InMemoryMongoServer = getMongoMemoryServer();
+
+    memoryServer = await InMemoryMongoServer.create();
     const memoryUri = memoryServer.getUri();
     const conn = await mongoose.connect(memoryUri, {
       serverSelectionTimeoutMS: 5000,
     });
     process.env.MONGODB_URI = memoryUri;
-    console.log(`MongoDB Connected (memory): ${conn.connection.host}`);
+    logger.info('MongoDB Connected (memory): ' + conn.connection.host);
   }
 };
 
