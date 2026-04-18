@@ -173,7 +173,7 @@ def test_pay_logic_wallet_requirement(payment_ctx):
     # Add item
     requests.post(f"{cart_url}/items", json={"productId": payment_ctx['product_id'], "quantity": 1}, headers=headers)
     # Create Order
-    res_ord = requests.post(order_url, json={"shippingAddress": {"street": "St", "city": "C", "country": "E"}}, headers=headers)
+    res_ord = requests.post(order_url, json={"shippingAddress": {"street": "St", "city": "C", "country": "Egypt"}}, headers=headers)
     assert res_ord.status_code == 201, f"Attacker order creation failed: {res_ord.text}"
     attacker_order_payload = res_ord.json().get('data', {})
     attacker_order_obj = attacker_order_payload.get('order', attacker_order_payload)

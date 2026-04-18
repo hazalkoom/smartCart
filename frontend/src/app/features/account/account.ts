@@ -6,6 +6,7 @@ import { AuthService } from '../../core/services/auth';
 import { OrderService } from '../../core/services/order';
 import { User } from '../../core/interfaces/user';
 import { Order } from '../../core/interfaces/order';
+import { COUNTRIES, normalizeCountryName } from '../../core/constants/countries';
 
 @Component({
   selector: 'app-account',
@@ -19,6 +20,7 @@ export class Account implements OnInit, OnDestroy {
   isLoading: boolean = true;
   errorMessage: string = '';
   activeTab: 'profile' | 'orders' | 'addresses' = 'profile';
+  readonly countries = COUNTRIES;
   
   // --- Edit State Variables ---
   isEditing: boolean = false;
@@ -142,6 +144,8 @@ export class Account implements OnInit, OnDestroy {
       return;
     }
 
+    this.newAddress.country = normalizeCountryName(this.newAddress.country);
+
     this.authService.addAddress(this.newAddress).subscribe({
       next: (res) => {
         this.addressSuccessMessage = 'Address successfully saved to database!';
@@ -202,6 +206,10 @@ export class Account implements OnInit, OnDestroy {
 
   getPendingOrdersCount(): number {
     return this.orders.filter(order => order.status.toLowerCase() === 'pending' || order.status.toLowerCase() === 'paid').length;
+  }
+
+  getCountryDisplayName(country: string): string {
+    return normalizeCountryName(country);
   }
 
   ngOnDestroy(): void {

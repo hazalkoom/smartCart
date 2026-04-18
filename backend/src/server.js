@@ -12,6 +12,7 @@ const mongoose = require('mongoose');
 const connectDB = require('./config/mongoDataBaseConnection');      
 const logger = require('./utils/logger');
 const { errorHandler } = require('./middleware/errorMiddleware');   
+const User = require('./models/userModel');
 
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
@@ -21,6 +22,7 @@ const orderRoutes = require('./routes/orderRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const userRoutes = require('./routes/userRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const swaggerSpec = require('./config/swagger');
 const socket = require('./utils/socket');
@@ -80,6 +82,7 @@ app.use('/api/v1/orders', orderRoutes);
 app.use('/api/v1/reviews', reviewRoutes);
 app.use('/api/v1/webhook', webhookRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/notifications', notificationRoutes);
 
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({ success: true, message: 'API is healthy' });
@@ -134,6 +137,42 @@ const safeCloseMongo = async () => {
 
 const startServer = async () => {
   await connectDB();
+
+  if (process.env.NODE_ENV !== 'production') {
+    const ownerEmail = 'owner@test.com';
+    const ownerPassword = 'password123';
+    const owner = await User.findOne({ email: ownerEmail }).select('+password');
+
+    if (!owner) {
+      await User.create({
+        firstName: 'Owner',
+        lastName: 'User',
+        email: ownerEmail,
+        password: ownerPassword,
+        role: 'owner',
+        mobileNumber: '01000000000',
+      });
+      logger.info('Seeded default owner account for local testing.');
+    } else {
+      let needsSave = false;
+
+      if (owner.role !== 'owner') {
+        owner.role = 'owner';
+        needsSave = true;
+      }
+
+      const passwordMatches = await owner.matchPassword(ownerPassword).catch(() => false);
+      if (!passwordMatches) {
+        owner.password = ownerPassword;
+        needsSave = true;
+      }
+
+      if (needsSave) {
+        await owner.save();
+        logger.info('Refreshed default owner account for local testing.');
+      }
+    }
+  }
 
   const server = app.listen(PORT, () => {
     logger.info('Server running in ' + process.env.NODE_ENV + ' mode at: http://localhost:' + PORT);

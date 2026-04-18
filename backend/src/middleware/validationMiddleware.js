@@ -1,6 +1,7 @@
 const { body, validationResult } = require('express-validator');
 const asyncHandler = require('../utils/asyncHandler');
 const mongoose = require('mongoose');
+const { isAllowedCountryName } = require('../constants/countries');
 
 const validate = asyncHandler((req, res, next) => {
   const errors = validationResult(req);
@@ -140,9 +141,39 @@ const cartQtyValidationRules = [
 
 const orderCreateValidationRules = [
   body('shippingAddress').notEmpty().withMessage('Shipping address is required'),
-  body('shippingAddress.street').notEmpty().withMessage('Street is required'),
-  body('shippingAddress.city').notEmpty().withMessage('City is required'),
-  body('shippingAddress.country').notEmpty().withMessage('Country is required'),
+  body('shippingAddress.street').notEmpty().withMessage('Street is required').isString().withMessage('Street must be a string').trim(),
+  body('shippingAddress.city').notEmpty().withMessage('City is required').isString().withMessage('City must be a string').trim(),
+  body('shippingAddress.country')
+    .notEmpty()
+    .withMessage('Country is required')
+    .isString()
+    .withMessage('Country must be a string')
+    .trim()
+    .custom((value) => {
+      if (!isAllowedCountryName(value)) {
+        throw new Error('Country is invalid or unsupported');
+      }
+      return true;
+    }),
+];
+
+const addressValidationRules = [
+  body('alias').notEmpty().withMessage('Alias is required').isString().withMessage('Alias must be a string').trim(),
+  body('street').notEmpty().withMessage('Street is required').isString().withMessage('Street must be a string').trim(),
+  body('city').notEmpty().withMessage('City is required').isString().withMessage('City must be a string').trim(),
+  body('postalCode').notEmpty().withMessage('Postal code is required').isString().withMessage('Postal code must be a string').trim(),
+  body('country')
+    .notEmpty()
+    .withMessage('Country is required')
+    .isString()
+    .withMessage('Country must be a string')
+    .trim()
+    .custom((value) => {
+      if (!isAllowedCountryName(value)) {
+        throw new Error('Country is invalid or unsupported');
+      }
+      return true;
+    }),
 ];
 
 const orderStatusValidationRules = [
@@ -234,6 +265,7 @@ module.exports = {
   reviewValidationRules,
   reviewUpdateValidationRules,
   payOrderValidationRules,
+  addressValidationRules,
   forgotPasswordValidationRules,
   resetPasswordValidationRules,
 };

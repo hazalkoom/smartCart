@@ -1,7 +1,7 @@
 const { Worker } = require('bullmq');
 const redisClient = require('../utils/redisClient');
 const Cart = require('../models/cartModel');
-const socket = require('../utils/socket');
+const { persistAndEmitUserNotification } = require('../services/notificationService');
 
 const cartWorker = new Worker('cart-expiration', async (job) => {
   const { userId, productId, quantity } = job.data;
@@ -33,11 +33,12 @@ const cartWorker = new Worker('cart-expiration', async (job) => {
     await redisClient.decrby(`locked_stock:${productId}`, quantity);
     console.log(`🔓 [WORKER] Cart Expired. Released lock for ${quantity} of Product ${productId}`);
 
-    const io = socket.getIO();
-    io.to(userId.toString()).emit('orderStatusChanged', { 
-      orderId: 'CART_TIMEOUT',
+    await persistAndEmitUserNotification({
+      userId,
+      type: 'order-status-changed',
+      eventName: 'orderStatusChanged',
       status: 'Expired',
-      message: 'You took too long to checkout! The item has been removed from your cart and given to someone else.'
+      message: 'You took too long to checkout! The item has been removed from your cart and given to someone else.',
     });
 
   } catch (error) {

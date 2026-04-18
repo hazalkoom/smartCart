@@ -13,6 +13,7 @@ const {
 } = require('../controllers/authController');
 
 const { protect } = require('../middleware/authMiddleware');
+const { validate, addressValidationRules } = require('../middleware/validationMiddleware');
 
 const router = express.Router();
 
@@ -43,7 +44,7 @@ router.post('/wishlist', protect, toggleWishlist);
 router.get('/wishlist', protect, getWishlist);
 
 // Address Routes
-router.post('/addresses', protect, addAddress);
+router.post('/addresses', protect, addressValidationRules, validate, addAddress);
 router.delete('/addresses/:id', protect, deleteAddress);
 
 module.exports = router;

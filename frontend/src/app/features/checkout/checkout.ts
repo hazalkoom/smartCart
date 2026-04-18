@@ -8,6 +8,7 @@ import { Cart } from '../../core/interfaces/cart';
 import { Subscription } from 'rxjs';
 import { User, Address } from '../../core/interfaces/user';
 import { environment } from '../../../environments/environment';
+import { COUNTRIES, normalizeCountryName } from '../../core/constants/countries';
 
 @Component({
   selector: 'app-checkout',
@@ -22,6 +23,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   isProcessing: boolean = false;
   error: string = '';
   shippingCost: number = 5.00;
+  readonly countries = COUNTRIES;
 
   // Order Success State
   orderPlaced: boolean = false;
@@ -115,10 +117,14 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           city: addr.city,
           state: addr.state || '',
           postalCode: addr.postalCode,
-          country: addr.country
+          country: normalizeCountryName(addr.country)
         };
       }
     }
+  }
+
+  getCountryDisplayName(country: string): string {
+    return normalizeCountryName(country);
   }
 
   loadCart() {

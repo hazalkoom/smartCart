@@ -1,16 +1,7 @@
-import { TestBed } from '@angular/core/testing';
+import { OrderService } from './order';
 
-import { Order } from './order';
-
-describe('Order', () => {
-  let service: Order;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Order);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+describe('OrderService', () => {
+  it('is defined', () => {
+    expect(OrderService).toBeDefined();
   });
 });

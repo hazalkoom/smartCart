@@ -5,9 +5,11 @@ import { Subject } from 'rxjs';
 import type { Socket } from 'socket.io-client';
 
 interface SocketEvent {
-  orderId: string;
+  notificationId?: string;
+  orderId?: string;
   message: string;
   status?: string;
+  timestamp?: number;
 }
 
 @Injectable({

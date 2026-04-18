@@ -4,8 +4,12 @@ jest.mock('../../src/models/cartModel', () => ({
 
 const Cart = require('../../src/models/cartModel');
 const redisClient = require('../../src/utils/redisClient');
-const socket = require('../../src/utils/socket');
+const { persistAndEmitUserNotification } = require('../../src/services/notificationService');
 const { __mockWorkerInstances } = require('bullmq');
+
+jest.mock('../../src/services/notificationService', () => ({
+  persistAndEmitUserNotification: jest.fn(),
+}));
 
 require('../../src/workers/cartWorker');
 
@@ -19,7 +23,7 @@ describe('cartWorker', () => {
     jest.clearAllMocks();
   });
 
-  it('removes unpaid item, releases lock, and emits orderStatusChanged', async () => {
+  it('removes unpaid item, releases lock, and persists orderStatusChanged notification', async () => {
     const cart = {
       items: [
         { productId: { toString: () => 'prod-1' }, quantity: 2, price: 10 },
@@ -39,10 +43,13 @@ describe('cartWorker', () => {
     expect(cart.subtotal).toBe(7);
     expect(cart.save).toHaveBeenCalled();
     expect(redisClient.decrby).toHaveBeenCalledWith('locked_stock:prod-1', 2);
-    expect(socket.__mockSocketTo).toHaveBeenCalledWith('user-1');
-    expect(socket.__mockSocketEmit).toHaveBeenCalledWith(
-      'orderStatusChanged',
-      expect.objectContaining({ orderId: 'CART_TIMEOUT', status: 'Expired' })
+    expect(persistAndEmitUserNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: 'user-1',
+        type: 'order-status-changed',
+        eventName: 'orderStatusChanged',
+        status: 'Expired',
+      })
     );
   });
 
@@ -53,7 +60,7 @@ describe('cartWorker', () => {
     await processJob({ data: { userId: 'user-1', productId: 'prod-1', quantity: 2 } });
 
     expect(redisClient.decrby).not.toHaveBeenCalled();
-    expect(socket.__mockSocketEmit).not.toHaveBeenCalled();
+    expect(persistAndEmitUserNotification).not.toHaveBeenCalled();
   });
 
   it('does nothing when item is already gone from cart', async () => {
@@ -70,6 +77,6 @@ describe('cartWorker', () => {
 
     expect(cart.save).not.toHaveBeenCalled();
     expect(redisClient.decrby).not.toHaveBeenCalled();
-    expect(socket.__mockSocketEmit).not.toHaveBeenCalled();
+    expect(persistAndEmitUserNotification).not.toHaveBeenCalled();
   });
 });

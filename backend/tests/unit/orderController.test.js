@@ -14,9 +14,13 @@ jest.mock('../../src/services/paymobService', () => ({
   initiatePayment: jest.fn(),
 }));
 
+jest.mock('../../src/services/notificationService', () => ({
+  persistAndEmitUserNotification: jest.fn(),
+}));
+
 const Order = require('../../src/models/orderModel');
 const OrderService = require('../../src/services/orderService');
-const socket = require('../../src/utils/socket');
+const { persistAndEmitUserNotification } = require('../../src/services/notificationService');
 
 const {
   createOrder,
@@ -80,11 +84,14 @@ describe('orderController', () => {
     await updateOrderStatus(req, res, next);
 
     expect(OrderService.updateOrderStatus).toHaveBeenCalledWith('order-1', 'Shipped');
-    expect(socket.getIO).toHaveBeenCalled();
-    expect(socket.__mockSocketTo).toHaveBeenCalledWith('user-1');
-    expect(socket.__mockSocketEmit).toHaveBeenCalledWith(
-      'orderStatusChanged',
-      expect.objectContaining({ orderId: 'order-1', status: 'Shipped' })
+    expect(persistAndEmitUserNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: order.userId,
+        type: 'order-status-changed',
+        eventName: 'orderStatusChanged',
+        orderId: 'order-1',
+        status: 'Shipped',
+      })
     );
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({

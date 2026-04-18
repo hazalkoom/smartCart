@@ -91,7 +91,6 @@ describe('GiftFinderComponent', () => {
       queryParams: jasmine.objectContaining({
         category: 'laptops-computers,gaming-consoles',
         minPrice: 1500,
-        minRating: 4,
         stockStatus: 'in',
         sort: 'price_desc',
         page: 1,

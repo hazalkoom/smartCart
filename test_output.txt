@@ -1,0 +1,108 @@
+
+> frontend@0.0.0 test
+> ng test
+
+[33mΓ¥»[39m Building...
+[32mΓ£ö[39m Building...
+[1mInitial chunk files[22m                                    [2m | [22m[1mNames[22m                                               [2m | [22m [1mRaw size[22m
+[32mchunk-SEJC7OIE.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m  [36m1.10 MB[39m[2m | [22m
+[32mchunk-ODQDNVF6.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m  [36m1.09 MB[39m[2m | [22m
+[32mpolyfills.js[39m                                           [2m | [22m[2mpolyfills[22m                                           [2m | [22m  [36m1.01 MB[39m[2m | [22m
+[32mchunk-BP23THB6.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m[36m192.51 kB[39m[2m | [22m
+[32mchunk-B7YTRYCB.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m[36m182.91 kB[39m[2m | [22m
+[32mchunk-27HWYE22.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m [36m90.66 kB[39m[2m | [22m
+[32mjasmine-cleanup-1.js[39m                                   [2m | [22m[2mjasmine-cleanup-1[22m                                   [2m | [22m [36m67.20 kB[39m[2m | [22m
+[32mspec-app-features-product-detail-product-detail.spec.js[39m[2m | [22m[2mspec-app-features-product-detail-product-detail.spec[22m[2m | [22m [36m43.23 kB[39m[2m | [22m
+[32mchunk-PAD6PKOA.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m [36m40.49 kB[39m[2m | [22m
+[32mspec-app-features-product-list-product-list.spec.js[39m    [2m | [22m[2mspec-app-features-product-list-product-list.spec[22m    [2m | [22m [36m36.71 kB[39m[2m | [22m
+[32mspec-app-features-checkout-checkout.spec.js[39m            [2m | [22m[2mspec-app-features-checkout-checkout.spec[22m            [2m | [22m [36m33.90 kB[39m[2m | [22m
+[32mspec-app-features-gift-finder-gift-finder.spec.js[39m      [2m | [22m[2mspec-app-features-gift-finder-gift-finder.spec[22m      [2m | [22m [36m31.03 kB[39m[2m | [22m
+[32mspec-app-features-account-account.spec.js[39m              [2m | [22m[2mspec-app-features-account-account.spec[22m              [2m | [22m [36m28.34 kB[39m[2m | [22m
+[32mspec-app-features-home-home.spec.js[39m                    [2m | [22m[2mspec-app-features-home-home.spec[22m                    [2m | [22m [36m27.91 kB[39m[2m | [22m
+[32mtest_main.js[39m                                           [2m | [22m[2mtest_main[22m                                           [2m | [22m [36m22.23 kB[39m[2m | [22m
+[32mspec-app-features-order-detail-order-detail.spec.js[39m    [2m | [22m[2mspec-app-features-order-detail-order-detail.spec[22m    [2m | [22m [36m21.34 kB[39m[2m | [22m
+[32mstyles.css[39m                                             [2m | [22m[2mstyles[22m                                              [2m | [22m [36m20.16 kB[39m[2m | [22m
+[32mspec-app-core-components-header-header.spec.js[39m         [2m | [22m[2mspec-app-core-components-header-header.spec[22m         [2m | [22m [36m17.28 kB[39m[2m | [22m
+[32mspec-app-features-cart-cart.spec.js[39m                    [2m | [22m[2mspec-app-features-cart-cart.spec[22m                    [2m | [22m [36m16.71 kB[39m[2m | [22m
+[32mspec-app-core-services-notification.spec.js[39m            [2m | [22m[2mspec-app-core-services-notification.spec[22m            [2m | [22m [36m15.99 kB[39m[2m | [22m
+[32mspec-app-features-register-register.spec.js[39m            [2m | [22m[2mspec-app-features-register-register.spec[22m            [2m | [22m [36m10.46 kB[39m[2m | [22m
+[32mspec-app-app.spec.js[39m                                   [2m | [22m[2mspec-app-app.spec[22m                                   [2m | [22m  [36m8.87 kB[39m[2m | [22m
+[32mchunk-P6EW2ASO.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m  [36m7.66 kB[39m[2m | [22m
+[32mchunk-ZBA4VVXW.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m  [36m7.22 kB[39m[2m | [22m
+[32mchunk-KD2YQCV6.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m  [36m7.18 kB[39m[2m | [22m
+[32mspec-app-features-login-login.spec.js[39m                  [2m | [22m[2mspec-app-features-login-login.spec[22m                  [2m | [22m  [36m6.34 kB[39m[2m | [22m
+[32mspec-app-core-components-footer-footer.spec.js[39m         [2m | [22m[2mspec-app-core-components-footer-footer.spec[22m         [2m | [22m  [36m6.32 kB[39m[2m | [22m
+[32mspec-app-features-category-category.spec.js[39m            [2m | [22m[2mspec-app-features-category-category.spec[22m            [2m | [22m  [36m5.98 kB[39m[2m | [22m
+[32mchunk-3WXM3TUC.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m  [36m5.65 kB[39m[2m | [22m
+[32mchunk-WCT2YFM2.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m  [36m5.53 kB[39m[2m | [22m
+[32mchunk-UTI3XN5E.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m  [36m4.09 kB[39m[2m | [22m
+[32mchunk-H36VBPAG.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m  [36m2.29 kB[39m[2m | [22m
+[32mchunk-TVEI2AHC.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m  [36m2.24 kB[39m[2m | [22m
+[32mspec-app-core-services-auth.spec.js[39m                    [2m | [22m[2mspec-app-core-services-auth.spec[22m                    [2m | [22m  [36m1.65 kB[39m[2m | [22m
+[32mchunk-BJ2IRKBZ.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m  [36m1.33 kB[39m[2m | [22m
+[32mspec-app-core-services-socket.spec.js[39m                  [2m | [22m[2mspec-app-core-services-socket.spec[22m                  [2m | [22m  [36m1.23 kB[39m[2m | [22m
+[32mchunk-J7GXRWDB.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m[36m934 bytes[39m[2m | [22m
+[32mspec-app-core-services-cart.spec.js[39m                    [2m | [22m[2mspec-app-core-services-cart.spec[22m                    [2m | [22m[36m557 bytes[39m[2m | [22m
+[32mjasmine-cleanup-0.js[39m                                   [2m | [22m[2mjasmine-cleanup-0[22m                                   [2m | [22m[36m519 bytes[39m[2m | [22m
+[32mspec-app-core-services-category.spec.js[39m                [2m | [22m[2mspec-app-core-services-category.spec[22m                [2m | [22m[36m435 bytes[39m[2m | [22m
+[32mspec-app-core-services-product.spec.js[39m                 [2m | [22m[2mspec-app-core-services-product.spec[22m                 [2m | [22m[36m428 bytes[39m[2m | [22m
+[32mchunk-DLHNAZFI.js[39m                                      [2m | [22m[2m-[22m                                                   [2m | [22m[36m426 bytes[39m[2m | [22m
+[32mspec-app-core-services-order.spec.js[39m                   [2m | [22m[2mspec-app-core-services-order.spec[22m                   [2m | [22m[36m386 bytes[39m[2m | [22m
+
+[1m [22m                                                      [2m | [22m[1mInitial total[22m                                       [2m | [22m  [1m4.17 MB[22m
+
+[1mLazy chunk files[22m                                       [2m | [22m[1mNames[22m                                               [2m | [22m [1mRaw size[22m
+[32mchunk-CBNC3QWW.js[39m                                      [2m | [22m[2mindex[22m                                               [2m | [22m[36m125.10 kB[39m[2m | [22m
+
+Application bundle generation complete. [4.560 seconds] - 2026-04-18T09:50:36.794Z
+
+Watch mode enabled. Watching for file changes...
+[33m18 04 2026 11:50:37.256:WARN [karma]: [39mNo captured browser, open http://localhost:9876/
+[32m18 04 2026 11:50:37.320:INFO [karma-server]: [39mKarma v6.4.4 server started at http://localhost:9876/
+[32m18 04 2026 11:50:37.320:INFO [launcher]: [39mLaunching browsers Chrome with concurrency unlimited
+[32m18 04 2026 11:50:37.329:INFO [launcher]: [39mStarting browser Chrome
+[32m18 04 2026 11:50:38.782:INFO [Chrome 147.0.0.0 (Windows 10)]: [39mConnected on socket feYeFkJG1LWp4IvdAAAB with id 60514474
+Chrome 147.0.0.0 (Windows 10): Executed 0 of 41[32m SUCCESS[39m (0 secs / 0 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 1 of 41[32m SUCCESS[39m (0 secs / 0.004 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 2 of 41[32m SUCCESS[39m (0 secs / 0.005 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 3 of 41[32m SUCCESS[39m (0 secs / 0.005 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 4 of 41[32m SUCCESS[39m (0 secs / 0.005 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 5 of 41[32m SUCCESS[39m (0 secs / 0.006 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 6 of 41[32m SUCCESS[39m (0 secs / 0.007 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 7 of 41[32m SUCCESS[39m (0 secs / 0.007 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 8 of 41[32m SUCCESS[39m (0 secs / 0.008 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 9 of 41[32m SUCCESS[39m (0 secs / 0.008 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 10 of 41[32m SUCCESS[39m (0 secs / 0.009 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 11 of 41[32m SUCCESS[39m (0 secs / 0.009 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 12 of 41[32m SUCCESS[39m (0 secs / 0.009 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 13 of 41[32m SUCCESS[39m (0 secs / 0.09 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 14 of 41[32m SUCCESS[39m (0 secs / 0.123 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 15 of 41[32m SUCCESS[39m (0 secs / 0.129 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 16 of 41[32m SUCCESS[39m (0 secs / 0.135 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 17 of 41[32m SUCCESS[39m (0 secs / 0.141 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 18 of 41[32m SUCCESS[39m (0 secs / 0.147 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 19 of 41[32m SUCCESS[39m (0 secs / 0.154 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 20 of 41[32m SUCCESS[39m (0 secs / 0.155 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 21 of 41[32m SUCCESS[39m (0 secs / 0.156 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 22 of 41[32m SUCCESS[39m (0 secs / 0.157 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 23 of 41[32m SUCCESS[39m (0 secs / 0.157 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 24 of 41[32m SUCCESS[39m (0 secs / 0.157 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 25 of 41[32m SUCCESS[39m (0 secs / 0.157 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 26 of 41[32m SUCCESS[39m (0 secs / 0.158 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 27 of 41[32m SUCCESS[39m (0 secs / 0.159 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 28 of 41[32m SUCCESS[39m (0 secs / 0.16 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 29 of 41[32m SUCCESS[39m (0 secs / 0.167 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 30 of 41[32m SUCCESS[39m (0 secs / 0.17 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 31 of 41[32m SUCCESS[39m (0 secs / 0.173 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 32 of 41[32m SUCCESS[39m (0 secs / 0.175 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 33 of 41[32m SUCCESS[39m (0 secs / 0.178 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 34 of 41[32m SUCCESS[39m (0 secs / 0.179 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 35 of 41[32m SUCCESS[39m (0 secs / 0.179 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 36 of 41[32m SUCCESS[39m (0 secs / 0.18 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 37 of 41[32m SUCCESS[39m (0 secs / 0.181 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 38 of 41[32m SUCCESS[39m (0 secs / 0.181 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 39 of 41[32m SUCCESS[39m (0 secs / 0.181 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 40 of 41[32m SUCCESS[39m (0 secs / 0.182 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 41 of 41[32m SUCCESS[39m (0 secs / 0.225 secs)
+[1A[2KChrome 147.0.0.0 (Windows 10): Executed 41 of 41[32m SUCCESS[39m (0.391 secs / 0.225 secs)
+[32mTOTAL: 41 SUCCESS[39m

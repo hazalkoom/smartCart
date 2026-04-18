@@ -57,3 +57,24 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Deploy On Vercel
+
+This repository is a monorepo. The Vercel project can target the repo root and use the root-level `vercel.json` to build and deploy the Angular frontend as a static site.
+
+### What is configured
+
+- Build command: `npm --prefix frontend install && npm --prefix frontend run build`
+- Output directory: `frontend/dist/frontend/browser`
+- SPA fallback rewrite to `index.html` for client-side routes
+
+### Deploy steps
+
+1. Import the Git repository into Vercel.
+2. Keep the default Root Directory as repository root.
+3. Deploy. Vercel reads `vercel.json` automatically.
+
+### Environment notes
+
+- Frontend production API URL is configured in `src/environments/environment.prod.ts`.
+- If you later move backend APIs, update the production environment file and redeploy.

@@ -116,11 +116,9 @@
                         <label class="form-label">Country</label>
                         <select class="form-select" [(ngModel)]="shippingAddress.country" name="country" required>
                           <option value="">Select country</option>
-                          <option value="US">United States</option>
-                          <option value="GB">United Kingdom</option>
-                          <option value="CA">Canada</option>
-                          <option value="AU">Australia</option>
-                          <option value="DE">Germany</option>
+                          @for (country of countries; track country.code) {
+                            <option [value]="country.name">{{ country.name }}</option>
+                          }
                         </select>
                       </div>
                     </div>
@@ -190,7 +188,7 @@
                 <div class="sc-review-block-title">Shipping to</div>
                 <p>{{ firstName }} {{ lastName }}<br>
                   {{ shippingAddress.street }}, {{ shippingAddress.city }}, {{ shippingAddress.postalCode }}<br>
-                {{ shippingAddress.country }}</p>
+                {{ getCountryDisplayName(shippingAddress.country) }}</p>
               </div>
               <div class="sc-review-block">
                 <div class="sc-review-block-title">Payment</div>

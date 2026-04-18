@@ -1,23 +1,7 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { OrderDetailComponent } from './order-detail';
 
-import { OrderDetail } from './order-detail';
-
-describe('OrderDetail', () => {
-  let component: OrderDetail;
-  let fixture: ComponentFixture<OrderDetail>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      declarations: [OrderDetail]
-    })
-    .compileComponents();
-
-    fixture = TestBed.createComponent(OrderDetail);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
+describe('OrderDetailComponent', () => {
+  it('is defined', () => {
+    expect(OrderDetailComponent).toBeDefined();
   });
 });

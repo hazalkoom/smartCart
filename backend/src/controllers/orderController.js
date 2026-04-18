@@ -2,7 +2,7 @@ const Order = require('../models/orderModel');
 const OrderService = require('../services/orderService');
 const paymobService = require('../services/paymobService'); 
 const asyncHandler = require('../utils/asyncHandler');
-const socket = require('../utils/socket');
+const { persistAndEmitUserNotification } = require('../services/notificationService');
 const cleanLog = (val) => (val ? String(val).replace(/\n|\r/g, "") : "");
 
 // Helper: Sanitize Order for Non-Owners
@@ -81,18 +81,16 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
   // 1. Update the database
   const order = await OrderService.updateOrderStatus(id, status);
 
-  // 2. NEW: Blast the live notification to the customer's browser
-  try {
-    const io = socket.getIO();
-    io.to(order.userId.toString()).emit('orderStatusChanged', {
-      orderId: order._id,
-      status: status,
-      message: `Your order status has been updated to: ${status}`
-    });
-    console.log(`[SOCKET] Status update (${cleanLog(status)}) sent to user ${cleanLog(order.userId)}`);
-  } catch (err) {
-    console.error('[SOCKET ERROR] Failed to emit orderStatusChanged:', cleanLog(err.message));
-  }
+  // 2. Persist first, then emit live notification.
+  await persistAndEmitUserNotification({
+    userId: order.userId,
+    type: 'order-status-changed',
+    eventName: 'orderStatusChanged',
+    orderId: order._id,
+    status,
+    message: `Your order status has been updated to: ${status}`,
+  });
+  console.log(`[SOCKET] Status update (${cleanLog(status)}) sent to user ${cleanLog(order.userId)}`);
 
   // 3. Send HTTP response to the admin who clicked the button
   res.status(200).json({

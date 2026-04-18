@@ -36,7 +36,7 @@ def _create_buyer_and_order(product_id: str):
 
     res_order = requests.post(
         ord_url,
-        json={"shippingAddress": {"street": "S", "city": "C", "country": "E"}},
+        json={"shippingAddress": {"street": "S", "city": "C", "country": "Egypt"}},
         headers=buyer_header,
     )
     order_body = assert_success(res_order, 201, "financials create order")

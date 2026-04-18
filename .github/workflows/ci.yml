@@ -82,6 +82,7 @@ jobs:
     env:
       NODE_ENV: test
       PORT: 5000
+      PYTEST_AUTOSTART_BACKEND: "0"
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
       MONGODB_URI: mongodb://127.0.0.1:27017/smartCart?replicaSet=rs0

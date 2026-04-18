@@ -95,7 +95,7 @@ def webhook_ctx():
 
     res_order = requests.post(
         f"{BASE_URL}/orders",
-        json={"shippingAddress": {"street": "Web St", "city": "Cairo", "country": "EG"}},
+        json={"shippingAddress": {"street": "Web St", "city": "Cairo", "country": "Egypt"}},
         headers=user_headers,
     )
     order_body = assert_success(res_order, 201, "webhook create order")

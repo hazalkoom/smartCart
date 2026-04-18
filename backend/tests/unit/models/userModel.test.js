@@ -4,8 +4,8 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 
 const User = require('../../../src/models/userModel');
 
-// MongoMemoryServer startup can exceed Jest's default 5s timeout on CI runners.
-jest.setTimeout(30000);
+// MongoMemoryServer startup can exceed Jest's default timeout on CI runners.
+jest.setTimeout(120000);
 
 describe('User Model Security', () => {
   let mongo;

@@ -1,16 +1,38 @@
-import { TestBed } from '@angular/core/testing';
+import { AuthService } from './auth';
 
-import { Auth } from './auth';
-
-describe('Auth', () => {
-  let service: Auth;
-
+describe('AuthService', () => {
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Auth);
+    localStorage.clear();
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  it('creates service and reports unauthenticated without token', () => {
+    const routerMock = { navigate: jasmine.createSpy('navigate') };
+    const socketMock = { joinUserRoom: jasmine.createSpy('joinUserRoom'), joinAdminRoom: jasmine.createSpy('joinAdminRoom'), disconnect: jasmine.createSpy('disconnect') };
+
+    const service = new AuthService(
+      { get: () => ({ pipe: () => ({ subscribe: () => ({}) }) }), post: () => ({ pipe: () => ({}) }), put: () => ({ pipe: () => ({}) }), delete: () => ({ pipe: () => ({}) }) } as any,
+      routerMock as any,
+      socketMock as any,
+      'browser' as any
+    );
+
+    expect(service.isAuthenticated()).toBeFalse();
+  });
+
+  it('logout disconnects socket and navigates to login', () => {
+    const routerMock = { navigate: jasmine.createSpy('navigate') };
+    const socketMock = { joinUserRoom: jasmine.createSpy('joinUserRoom'), joinAdminRoom: jasmine.createSpy('joinAdminRoom'), disconnect: jasmine.createSpy('disconnect') };
+
+    const service = new AuthService(
+      {} as any,
+      routerMock as any,
+      socketMock as any,
+      'browser' as any
+    );
+
+    service.logout();
+
+    expect(socketMock.disconnect).toHaveBeenCalled();
+    expect(routerMock.navigate).toHaveBeenCalledWith(['/login']);
   });
 });

@@ -11,9 +11,15 @@ jest.mock('../../src/utils/paymobHmac', () => ({
   validateHmac: jest.fn(),
 }));
 
+jest.mock('../../src/services/notificationService', () => ({
+  persistAndEmitUserNotification: jest.fn(),
+  persistAdminNotification: jest.fn(),
+}));
+
 const Order = require('../../src/models/orderModel');
 const Product = require('../../src/models/productModel');
 const { validateHmac } = require('../../src/utils/paymobHmac');
+const { persistAndEmitUserNotification, persistAdminNotification } = require('../../src/services/notificationService');
 const redisClient = require('../../src/utils/redisClient');
 const socket = require('../../src/utils/socket');
 
@@ -194,13 +200,20 @@ describe('webhookController — handlePaymobWebhook', () => {
       $inc: { stock: -2, purchases: 2 },
     });
     expect(redisClient.decrby).toHaveBeenCalledWith('locked_stock:prod-1', 2);
-    expect(socket.getIO).toHaveBeenCalled();
-    expect(socket.__mockSocketTo).toHaveBeenCalledWith('user-1');
-    expect(socket.__mockSocketTo).toHaveBeenCalledWith('admin_room');
-    expect(socket.__mockSocketEmit).toHaveBeenCalledWith(
-      'paymentSuccess',
-      expect.objectContaining({ orderId: 'order-123' })
+    expect(persistAndEmitUserNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: existingOrder.userId,
+        type: 'payment-success',
+        eventName: 'paymentSuccess',
+      })
     );
+    expect(persistAdminNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: 'admin-order-paid',
+      })
+    );
+    expect(socket.getIO).toHaveBeenCalled();
+    expect(socket.__mockSocketTo).toHaveBeenCalledWith('admin_room');
     expect(socket.__mockSocketEmit).toHaveBeenCalledWith(
       'adminOrderPaid',
       expect.objectContaining({ orderId: 'order-123' })

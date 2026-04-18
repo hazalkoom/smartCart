@@ -177,7 +177,7 @@
                             <p class="mb-1">{{ address.city }}@if (address.state) {
                               <span>, {{ address.state }}</span>
                             }</p>
-                            <p class="mb-3">{{ address.country }} {{ address.postalCode }}</p>
+                            <p class="mb-3">{{ getCountryDisplayName(address.country) }} {{ address.postalCode }}</p>
                             <button class="btn btn-sm btn-outline-danger" (click)="deleteAddress(address._id!)">
                               <i class="icon icon-trash"></i> Delete
                             </button>
@@ -208,7 +208,12 @@
                         </div>
                         <div class="col-md-6 mb-3">
                           <label class="form-label">Country <span class="text-danger">*</span></label>
-                          <input type="text" class="form-control" name="addressCountry" [(ngModel)]="newAddress.country" placeholder="Egypt">
+                          <select class="form-select" name="addressCountry" [(ngModel)]="newAddress.country" required>
+                            <option value="">Select country</option>
+                            @for (country of countries; track country.code) {
+                              <option [value]="country.name">{{ country.name }}</option>
+                            }
+                          </select>
                         </div>
                       </div>
                       <div class="row">
