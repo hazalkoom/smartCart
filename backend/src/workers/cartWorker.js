@@ -51,7 +51,7 @@ const cartWorker = new Worker('cart-expiration', async (job) => {
   lockDuration: 60000,     
   removeOnComplete: { count: 10 }, 
   removeOnFail: { count: 10 },
-  drainDelay: 70
+  drainDelay: 120
 });
 
 cartWorker.on('completed', (job) => {

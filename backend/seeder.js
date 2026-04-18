@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 // CHANGE THESE PATHS IF YOUR MODELS ARE SOMEWHERE ELSE
 const Product = require('./src/models/productModel'); 
 const Category = require('./src/models/categoryModel');
+const Review = require('./src/models/reviewModel');
 
 dotenv.config();
 
@@ -137,6 +138,7 @@ const seedDatabase = async () => {
     console.log('Connected to Database...');
 
     console.log('Nuking old garbage data...');
+    await Review.deleteMany();
     await Product.deleteMany();
     await Category.deleteMany();
 
