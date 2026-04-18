@@ -160,13 +160,14 @@
                     <h6 class="product-name mb-1 fw-medium text-dark" style="font-size:0.85rem;line-height:1.4;">
                       <a [routerLink]="['/products', product.slug]" class="text-dark text-decoration-none hover-primary">{{ product.name }}</a>
                     </h6>
-                    <div class="d-flex align-items-center gap-1 mb-2">
-                      <span class="stars" style="font-size:0.65rem;letter-spacing:1px;">
+                    <div class="sc-product-rating mb-2">
+                      <span class="sc-stars" [attr.aria-label]="'Rated ' + (product.rating || 0) + ' out of 5'">
                         @for (s of [1,2,3,4,5]; track s) {
-                          <i class="icon icon-star" [style.color]="s <= (product.rating || 0) ? '#f59e0b' : '#cbd5e1'"></i>
+                          <i class="bi bi-star-fill" [class.filled]="s <= (product.rating || 0)"></i>
                         }
                       </span>
-                      <span class="text-muted" style="font-size:0.7rem;">({{ product.reviewCount || 0 }})</span>
+                      <span class="sc-rating-value">{{ (product.rating || 0) | number:'1.1-1' }}</span>
+                      <span class="text-muted sc-review-count">({{ product.reviewCount || 0 }})</span>
                     </div>
                     <div class="d-flex align-items-center justify-content-between mt-auto">
                       <span class="fw-bold text-dark" style="font-size:0.95rem;">

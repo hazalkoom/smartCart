@@ -221,7 +221,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     event.stopPropagation();
 
     const target = event.target as HTMLElement;
-    const button = target.closest('.cart-btn') as HTMLElement;
+    const button = target.closest('.btn-add-cart') as HTMLElement;
     const rect = button?.getBoundingClientRect();
     const startX = rect ? rect.left + rect.width / 2 : window.innerWidth / 2;
     const startY = rect ? rect.top + rect.height / 2 : window.innerHeight / 2;

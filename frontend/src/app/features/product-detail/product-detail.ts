@@ -238,7 +238,8 @@ export class ProductDetail implements OnInit, OnDestroy {
     }
     
     if (event) {
-      const button = event.target as HTMLElement;
+      const target = event.target as HTMLElement;
+      const button = (target.closest('button') as HTMLElement | null) || target;
       const rect = button.getBoundingClientRect();
       startX = rect.left + rect.width / 2;
       startY = rect.top + rect.height / 2;

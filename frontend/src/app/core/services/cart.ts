@@ -22,9 +22,55 @@ export class CartService {
     private authService: AuthService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
-    // Check initial cart count on load (if user is logged in)
-    // Note: This will be called from HeaderComponent when user logs in
-    // to avoid circular dependency issues
+    if (isPlatformBrowser(this.platformId)) {
+      this.hydrateCartCountFromStorage();
+
+      this.authService.isLoggedIn$.subscribe((loggedIn) => {
+        if (!loggedIn) {
+          this.cartCount$.next(0);
+          this.clearCartFromStorage();
+          return;
+        }
+
+        // Show last known count immediately, then reconcile with server.
+        this.hydrateCartCountFromStorage();
+        this.refreshCartState();
+      });
+    }
+  }
+
+  private hydrateCartCountFromStorage(): void {
+    const storedCart = this.getCartFromStorage();
+    if (storedCart) {
+      this.updateCartCount(storedCart);
+    }
+  }
+
+  private isCartShape(value: any): value is Cart {
+    return !!value && Array.isArray(value.items);
+  }
+
+  private applyCartSnapshot(snapshot: unknown): boolean {
+    if (this.isCartShape(snapshot)) {
+      this.updateCartCount(snapshot);
+      this.saveCartToStorage(snapshot);
+      return true;
+    }
+
+    return false;
+  }
+
+  private refreshCartState(): void {
+    this.http.get<CartResponse>(this.apiUrl).subscribe({
+      next: (response) => {
+        if (!this.applyCartSnapshot(response?.data)) {
+          this.hydrateCartCountFromStorage();
+        }
+      },
+      error: () => {
+        this.hydrateCartCountFromStorage();
+      }
+    });
   }
 
   // Save cart to localStorage
@@ -63,8 +109,9 @@ export class CartService {
   getCart(): Observable<CartResponse> {
     return this.http.get<CartResponse>(this.apiUrl).pipe(
       tap(response => {
-        this.updateCartCount(response.data);
-        this.saveCartToStorage(response.data);
+        if (!this.applyCartSnapshot(response?.data)) {
+          this.hydrateCartCountFromStorage();
+        }
       })
     );
   }
@@ -73,8 +120,9 @@ export class CartService {
   addItemToCart(productId: string, quantity: number): Observable<CartResponse> {
     return this.http.post<CartResponse>(`${this.apiUrl}/items`, { productId, quantity }).pipe(
       tap(response => {
-        this.updateCartCount(response.data);
-        this.saveCartToStorage(response.data);
+        if (!this.applyCartSnapshot(response?.data)) {
+          this.refreshCartState();
+        }
       })
     );
   }
@@ -83,8 +131,9 @@ export class CartService {
   updateItemQuantity(itemId: string, quantity: number): Observable<CartResponse> {
     return this.http.put<CartResponse>(`${this.apiUrl}/items/${itemId}`, { quantity }).pipe(
       tap(response => {
-        this.updateCartCount(response.data);
-        this.saveCartToStorage(response.data);
+        if (!this.applyCartSnapshot(response?.data)) {
+          this.refreshCartState();
+        }
       })
     );
   }
@@ -93,8 +142,9 @@ export class CartService {
   removeItem(itemId: string): Observable<CartResponse> {
     return this.http.delete<CartResponse>(`${this.apiUrl}/items/${itemId}`).pipe(
       tap(response => {
-        this.updateCartCount(response.data);
-        this.saveCartToStorage(response.data);
+        if (!this.applyCartSnapshot(response?.data)) {
+          this.refreshCartState();
+        }
       })
     );
   }
@@ -103,7 +153,9 @@ export class CartService {
   clearCart(): Observable<CartResponse> {
     return this.http.delete<CartResponse>(this.apiUrl).pipe(
       tap(response => {
-        this.updateCartCount(response.data);
+        if (!this.applyCartSnapshot(response?.data)) {
+          this.cartCount$.next(0);
+        }
         this.clearCartFromStorage();
       })
     );

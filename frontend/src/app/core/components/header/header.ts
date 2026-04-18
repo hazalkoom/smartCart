@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, Inject, PLATFORM_ID, HostListener } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -33,6 +33,7 @@ export class Header implements OnInit, OnDestroy {
     private authService: AuthService,
     private cartService: CartService,
     private router: Router,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
@@ -43,6 +44,7 @@ export class Header implements OnInit, OnDestroy {
     const authReadySub = this.authService.authReady$.subscribe((ready) => {
       this.authReady = ready;
       this.refreshAuthState(this.authService.currentUser$.value, this.authService.isLoggedIn$.value);
+      this.cdr.detectChanges();
     });
     this.subscriptions.push(authReadySub);
 
@@ -50,24 +52,26 @@ export class Header implements OnInit, OnDestroy {
     const authSub = this.authService.isLoggedIn$.subscribe(loggedIn => {
       this.refreshAuthState(this.authService.currentUser$.value, loggedIn);
       
-      if (this.hasAuthenticatedSession) {
-        this.cartService.getCart().subscribe();
-      } else {
+      if (!this.hasAuthenticatedSession) {
         this.cartCount = 0;
         this.userName = '';
       }
+
+      this.cdr.detectChanges();
     });
     this.subscriptions.push(authSub);
 
     // 2. Subscribe to user profile
     const userSub = this.authService.currentUser$.subscribe(user => {
       this.refreshAuthState(user, this.authService.isLoggedIn$.value);
+      this.cdr.detectChanges();
     });
     this.subscriptions.push(userSub);
 
     // 3. Subscribe to cart count
     const cartSub = this.cartService.cartCount$.subscribe(count => {
       this.cartCount = count;
+      this.cdr.detectChanges();
     });
     this.subscriptions.push(cartSub);
   }
@@ -114,14 +118,17 @@ export class Header implements OnInit, OnDestroy {
     this.mobileMenuOpen = false;
     this.searchOpen = false;
     this.authService.logout();
+    this.cdr.detectChanges();
   }
 
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
+    this.cdr.detectChanges();
   }
 
   closeMobileMenu(): void {
     this.mobileMenuOpen = false;
+    this.cdr.detectChanges();
   }
 
   private updateScrollState(): void {

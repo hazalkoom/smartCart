@@ -87,8 +87,11 @@ export class CartAnimationComponent implements OnInit, OnDestroy {
 
   private calculateEndPosition(data: CartAnimationData): void {
     if (isPlatformBrowser(this.platformId)) {
-      // Find the cart icon in the header
-      const cartIcon = document.querySelector('.cart.for-buy') as HTMLElement;
+      // Target the current header cart icon element.
+      const cartIcon =
+        (document.getElementById('cart-icon-target') as HTMLElement | null) ||
+        (document.querySelector('a.sc-icon-btn[aria-label="Cart"]') as HTMLElement | null);
+
       if (cartIcon) {
         const rect = cartIcon.getBoundingClientRect();
         const endX = rect.left + rect.width / 2;
