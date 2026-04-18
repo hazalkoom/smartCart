@@ -6,7 +6,8 @@ import { AuthService } from '../../core/services/auth';
 import { OrderService } from '../../core/services/order';
 import { User } from '../../core/interfaces/user';
 import { Order } from '../../core/interfaces/order';
-import { COUNTRIES, normalizeCountryName } from '../../core/constants/countries';
+import { COUNTRIES, CountryOption, normalizeCountryName } from '../../core/constants/countries';
+import { CountryService } from '../../core/services/country';
 
 @Component({
   selector: 'app-account',
@@ -20,7 +21,7 @@ export class Account implements OnInit, OnDestroy {
   isLoading: boolean = true;
   errorMessage: string = '';
   activeTab: 'profile' | 'orders' | 'addresses' = 'profile';
-  readonly countries = COUNTRIES;
+  countries: CountryOption[] = COUNTRIES;
   
   // --- Edit State Variables ---
   isEditing: boolean = false;
@@ -47,6 +48,7 @@ export class Account implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private orderService: OrderService,
+    private countryService: CountryService,
     private route: ActivatedRoute,
     private router: Router,
     private cdr: ChangeDetectorRef,
@@ -54,6 +56,13 @@ export class Account implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.countryService.loadCountries();
+    const countriesSub = this.countryService.countries$.subscribe((countries) => {
+      this.countries = countries;
+      this.cdr.detectChanges();
+    });
+    this.subscriptions.push(countriesSub);
+
     const routeSub = this.route.fragment.subscribe(frag => {
       if (frag === 'orders') this.activeTab = 'orders';
       else if (frag === 'addresses') this.activeTab = 'addresses';

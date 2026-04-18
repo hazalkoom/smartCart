@@ -19,6 +19,9 @@ export class SocketService {
   private socket?: Socket;
   private currentRoomUserId: string | null = null;
   private socketInitPromise: Promise<void> | null = null;
+
+  private connectedSubject = new Subject<void>();
+  public connected$ = this.connectedSubject.asObservable();
   
   // Loudspeakers for the components
   private paymentSuccessSubject = new Subject<SocketEvent>();
@@ -46,6 +49,8 @@ export class SocketService {
         });
 
         this.socket.on('connect', () => {
+          this.connectedSubject.next();
+
           if (this.currentRoomUserId) {
             this.socket?.emit('joinRoom', this.currentRoomUserId);
           }

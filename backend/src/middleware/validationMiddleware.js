@@ -1,7 +1,7 @@
 const { body, validationResult } = require('express-validator');
 const asyncHandler = require('../utils/asyncHandler');
 const mongoose = require('mongoose');
-const { isAllowedCountryName } = require('../constants/countries');
+const { isAllowedCountryName, normalizeCountryName } = require('../constants/countries');
 
 const validate = asyncHandler((req, res, next) => {
   const errors = validationResult(req);
@@ -149,6 +149,7 @@ const orderCreateValidationRules = [
     .isString()
     .withMessage('Country must be a string')
     .trim()
+    .customSanitizer((value) => normalizeCountryName(value))
     .custom((value) => {
       if (!isAllowedCountryName(value)) {
         throw new Error('Country is invalid or unsupported');
@@ -168,6 +169,7 @@ const addressValidationRules = [
     .isString()
     .withMessage('Country must be a string')
     .trim()
+    .customSanitizer((value) => normalizeCountryName(value))
     .custom((value) => {
       if (!isAllowedCountryName(value)) {
         throw new Error('Country is invalid or unsupported');

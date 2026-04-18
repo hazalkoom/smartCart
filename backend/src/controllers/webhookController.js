@@ -2,9 +2,11 @@ const Order = require('../models/orderModel');
 const Product = require('../models/productModel'); // NEW
 const { validateHmac } = require('../utils/paymobHmac');
 const asyncHandler = require('../utils/asyncHandler');
-const socket = require('../utils/socket');
 const redisClient = require('../utils/redisClient'); // NEW
-const { persistAndEmitUserNotification, persistAdminNotification } = require('../services/notificationService');
+const {
+  persistAndEmitUserNotification,
+  persistAndEmitAdminNotification,
+} = require('../services/notificationService');
 const cleanLog = (val) => (val ? String(val).replace(/\n|\r/g, "") : "");
 const handlePaymobWebhook = asyncHandler(async (req, res) => {
 
@@ -107,24 +109,14 @@ const handlePaymobWebhook = asyncHandler(async (req, res) => {
     message: 'Payment Successful! Your order is confirmed.',
   });
 
-  await persistAdminNotification({
+  await persistAndEmitAdminNotification({
     type: 'admin-order-paid',
+    eventName: 'adminOrderPaid',
     orderId: order._id,
     message: `New Payment Received for Order ${orderId}`,
   });
 
-  try {
-    const io = socket.getIO();
-    io.to('admin_room').emit('adminOrderPaid', {
-      orderId: order._id,
-      message: `New Payment Received for Order ${orderId}`,
-      timestamp: Date.now(),
-    });
-    
-    console.log(`[SOCKET] Live notification fired to user room: ${cleanLog(order.userId)}`);
-  } catch (err) {
-    console.error('[SOCKET ERROR] Failed to emit adminOrderPaid:', cleanLog(err.message));
-  }
+  console.log(`[SOCKET] Live notification fired to user room: ${cleanLog(order.userId)}`);
   // ----------------------------------------
 
   res.status(200).send();

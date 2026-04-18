@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { COUNTRY_NAMES } = require('../constants/countries');
 
 const orderItemSchema = new mongoose.Schema({
   productId: {
@@ -36,7 +37,7 @@ const shippingAddressSchema = new mongoose.Schema({
   city: { type: String, required: true },
   state: { type: String },
   zip: { type: String },
-  country: { type: String, required: true },
+  country: { type: String, required: true, enum: COUNTRY_NAMES },
 });
 
 

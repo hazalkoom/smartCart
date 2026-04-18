@@ -23,6 +23,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const webhookRoutes = require('./routes/webhookRoutes');
 const userRoutes = require('./routes/userRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const countryRoutes = require('./routes/countryRoutes');
 
 const swaggerSpec = require('./config/swagger');
 const socket = require('./utils/socket');
@@ -83,6 +84,7 @@ app.use('/api/v1/reviews', reviewRoutes);
 app.use('/api/v1/webhook', webhookRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/countries', countryRoutes);
 
 app.get('/api/v1/health', (req, res) => {
   res.status(200).json({ success: true, message: 'API is healthy' });

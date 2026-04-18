@@ -13,12 +13,14 @@ describe('NotificationService', () => {
   const paymentSuccessSubject = new Subject<any>();
   const adminOrderPaidSubject = new Subject<any>();
   const orderStatusChangedSubject = new Subject<any>();
+  const connectedSubject = new Subject<void>();
   const currentUserSubject = new BehaviorSubject<any>(null);
 
   const socketServiceMock = {
     paymentSuccess$: paymentSuccessSubject.asObservable(),
     adminOrderPaid$: adminOrderPaidSubject.asObservable(),
     orderStatusChanged$: orderStatusChangedSubject.asObservable(),
+    connected$: connectedSubject.asObservable(),
   };
 
   const authServiceMock = {
@@ -178,5 +180,35 @@ describe('NotificationService', () => {
     const notifications = getLatestNotifications();
     expect(notifications.length).toBe(1);
     expect(notifications[0].id).toBe('admin-n1');
+  });
+
+  it('rehydrates notifications on socket reconnect for authenticated users', () => {
+    currentUserSubject.next({ _id: 'user-1', role: 'customer' });
+    httpMock.expectOne((r) => r.method === 'GET' && r.url.includes('/notifications')).flush({
+      success: true,
+      count: 0,
+      data: [],
+    });
+
+    connectedSubject.next();
+
+    const req = httpMock.expectOne((r) => r.method === 'GET' && r.url.includes('/notifications'));
+    req.flush({
+      success: true,
+      count: 1,
+      data: [
+        {
+          _id: 'reconnect-1',
+          type: 'payment-success',
+          message: 'Recovered after reconnect',
+          read: false,
+          createdAt: '2026-04-18T10:00:00.000Z',
+        },
+      ],
+    });
+
+    const notifications = getLatestNotifications();
+    expect(notifications.length).toBe(1);
+    expect(notifications[0].id).toBe('reconnect-1');
   });
 });

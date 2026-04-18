@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const validator = require("validator");
+const { COUNTRY_NAMES } = require('../constants/countries');
 
 const addressSchema = new mongoose.Schema({
   alias: {
@@ -23,6 +24,7 @@ const addressSchema = new mongoose.Schema({
   country: {
     type: String,
     required: [true, 'Country is required'],
+    enum: COUNTRY_NAMES,
   },
   isDefault: {
     type: Boolean,

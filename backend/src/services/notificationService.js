@@ -77,8 +77,38 @@ const persistAdminNotification = async ({
   return Notification.insertMany(payload, { ordered: false });
 };
 
+const persistAndEmitAdminNotification = async ({
+  type,
+  eventName,
+  message,
+  orderId,
+  status,
+}) => {
+  const notifications = await persistAdminNotification({
+    type,
+    message,
+    orderId,
+    status,
+  });
+
+  try {
+    const io = socket.getIO();
+    io.to('admin_room').emit(eventName, {
+      orderId: orderId ? String(toObjectIdLike(orderId)) : undefined,
+      status,
+      message,
+      timestamp: Date.now(),
+    });
+  } catch (err) {
+    console.error(`[SOCKET ERROR] Failed to emit ${cleanLog(eventName)}:`, cleanLog(err.message));
+  }
+
+  return notifications;
+};
+
 module.exports = {
   mapNotificationEvent,
   persistAndEmitUserNotification,
   persistAdminNotification,
+  persistAndEmitAdminNotification,
 };

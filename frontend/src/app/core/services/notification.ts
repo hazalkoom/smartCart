@@ -63,6 +63,12 @@ export class NotificationService {
       this.pushNotification('order-status-changed', event);
     });
 
+    this.socketService.connected$.subscribe(() => {
+      if (this.activeUserId) {
+        this.loadNotifications();
+      }
+    });
+
     this.authService.currentUser$.subscribe((user) => {
       const nextUserId = user?._id || null;
       if (!nextUserId) {
@@ -154,7 +160,8 @@ export class NotificationService {
         }
 
         const mapped = response.data.map((item) => this.mapApiItem(item));
-        this.notificationsSubject.next(mapped);
+        const merged = this.mergeNotifications(mapped, this.notificationsSubject.value);
+        this.notificationsSubject.next(merged);
       });
   }
 
@@ -203,5 +210,24 @@ export class NotificationService {
 
   private generateNotificationId(): string {
     return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  }
+
+  private mergeNotifications(
+    backendNotifications: AppNotification[],
+    localNotifications: AppNotification[]
+  ): AppNotification[] {
+    const byId = new Map<string, AppNotification>();
+
+    backendNotifications.forEach((notification) => {
+      byId.set(notification.id, notification);
+    });
+
+    localNotifications.forEach((notification) => {
+      if (!byId.has(notification.id)) {
+        byId.set(notification.id, notification);
+      }
+    });
+
+    return Array.from(byId.values()).sort((a, b) => b.timestamp - a.timestamp);
   }
 }

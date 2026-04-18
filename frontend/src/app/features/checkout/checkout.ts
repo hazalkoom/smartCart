@@ -8,7 +8,8 @@ import { Cart } from '../../core/interfaces/cart';
 import { Subscription } from 'rxjs';
 import { User, Address } from '../../core/interfaces/user';
 import { environment } from '../../../environments/environment';
-import { COUNTRIES, normalizeCountryName } from '../../core/constants/countries';
+import { COUNTRIES, CountryOption, normalizeCountryName } from '../../core/constants/countries';
+import { CountryService } from '../../core/services/country';
 
 @Component({
   selector: 'app-checkout',
@@ -23,7 +24,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   isProcessing: boolean = false;
   error: string = '';
   shippingCost: number = 5.00;
-  readonly countries = COUNTRIES;
+  countries: CountryOption[] = COUNTRIES;
 
   // Order Success State
   orderPlaced: boolean = false;
@@ -69,12 +70,20 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     private cartService: CartService,
     private orderService: OrderService,
     private authService: AuthService,
+    private countryService: CountryService,
     private router: Router,
     private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
+    this.countryService.loadCountries();
+    const countriesSub = this.countryService.countries$.subscribe((countries) => {
+      this.countries = countries;
+      this.cdr.detectChanges();
+    });
+    this.subscriptions.push(countriesSub);
+
     const profileSub = this.authService.currentUser$.subscribe((user) => {
       if (user) {
         this.currentUser = user;

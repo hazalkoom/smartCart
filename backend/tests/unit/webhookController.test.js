@@ -13,15 +13,17 @@ jest.mock('../../src/utils/paymobHmac', () => ({
 
 jest.mock('../../src/services/notificationService', () => ({
   persistAndEmitUserNotification: jest.fn(),
-  persistAdminNotification: jest.fn(),
+  persistAndEmitAdminNotification: jest.fn(),
 }));
 
 const Order = require('../../src/models/orderModel');
 const Product = require('../../src/models/productModel');
 const { validateHmac } = require('../../src/utils/paymobHmac');
-const { persistAndEmitUserNotification, persistAdminNotification } = require('../../src/services/notificationService');
+const {
+  persistAndEmitUserNotification,
+  persistAndEmitAdminNotification,
+} = require('../../src/services/notificationService');
 const redisClient = require('../../src/utils/redisClient');
-const socket = require('../../src/utils/socket');
 
 // The controller wraps the handler in asyncHandler, so we import the raw module
 // and call handlePaymobWebhook(req, res, next) to test.
@@ -207,16 +209,11 @@ describe('webhookController — handlePaymobWebhook', () => {
         eventName: 'paymentSuccess',
       })
     );
-    expect(persistAdminNotification).toHaveBeenCalledWith(
+    expect(persistAndEmitAdminNotification).toHaveBeenCalledWith(
       expect.objectContaining({
         type: 'admin-order-paid',
+        eventName: 'adminOrderPaid',
       })
-    );
-    expect(socket.getIO).toHaveBeenCalled();
-    expect(socket.__mockSocketTo).toHaveBeenCalledWith('admin_room');
-    expect(socket.__mockSocketEmit).toHaveBeenCalledWith(
-      'adminOrderPaid',
-      expect.objectContaining({ orderId: 'order-123' })
     );
     expect(res.status).toHaveBeenCalledWith(200);
   });
@@ -245,29 +242,4 @@ describe('webhookController — handlePaymobWebhook', () => {
     expect(res.status).toHaveBeenCalledWith(200);
   });
 
-  it('still returns 200 when socket emission fails after DB updates', async () => {
-    validateHmac.mockReturnValue(true);
-    const existingOrder = {
-      _id: 'order-123',
-      isPaid: false,
-      userId: { toString: () => 'user-1' },
-      items: [{ productId: 'prod-1', quantity: 1 }],
-    };
-    Order.findById.mockResolvedValue(existingOrder);
-    Order.findOneAndUpdate.mockResolvedValue(existingOrder);
-    socket.getIO.mockImplementation(() => {
-      throw new Error('socket down');
-    });
-
-    const req = makeReq();
-    const res = makeRes();
-
-    await handlePaymobWebhook(req, res, next);
-
-    expect(Product.findByIdAndUpdate).toHaveBeenCalledWith('prod-1', {
-      $inc: { stock: -1, purchases: 1 },
-    });
-    expect(redisClient.decrby).toHaveBeenCalledWith('locked_stock:prod-1', 1);
-    expect(res.status).toHaveBeenCalledWith(200);
-  });
 });
