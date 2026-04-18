@@ -1,63 +1,70 @@
 # Roadmap
 
-This roadmap is based on what is implemented and verified in this repository today, and what is explicitly unverified or absent.
+Roadmap is organized by horizon and reflects current implementation status.
 
-It is organized in phases to support production hardening, feature completeness, and long-term extensibility.
+## Completed recently
 
-## Phase 0 (short-term): Reliability and developer experience hardening
+- Notification persistence API and reconnect hydration flow.
+- Canonical countries endpoint and frontend country hydration service.
+- CI hardening for backend, frontend, and Python suites.
+- Security workflows added and active:
+  - CodeQL (JS/TS + Python)
+  - Trivy vulnerability SARIF upload
+  - Trivy SBOM artifact generation
+- Dependency risk remediation for axios, path-to-regexp, and lodash.
+- Documentation baseline refresh across README and docs pages.
 
-1. **Ship a reproducible configuration template**
-    - Add a `backend/.env.example` (no secrets) that lists required variables.
-    - Rationale: onboarding currently depends on out-of-band env var sharing.
+## Near-term priorities (next 1-2 sprints)
 
-2. **Standardize root-level scripts (optional but high leverage)**
-    - Add root scripts to orchestrate common tasks (start backend, run tests).
-    - Rationale: reduces friction and prevents inconsistent local workflows.
+### Payments and callback hardening
 
-3. **Clarify MongoDB transaction requirements**
-    - Make replica set/cluster requirement explicit in setup docs and runtime checks.
-    - Rationale: order checkout uses transactions and will fail on unsupported MongoDB topologies.
+- Move payment callback base URL to environment configuration.
+- Add explicit tests for callback URL composition and redirect behavior.
 
-4. **Operational logging hygiene**
-    - Ensure log directory management is predictable (rotation/retention policy).
-    - Rationale: prevents disk growth in long-running environments.
+### Security and dependency hygiene
 
-## Phase 1 (mid-term): Frontend completeness and contract confidence
+- Continue triaging medium findings from npm audit reports.
+- Add dependency update cadence with lockfile review checklist.
 
-1. **Verify frontend build and runtime**
-    - Run and document `frontend` build/test steps.
-    - Rationale: frontend is present but not verified end-to-end in this documentation pass.
+### Notification UX and reliability
 
-2. **Complete core UI workflows against the API**
-    - Browse → product detail → cart → checkout → order confirmation
-    - Auth flows (register/login/profile)
-    - Rationale: the backend is production-grade; the frontend should become a reliable client.
+- Add notification pagination and retention policy.
+- Add server-side filters by type/status/read date.
 
-3. **Add frontend end-to-end tests**
-    - Use a browser-driven framework (e.g., Playwright/Cypress).
-    - Rationale: protects end-to-end workflows the same way pytest protects API workflows.
+### Test depth
 
-## Phase 2 (mid/long-term): Payments and security maturity
+- Add targeted tests for countries normalization edge cases.
+- Increase webhook negative-case coverage and replay resistance tests.
 
-1. **Payment flow hardening**
-    - Improve idempotency and error handling around payment initiation/webhooks.
-    - Rationale: payment flows are high-risk; correctness and replay safety are critical.
+## Mid-term priorities (quarter)
 
-2. **Security posture automation**
-    - Keep security tests as a gate.
-    - Consider adding dependency scanning and SAST.
-    - Rationale: preserve strong security baseline as the codebase evolves.
+### Observability
 
-## Phase 3 (long-term): Scale, extensibility, and product expansion
+- Introduce structured metrics for checkout, payment, and webhook success rates.
+- Add central request correlation IDs in logs.
 
-1. **Performance baselines and capacity planning**
-    - Execute and tune the existing Locust scenarios.
-    - Rationale: performance scripts exist but are not part of default verification.
+### Performance and scalability
 
-2. **Domain growth (only if product needs it)**
-    - Extend the platform based on real requirements (e.g., advanced analytics, richer fulfillment).
-    - Rationale: avoid speculative complexity; build on the already-solid backend core.
+- Add load-test gates for cart/checkout critical endpoints.
+- Evaluate Redis/Mongo tuning under sustained checkout concurrency.
 
-3. **Optional: ML service**
-    - If recommendations/trends are desired, implement a separate FastAPI service with a stable HTTP contract.
-    - Rationale: currently not present; should be isolated to preserve backend simplicity.
+### Admin productivity
+
+- Expand admin analytics views (sales snapshots, conversion trends).
+- Add richer order timeline audit visualization in admin UI.
+
+## Longer-term opportunities
+
+- Promotion and coupon engine.
+- Multi-currency support and localization.
+- Inventory reservation expiration policies per product category.
+- Event-driven architecture split for payments and notifications.
+
+## Exit criteria for roadmap items
+
+Each roadmap item is considered complete when:
+
+- Code merged and documented.
+- Relevant tests added or updated.
+- CI green in main branch.
+- Security impact reviewed for changed surfaces.

@@ -1,118 +1,130 @@
 # Testing
 
-SmartCart uses separate test layers for backend logic, API-level behavior, and load scenarios.
+Testing strategy and commands for SmartCart.
 
 ## Test layers
 
-- Jest backend unit tests under backend/tests/unit/
-- Pytest functional tests under tests/functional/
-- Pytest security tests under tests/security/
-- Locust performance scripts under tests/performance/
+### 1) Backend unit tests (Jest)
 
-## Verified during this documentation refresh
+Location:
 
-### Backend unit tests
+- backend/tests/unit/
 
-Command run:
+Run:
 
 ```powershell
 cd backend
 npm test
 ```
 
-Observed result:
+Optional:
 
-- 15 suites passed
-- 87 tests passed
+```powershell
+npm run test:watch
+npm run test:coverage
+```
 
-### Frontend build verification
+Coverage artifacts (when enabled):
 
-Command run:
+- backend/coverage/lcov-report/index.html
+
+### 2) Frontend checks
+
+Primary reliability gate currently used in CI:
 
 ```powershell
 cd frontend
 npm run build
 ```
 
-Observed result:
-
-- production build completed successfully
-- warnings were emitted for bundle and stylesheet budgets
-- CommonJS optimization warnings were emitted for socket-related dependencies
-
-## Not re-run during this refresh
-
-- tests/functional
-- tests/security
-- tests/performance
-
-## How to run the main suites
-
-### Backend unit tests
-
-From backend/:
+Optional unit test command:
 
 ```powershell
 npm test
 ```
 
-### Backend coverage
+### 3) Python API-level tests (functional + security)
 
-From backend/:
+Locations:
 
-```powershell
-npm run test:coverage
-```
+- tests/functional/
+- tests/security/
 
-### Functional and security suites
-
-From repository root with the backend running:
+Run:
 
 ```powershell
 .\env\Scripts\Activate.ps1
-pytest tests\functional tests\security -v
+pytest tests\functional tests\security -q
 ```
 
-### Performance scripts
-
-From repository root with the Python environment active:
+Useful variants:
 
 ```powershell
-locust -f tests/performance/locustfile.py
+pytest tests\functional tests\security -vv -ra --maxfail=1
+pytest tests\functional tests\security --durations=20
 ```
 
-## Coverage focus by layer
+## Backend autostart behavior for pytest
 
-### Jest
+The Python harness includes backend autostart by default.
 
-Covers:
+- Default local behavior: PYTEST_AUTOSTART_BACKEND=1
+- CI behavior: PYTEST_AUTOSTART_BACKEND=0 (backend started explicitly in workflow)
 
-- auth service
-- cart controller
-- cart service
-- cart worker
-- category service
-- order controller
-- order service
-- paymob service
-- product service
-- queue setup and Redis client infra behavior
-- review service
-- user service
-- webhook controller
-- user model behavior
+When autostart is disabled, start backend manually before running pytest.
 
-### Pytest
+## Current verified results
 
-Covers:
+Latest verified snapshot:
 
-- customer account and storefront flows
-- admin and owner workflows
-- payment and webhook behavior
-- security regressions such as RBAC enforcement and hardening checks
+- Backend Jest: 17 suites, 99 tests passing.
+- Frontend build: passing.
+- Python functional + security: 156 tests passing.
 
-## Current testing gaps
+## CI testing pipeline
 
-- no frontend E2E browser tests are present
-- Python suites were not re-executed during this documentation refresh
-- performance scripts exist but are not part of the default verification loop
+Workflow:
+
+- .github/workflows/ci.yml
+
+Job sequence:
+
+1. unit-tests (backend Jest)
+2. frontend-build
+3. system-tests (pytest functional + security)
+
+System-tests job specifics:
+
+- Starts Redis service in workflow.
+- Boots MongoDB replica set for transaction support.
+- Seeds backend database.
+- Starts backend server and waits for /api/v1/health.
+- Executes pytest suites.
+
+## Debugging failing tests
+
+### Backend unit failures
+
+- Re-run single suite with Jest pattern matching.
+- Check Redis/Mongo assumptions in test setup mocks.
+
+### Python suite failures
+
+- Confirm API health endpoint is reachable.
+- Verify test environment variables match expected defaults.
+- Inspect backend/server.log in CI failure output.
+
+### Payment/webhook tests
+
+- Validate HMAC secret and payload shape assumptions.
+- Verify idempotency behavior when replaying webhook calls.
+
+## Recommended test cadence
+
+- Before pushing feature work:
+  - backend npm test
+  - frontend npm run build
+- Before merging critical backend changes:
+  - pytest functional + security suites
+- Weekly:
+  - review flaky test trends and slowest test durations

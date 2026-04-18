@@ -1,128 +1,121 @@
 # Features
 
-This document summarizes the user-facing and operator-facing behavior that exists in the current SmartCart codebase.
+SmartCart feature inventory, grouped by user area.
 
-## Customer capabilities
+## Customer-facing features
 
-### Account and profile
+### Authentication and profile
 
-Customers can:
-
-- register and log in
-- retrieve their current profile
-- update first and last name
-- request a password reset and submit a new password
-- add and remove wishlist items
-- add and remove saved addresses
-
-Current constraints:
-
-- profile updates only expose firstName and lastName in the frontend service
-- password reset returns resetToken and resetUrl only outside production
+- Register and login with JWT authentication.
+- Password reset flow.
+- Profile update endpoint.
+- Saved address management.
 
 ### Catalog and discovery
 
-Customers can:
-
-- browse categories
-- browse product listings with filters and sorting
-- open product detail pages by slug
-- browse themed content pages such as about, help center, and gift finder
-
-Implemented product filtering supports:
-
-- keyword
-- category, including comma-separated category IDs
-- minPrice and maxPrice
-- minRating
-- stockStatus
-- sort
-- page and limit
+- Category listing and category detail.
+- Product listing with filtering and sorting.
+- Product details by slug.
+- Gift Finder route and UI flow.
 
 ### Cart and checkout
 
-Customers can:
-
-- add products to a cart
-- update item quantities
-- remove cart items
-- clear the cart
-- create an order from the current cart
-- open a protected order-detail route for a specific order
-
-Current behavior:
-
-- cart state is also cached in browser localStorage by the frontend service
-- order creation only requires shippingAddress at request time
-- the backend currently persists card as the initial order paymentMethod before explicit Paymob payment initiation
-- backend checkout and cancellation paths use MongoDB transactions for stock consistency
+- Add/update/remove cart items.
+- Cart subtotal and quantity management.
+- Overselling protection with stock checks.
+- Checkout order creation from cart.
 
 ### Payments
 
-Customers can initiate Paymob payment for an unpaid order using:
+- Paymob payment initiation endpoint.
+- Card, wallet, and fawry payment method integration.
+- Webhook-based payment confirmation.
 
-- card
-- wallet
-- fawry
+### Orders
 
-Current constraints:
-
-- wallet payments require a mobile number in the request or on the saved user profile
-- Paymob redirects are sent to the frontend payment-callback route
+- Customer order history endpoint.
+- Customer order details with ownership checks.
+- Payment callback route in frontend.
 
 ### Reviews
 
-Customers can:
+- Create review (customer).
+- Update/delete review with ownership/admin guards.
+- Product review listing.
 
-- fetch reviews for a product
-- create one review per product
-- update their own review
-- delete their own review
+### Wishlist
 
-## Admin capabilities
+- Add/remove wishlist products.
+- Fetch wishlist items.
 
-Admins can:
+### Notifications
 
-- access the admin area
-- view the admin dashboard
-- manage products
-- manage categories
-- view and update orders
-- list users
+- Realtime notification delivery via Socket.IO.
+- Persistent notification storage in backend.
+- API support for list, mark-read, mark-all-read, clear-all.
+- Frontend reconnect hydration to avoid missed events.
 
-Current constraints:
+### Countries support
 
-- admins cannot delete products
-- admins cannot access the owner-only user-management route actions that mutate owner-level user data
+- Canonical country list served from backend endpoint.
+- Frontend country hydration service with fallback constants.
+- Backend normalization helper for country code/name inputs.
 
-## Owner capabilities
+## Admin and owner features
 
-Owners inherit admin capabilities and can also:
+### Admin dashboard access
 
-- create users through POST /users
-- update users through PUT /users/:id
-- delete users through DELETE /users/:id
-- access the protected /admin/users screen
-- soft-delete products
+- Protected admin route module.
+- Role guards for admin and owner sections.
 
-Owner safeguards in the backend prevent:
+### Order operations
 
-- creating another owner account
-- assigning owner through normal user updates
-- changing the current owner's role away from owner
-- deleting the current owner or self-deleting
+- Fetch all orders (admin/owner).
+- Update order status with transition checks.
+- Status changes emit persisted + realtime notifications.
 
-## Frontend-specific improvements currently present
+### Product and category management
 
-- route guards for guest, auth, admin, and owner flows
-- SSR server module and browser hydration support
-- auth and error interceptors for centralized HTTP handling
-- APP_INITIALIZER-driven auth hydration to sync initial navbar/auth state
-- admin route persistence in the browser through RoutePersistenceService
-- dedicated feature routes for wishlist, account, help center, gift finder, and payment callback
+- Create, update, and delete categories (admin/owner).
+- Create and update products (admin/owner).
+- Owner-only soft-delete for products.
 
-## What is not implemented here
+### User management
 
-- a separate machine-learning or recommendation service
-- automated frontend E2E coverage with Playwright or Cypress
-- configurable payment callback redirect target beyond the current hardcoded localhost redirect route
+- List and read users (admin/owner).
+- Owner-only create, update, and delete users.
+
+## Platform and operational features
+
+### Background processing
+
+- BullMQ worker for cart-expiration handling.
+- Redis lock bookkeeping and release paths.
+
+### API quality and safety
+
+- Structured error envelope via middleware.
+- Validation middleware for request contracts.
+- Helmet and CORS middleware baseline.
+- Production-only API rate limiter.
+
+### API docs
+
+- Swagger UI available in non-production mode.
+
+### Observability and health
+
+- Request logging with morgan + logger stream.
+- Health endpoint under /api/v1/health.
+
+### Security automation
+
+- CI workflow for backend/frontend/python checks.
+- Trivy scan workflow (vuln + config + secrets) with SARIF and SBOM artifacts.
+- CodeQL workflow for JavaScript analysis.
+
+## Current known limitations
+
+- Paymob redirect helper currently hardcodes localhost frontend callback URL.
+- No dedicated audit trail store for admin state transitions beyond notifications/logs.
+- Some security medium findings may remain and should be triaged iteratively.

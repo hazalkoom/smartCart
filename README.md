@@ -1,42 +1,50 @@
-# SmartCart
+# Electrofied
 
-SmartCart is a full-stack e-commerce application with a Node.js and Express API, an Angular SSR frontend, and layered automated tests.
+Electrofied is a full-stack commerce platform with a Node.js/Express API, an Angular SSR frontend, and automated backend plus Python API/security test coverage.
 
-## Current stack
+## Stack
 
-- Backend: Node.js, Express 5, Mongoose, MongoDB
-- Frontend: Angular 21 SSR with NgModule-based routing
-- Infrastructure: Docker Compose with backend, frontend, Redis, and ngrok services
-- Payments: Paymob payment initiation plus webhook handling
-- Tests: Jest for backend unit tests, Pytest for API-level functional and security suites, Locust scripts for load testing
+- Backend: Node.js, Express 5, Mongoose, MongoDB, Redis, BullMQ
+- Frontend: Angular 21 SSR (NgModules)
+- Tests: Jest (backend unit), Pytest (functional/security), Locust (performance scripts)
+- Security automation: GitHub CodeQL and Trivy SARIF workflows
+- Payments: Paymob (initiation + webhook verification)
 
-## Project layout
+## Repository layout
 
-- backend/: API server, controllers, services, models, and Jest tests
-- frontend/: Angular SSR application, guards, interceptors, admin area, and HTTP services
+- backend/: API, business services, workers, and unit tests
+- frontend/: Angular SSR app with customer/admin features
 - tests/: Python functional, security, and performance suites
-- docs/: project reference docs
+- docs/: project documentation set
+
+## Current verification snapshot (2026-04-18)
+
+- Backend unit tests: 17 suites, 99 tests passed
+- Frontend build: npm run build passed
+- Python suites: pytest tests/functional tests/security -q -> 156 passed
+
+## Security snapshot (2026-04-18)
+
+- HIGH/CRITICAL dependency remediation applied for:
+  - axios
+  - path-to-regexp
+  - lodash
+- Remaining audit findings are tracked in docs/security.md.
 
 ## Quick start
 
-- Setup: [docs/setup.md](docs/setup.md)
+- Project setup: [docs/setup.md](docs/setup.md)
 - API reference: [docs/api.md](docs/api.md)
 - Architecture: [docs/architecture.md](docs/architecture.md)
+- Features: [docs/features.md](docs/features.md)
 - Testing: [docs/testing.md](docs/testing.md)
 - Security: [docs/security.md](docs/security.md)
 - Status: [docs/status.md](docs/status.md)
-- Agent navigation: [docs/AGENTS.md](docs/AGENTS.md)
-- Audit log: [docs/changelog.md](docs/changelog.md)
+- Roadmap: [docs/roadmap.md](docs/roadmap.md)
+- Changelog: [docs/changelog.md](docs/changelog.md)
+- Agent quick map: [docs/AGENTS.md](docs/AGENTS.md)
 
-## Current verification snapshot
+## Service-level READMEs
 
-- Backend unit tests: 15 suites, 87 tests passing
-- Frontend production build: passes, with bundle and CSS budget warnings
-- Frontend build also reports CommonJS optimization warnings for socket dependencies
-- Python functional and security suites: present in repo, not re-run during this documentation refresh
-
-## Notes
-
-- Swagger UI is mounted at /api-docs only when the backend is not running in production mode.
-- The frontend uses /api/v1 as its API base path and relies on Angular guards and HTTP interceptors for auth-aware navigation.
-- Order create and cancel flows use MongoDB transactions, so MongoDB replica set or managed cluster support is required.
+- Backend guide: [backend/README.md](backend/README.md)
+- Frontend guide: [frontend/README.md](frontend/README.md)

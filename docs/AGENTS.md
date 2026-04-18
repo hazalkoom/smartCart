@@ -1,18 +1,18 @@
 # AI Agent Guide - SmartCart
 
-This file is for coding agents that need a fast, reliable map of the current repository.
+This file gives coding agents a fast map of the current repository.
 
 ## Quick facts
 
-| Property | Value |
-| --- | --- |
-| Project | SmartCart |
-| Backend | Node.js, Express 5, Mongoose, MongoDB |
-| Frontend | Angular 21 SSR with NgModules |
-| Tests | Jest, Pytest, Locust |
-| API prefix | /api/v1 |
-| Auth roles | customer, admin, owner |
-| Payment integration | Paymob |
+| Property            | Value                                                |
+| ------------------- | ---------------------------------------------------- |
+| Project             | SmartCart                                            |
+| Backend             | Node.js, Express 5, Mongoose, MongoDB, Redis, BullMQ |
+| Frontend            | Angular 21 SSR with NgModules                        |
+| Tests               | Jest, Pytest, Locust                                 |
+| API prefix          | /api/v1                                              |
+| Auth roles          | customer, admin, owner                               |
+| Payment integration | Paymob                                               |
 
 ## Repository map
 
@@ -21,13 +21,15 @@ smartcart/
 ├── backend/
 │   ├── src/
 │   │   ├── server.js
+│   │   ├── constants/
 │   │   ├── config/
 │   │   ├── controllers/
 │   │   ├── middleware/
 │   │   ├── models/
 │   │   ├── routes/
 │   │   ├── services/
-│   │   └── utils/
+│   │   ├── utils/
+│   │   └── workers/
 │   └── tests/unit/
 ├── frontend/
 │   ├── src/
@@ -60,17 +62,14 @@ smartcart/
 - Persistence rules: backend/src/models/
 - Startup and middleware order: backend/src/server.js
 - Validation rules: backend/src/middleware/validationMiddleware.js
-- Centralized error handling: backend/src/middleware/errorMiddleware.js
+- Error envelope behavior: backend/src/middleware/errorMiddleware.js
 
 ### Frontend
 
 - Root module and providers: frontend/src/app/app-module.ts
 - Main routes: frontend/src/app/app-routing-module.ts
 - SSR server module: frontend/src/app/app.module.server.ts
-- Shared auth, cart, product, order, review services: frontend/src/app/core/services/
-- Guards: frontend/src/app/core/guards/
-- Interceptors: frontend/src/app/core/interceptors/
-- Reusable interfaces: frontend/src/app/core/interfaces/
+- Shared services and interfaces: frontend/src/app/core/
 - Page components: frontend/src/app/features/
 
 ## Current route map
@@ -85,6 +84,8 @@ smartcart/
 - /api/v1/reviews
 - /api/v1/webhook
 - /api/v1/users
+- /api/v1/notifications
+- /api/v1/countries
 - /api/v1/health
 
 ### Frontend routes
@@ -122,14 +123,14 @@ Admin children:
 Route -> Controller -> Service -> Model
 ```
 
-Keep business rules in services. Controllers should remain thin.
+Keep business rules in services. Keep controllers thin.
 
 ### Frontend pattern
 
 ```text
 app-routing-module.ts -> features/* components
 core/services/* -> API calls
-core/interfaces/* -> canonical TS types
+core/interfaces/* -> canonical types
 core/guards/* -> route access
 core/interceptors/* -> request and error handling
 ```
@@ -143,24 +144,35 @@ cd backend
 npm test
 ```
 
-Latest observed backend result in this refresh: 15 suites, 87 tests passing.
+Latest observed result: 17 suites, 99 tests passing.
 
-### Frontend production build
+### Frontend build
 
 ```powershell
 cd frontend
 npm run build
 ```
 
+Latest observed result: build passing.
+
 ### Python API-level suites
 
 ```powershell
 .\env\Scripts\Activate.ps1
-pytest tests\functional tests\security -v
+pytest tests\functional tests\security -q
 ```
 
-## Known code-level caveats
+Latest observed result: 156 tests passing.
 
-- Order creation currently validates shippingAddress only and sets paymentMethod internally.
-- The Paymob redirect helper is hardcoded to http://localhost:4200/payment-callback.
-- The frontend uses app-module.ts and app-routing-module.ts, not a standalone app.routes.ts client router.
+## Security automation
+
+- CI workflow: .github/workflows/ci.yml
+- Trivy workflow: .github/workflows/trivy.yml
+- CodeQL workflow: .github/workflows/codeql.yml
+
+## Known caveats
+
+- Paymob redirect helper is hardcoded to http://localhost:4200/payment-callback.
+- Order creation currently derives paymentMethod internally and validates shippingAddress.
+- Notification persistence is implemented and exposed under /api/v1/notifications.
+- Country normalization uses canonical country constants and /api/v1/countries.

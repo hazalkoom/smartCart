@@ -1,146 +1,184 @@
 # Setup
 
-This guide covers the current local setup for the backend, frontend, and test tooling.
+This document describes local setup, Docker setup, and verification commands for SmartCart.
 
 ## Prerequisites
 
-- Node.js 20 or compatible
-- npm
-- Python 3.10 or compatible
-- MongoDB with transaction support for checkout flows
-- Docker Desktop (optional, for compose-based local stack)
+- Node.js 20+
+- npm 10+
+- Python 3.10+
+- MongoDB 6+ (replica set required for transactions)
+- Redis 7+
+- Docker Desktop (optional, recommended)
 
-## Install dependencies
-
-### Backend
-
-From backend/:
-
-```powershell
-npm ci
-```
-
-### Frontend
-
-From frontend/:
-
-```powershell
-npm ci
-```
-
-### Python test environment
-
-The repository already includes a local virtual environment directory at env/, but you can also use your own environment if preferred.
-
-## Backend environment variables
-
-Create backend/.env with at least:
-
-```env
-NODE_ENV=development
-PORT=5000
-MONGODB_URI=mongodb://... or mongodb+srv://...
-JWT_SECRET=your-secret
-JWT_EXPIRE=7d
-CORS_ORIGIN=http://localhost:4200
-PAYMOB_API_KEY=...
-PAYMOB_INTEGRATION_ID_CARD=...
-PAYMOB_INTEGRATION_ID_WALLET=...
-PAYMOB_INTEGRATION_ID_FAWRY=...
-PAYMOB_IFRAME_ID=...
-PAYMOB_HMAC_SECRET=...
-REDIS_HOST=127.0.0.1
-REDIS_PORT=6379
-```
-
-Notes:
-
-- The backend exits on startup if JWT_SECRET, JWT_EXPIRE, or MONGODB_URI is missing.
-- The current code does not consume BCRYPT_ROUNDS even if you define it.
-- CORS defaults to http://localhost:4200 when CORS_ORIGIN is not set.
-- Redis defaults are available in code, but defining REDIS_HOST and REDIS_PORT is recommended for predictable environments.
-
-## MongoDB requirement
-
-Order creation and cancellation use MongoDB transactions through mongoose.startSession(). Use a replica set or managed MongoDB deployment that supports transactions.
-
-## Run the backend
-
-From backend/:
-
-```powershell
-npm run dev
-```
-
-Useful local endpoints:
-
-- API health: http://localhost:5000/api/v1/health
-- Swagger UI: http://localhost:5000/api-docs when NODE_ENV is not production
-
-## Run the frontend
-
-From frontend/:
-
-```powershell
-npm start -- --proxy-config proxy.conf.json
-```
-
-The frontend uses /api/v1 as its base API URL. The dev proxy forwards /api requests to http://localhost:5000.
-
-The frontend currently uses Angular 21 with NgModule routing and SSR.
-
-## Run with Docker Compose (optional)
+## Repository bootstrap
 
 From repository root:
 
 ```powershell
-docker-compose up --build
+npm install
 ```
 
-Current compose services:
-
-- frontend on http://localhost:4200
-- backend on http://localhost:5000
-- redis on 6379
-- ngrok web UI on http://localhost:4040
-
-Notes:
-
-- backend receives REDIS_HOST=redis and REDIS_PORT=6379 in compose.
-- frontend compose environment includes NG_ALLOWED_HOSTS for Angular host validation in Docker dev mode.
-
-## Run backend unit tests
-
-From backend/:
+Install backend dependencies:
 
 ```powershell
+cd backend
+npm install
+```
+
+Install frontend dependencies:
+
+```powershell
+cd frontend
+npm install
+```
+
+Install Python test dependencies:
+
+```powershell
+cd ..
+.\env\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+## Environment configuration
+
+### Backend env files
+
+Create or update these files:
+
+- backend/.env
+- backend/.env.dev
+- backend/.env.prod (if using prod compose)
+
+Minimum required startup variables:
+
+- JWT_SECRET
+- JWT_EXPIRE
+- MONGODB_URI
+
+Common full-stack variables:
+
+- PORT
+- NODE_ENV
+- CORS_ORIGIN
+- REDIS_URL
+- PAYMOB_API_KEY
+- PAYMOB_INTEGRATION_ID_CARD
+- PAYMOB_INTEGRATION_ID_WALLET
+- PAYMOB_INTEGRATION_ID_FAWRY
+- PAYMOB_HMAC_SECRET
+- PAYMOB_IFRAME_ID
+
+### Frontend environment files
+
+Angular environment files are in:
+
+- frontend/src/environments/environment.ts
+- frontend/src/environments/environment.prod.ts
+
+## Running locally (host processes)
+
+Start backend:
+
+```powershell
+cd backend
+npm run dev
+```
+
+Start frontend:
+
+```powershell
+cd frontend
+npm start
+```
+
+Default local URLs:
+
+- Frontend: http://localhost:4200
+- Backend API: http://localhost:5000/api/v1
+- Swagger (non-production): http://localhost:5000/api-docs
+
+## Running with Docker
+
+### Dev stack
+
+From repository root:
+
+```powershell
+npm run dev:up
+```
+
+Stop:
+
+```powershell
+npm run dev:down
+```
+
+### Prod-like backend stack
+
+From repository root:
+
+```powershell
+npm run prod:up
+```
+
+Stop:
+
+```powershell
+npm run prod:down
+```
+
+### Full compose stack (includes frontend + ngrok)
+
+```powershell
+docker compose up --build -d
+docker compose down
+```
+
+## Verification commands
+
+### Backend unit tests
+
+```powershell
+cd backend
 npm test
 ```
 
-## Run Python functional and security tests
-
-From the repository root:
+### Frontend build
 
 ```powershell
-.\env\Scripts\Activate.ps1
-pytest tests\functional tests\security -v
-```
-
-These suites expect a live backend to be running.
-
-## Run the frontend production build
-
-From frontend/:
-
-```powershell
+cd frontend
 npm run build
 ```
 
-Current build status:
+### Python functional + security tests
 
-- build succeeds
-- budget warnings are present for the main bundle, two component stylesheets, and inline Google Fonts CSS
+```powershell
+cd ..
+.\env\Scripts\Activate.ps1
+pytest tests\functional tests\security -q
+```
 
-## Current local-payment note
+Note:
 
-The Paymob redirect helper route sends users to http://localhost:4200/payment-callback. If you run the frontend on a different origin, that route will need code changes.
+- Local pytest defaults to backend autostart fixture.
+- To disable autostart, set PYTEST_AUTOSTART_BACKEND=0 and run backend manually.
+
+## Troubleshooting
+
+### Mongo transaction errors
+
+- Ensure Mongo runs as a replica set (required for transactional order flow).
+
+### Redis connection errors
+
+- Verify Redis is running and REDIS_URL points to reachable host.
+
+### CORS/auth issues
+
+- Confirm CORS_ORIGIN and frontend backendBaseUrl values match your mode.
+
+### Payment webhook/HMAC issues
+
+- Verify PAYMOB_HMAC_SECRET and integration IDs are set for your environment.

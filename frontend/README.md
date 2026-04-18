@@ -1,80 +1,75 @@
-# Frontend
+# SmartCart Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.2.
+Angular 21 SSR frontend for SmartCart customer and admin experiences.
 
-## Development server
+## Prerequisites
 
-To start a local development server, run:
+- Node.js 20+
+- npm
+- Backend running on http://localhost:5000 for local API integration
 
-```bash
-ng serve
-```
+## Install
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+From this directory:
 
 ```bash
-ng generate component component-name
+npm ci
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Run in development
 
 ```bash
-ng generate --help
+npm start
 ```
 
-## Building
+Default local URL: http://localhost:4200
 
-To build the project run:
+## Build
 
 ```bash
-ng build
+npm run build
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+Output path:
 
-## Running unit tests
+- dist/frontend/browser
+- dist/frontend/server
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Run unit tests
 
 ```bash
-ng test
+npm test
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+## Serve SSR build locally
 
 ```bash
-ng e2e
+npm run build
+npm run serve:ssr:frontend
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## Environment configuration
 
-## Additional Resources
+Development:
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- src/environments/environment.ts
+	- apiUrl: http://localhost:5000/api/v1
+	- socketUrl: http://localhost:5000
 
-## Deploy On Vercel
+Production:
 
-This repository is a monorepo. The Vercel project can target the repo root and use the root-level `vercel.json` to build and deploy the Angular frontend as a static site.
+- src/environments/environment.prod.ts
+	- apiUrl: https://electrofied-hazalkoom.duckdns.org/api/v1
+	- socketUrl: https://electrofied-hazalkoom.duckdns.org
 
-### What is configured
+## Notable frontend capabilities
 
-- Build command: `npm --prefix frontend install && npm --prefix frontend run build`
-- Output directory: `frontend/dist/frontend/browser`
-- SPA fallback rewrite to `index.html` for client-side routes
+- Customer storefront routes (products, cart, checkout, account, wishlist)
+- Admin lazy module with role guards
+- Notification bell with persisted notification hydration
+- Country dropdown hydration via backend countries API
+- Auth initialization via APP_INITIALIZER
 
-### Deploy steps
+## Deployment note
 
-1. Import the Git repository into Vercel.
-2. Keep the default Root Directory as repository root.
-3. Deploy. Vercel reads `vercel.json` automatically.
-
-### Environment notes
-
-- Frontend production API URL is configured in `src/environments/environment.prod.ts`.
-- If you later move backend APIs, update the production environment file and redeploy.
+Vercel is supported through root-level vercel.json in this monorepo.

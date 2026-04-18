@@ -1,60 +1,74 @@
 # Status
 
-This document summarizes the current implementation state based on repository inspection and targeted verification performed during this documentation refresh.
+Current status summary for SmartCart implementation, quality, and operations.
 
-## Verified in this refresh
+## Overall state
 
-### Backend
+- Backend core ecommerce flows are implemented and tested.
+- Frontend customer and admin experiences are implemented with Angular SSR.
+- Notification persistence + realtime delivery is active.
+- Country hydration + normalization path is active.
+- CI and security scanning workflows are active.
 
-- Backend unit test suite passes.
-- Result: 15 suites, 87 tests passing.
-- Health route exists at GET /api/v1/health.
-- API route groups mounted in server.js: auth, categories, products, cart, orders, reviews, webhook, users.
+## Functional delivery snapshot
 
-### Frontend
+### Customer features
 
-- Angular production build passes.
-- The frontend is an Angular 21 SSR app using app-module.ts and app-routing-module.ts.
-- Route guards exist for guest, auth, admin, and owner flows.
-- Auth and error interceptors are registered through the root NgModule.
+- Auth, profile, wishlist, and saved addresses.
+- Product/category browsing with filtering and pagination.
+- Cart operations and checkout order creation.
+- Payment initiation and callback handling.
+- Order history and detail pages.
+- Notification bell with persisted and realtime updates.
 
-### Build warnings currently present
+### Admin/owner features
 
-- initial bundle budget exceeded
-- product-detail.css component-style budget exceeded
-- product-list.css component-style budget exceeded
-- src/assets/admin/css/templatemo-daynight-style.css budget exceeded
-- CommonJS optimization warnings for debug and xmlhttprequest-ssl from socket dependencies
+- Admin route module with role guards.
+- Order management and status updates.
+- Category and product management.
+- Owner-only user management operations.
 
-## Implemented backend capabilities
+## Verification snapshot
 
-- authentication, login, profile, and password reset flow
-- wishlist and saved-address endpoints
-- categories CRUD
-- products CRUD with soft delete
-- cart CRUD with stock-aware mutations
-- transactional order creation and controlled status transitions
-- Paymob payment initiation and webhook handling
-- reviews CRUD
-- user listing for admin and owner, plus owner-only create, update, and delete actions
+Latest validated results from the current code state:
 
-## Implemented frontend capabilities
+- Backend Jest: 17 suites, 99 tests passed.
+- Frontend build: passed.
+- Python functional + security: 156 passed.
 
-- storefront routes for home, products, product detail, cart, checkout, account, wishlist, categories, order detail, payment callback, about, help center, and gift finder
-- lazy-loaded admin area with dashboard, orders, users, products, and categories screens
-- localStorage-backed auth token handling
-- localStorage-assisted cart caching and admin route persistence
+## CI and security status
 
-## Not verified in this refresh
+### CI workflow
 
-- Python functional tests under tests/functional
-- Python security tests under tests/security
-- frontend end-to-end browser workflows
-- production deployment behavior outside local build and unit-test execution
+- .github/workflows/ci.yml
+- Jobs:
+  - Backend unit tests
+  - Frontend build
+  - Python functional + security tests
 
-## Known mismatches or constraints in the current code
+### Security workflows
 
-- order creation docs previously claimed paymentMethod was required, but the backend currently only validates shippingAddress and sets paymentMethod internally
-- the Paymob redirect endpoint currently points to a hardcoded localhost frontend URL
-- the user model currently hashes passwords with bcrypt salt rounds fixed at 10
-- Docker compose frontend host validation relies on NG_ALLOWED_HOSTS values for Angular dev-server behavior
+- .github/workflows/trivy.yml
+  - Trivy HIGH/CRITICAL SARIF upload
+  - SBOM artifact generation (CycloneDX)
+- .github/workflows/codeql.yml
+  - JavaScript/TypeScript + Python analysis
+
+## Recently completed hardening work
+
+- Dependency remediation for axios, path-to-regexp, lodash.
+- Notification persistence API and frontend reconnect hydration.
+- Canonical countries endpoint and frontend hydration service.
+- Docs synchronization with implementation and workflows.
+
+## Active risks and follow-ups
+
+- Paymob redirect helper still hardcodes localhost callback target.
+- Ongoing medium-severity dependency triage remains a recurring task.
+- Additional observability metrics would improve operational diagnosis.
+
+## Immediate next actions
+
+1. Externalize payment callback target to environment variable.
+2. Expand edge-case tests around webhook replay/negative scenarios.
+3. Add notification pagination/retention strategy.

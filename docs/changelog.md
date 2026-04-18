@@ -1,12 +1,45 @@
 # Changelog
 
-All notable changes to this project are listed here.
+All notable documentation-relevant and platform-level changes are recorded here.
+
+## 2026-04-18
+
+### Documentation refresh
+
+- Updated all docs pages to match current implementation and verification results.
+- Added backend/README.md with backend-specific setup and runtime guidance.
+- Replaced frontend boilerplate README with project-specific frontend guide.
+- Synced route inventory across docs to include:
+  - /api/v1/notifications
+  - /api/v1/countries
+
+### Product behavior documented
+
+- Documented notification persistence, retrieval, and read/clear APIs.
+- Documented realtime notification emission and frontend reconnect hydration behavior.
+- Documented canonical country source and normalization behavior.
+- Clarified Python autostart backend fixture behavior and CI override flag.
+
+### Security and dependency updates documented
+
+- Documented CodeQL and Trivy workflows as active security automation.
+- Documented HIGH/CRITICAL dependency remediation for:
+  - axios
+  - path-to-regexp
+  - lodash
+- Added notes on remaining non-targeted audit findings.
+
+### Verification snapshot documented
+
+- Backend unit tests: 17 suites, 99 tests passed.
+- Frontend build: passed.
+- Python functional + security suites: 156 passed.
 
 ## 2026-03-24
 
 ### Documentation
 
-- Refreshed README, setup, status, architecture, API, features, security, testing, and AGENTS docs to match current code.
+- Refreshed README, setup, status, architecture, API, features, security, testing, and AGENTS docs to match then-current code.
 - Updated frontend version references from Angular 20 to Angular 21.
 - Added Docker compose coverage for backend, frontend, redis, and ngrok runtime setup.
 - Clarified MongoDB transactional requirements and hardening notes for checkout and cancellation.
@@ -20,11 +53,10 @@ All notable changes to this project are listed here.
 
 ### Documentation
 
-- Synced API docs with implemented endpoints, including owner-only `POST /users`.
+- Synced API docs with implemented endpoints, including owner-only POST /users.
 - Synced product query documentation with implemented filters and sorting.
-- Corrected order creation contract docs to match current backend behavior.
-- Updated frontend architecture docs to the actual NgModule routing structure.
-- Updated setup, status, testing, and security docs to match current code and verification output.
+- Corrected order creation contract docs to match backend behavior.
+- Updated frontend architecture docs to NgModule routing structure.
 
 ### Verification
 
@@ -45,37 +77,16 @@ All notable changes to this project are listed here.
 - Startup environment validation added for critical variables.
 - Graceful shutdown handlers added for server and database connections.
 - Swagger exposure gated to non-production mode.
-- Category update flow supports partial updates.
-- Order cancellation restocking wrapped in transaction flow.
-- Order controller error status behavior standardized.
-- Product retrieval not-found behavior corrected.
-- Review service/controller response shape made consistent.
-- Removed duplicate protect middleware usage in routes.
 
 ### Frontend improvements
 
-- Subscription cleanup added across core feature components to prevent leaks.
+- Subscription cleanup added across feature components.
 - Production environment file and Angular file replacement wiring added.
-- Error interceptor behavior improved for network, auth, and server-error flows.
-- Category interface usage unified in core interfaces/services and admin features.
-- SSR guards added to browser-only code paths.
-- Console cleanup performed across components.
-- Service-level retry and error handling improved in product, order, and user services.
-- Auth guard protection expanded for sensitive routes.
-- Redundant cart fetch removed from header flow.
+- Error interceptor behavior improved for network/auth/server-error flows.
+- Auth guard coverage expanded for sensitive routes.
 
 ### Tests
 
-- Added/expanded webhook controller unit tests for HMAC and idempotency flows.
-- Expanded cart service unit tests (add/get/update/remove/clear paths).
-- Expanded product service unit tests (SKU/category/image validations).
-- Added payment double-attempt regression test in Python suite.
-- Corrected always-passing product delete functional assertion.
-- Fixed duplicate review assertion pattern in tests.
-- Added Python test data isolation helper flow.
-
-### Reported verification at that time
-
-- Jest unit tests: 10 suites, 60 tests passed.
-- Angular build: successful with budget warnings.
-- Pytest functional/security: passing in the hardening report.
+- Expanded webhook/cart/product service unit tests.
+- Added payment double-attempt regression in Python suite.
+- Corrected flaky or weak assertions in Python tests.

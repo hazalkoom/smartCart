@@ -1,143 +1,156 @@
 # Architecture
 
-This document describes the current SmartCart implementation in this repository.
+This document reflects the current SmartCart implementation.
 
 ## System overview
 
-SmartCart consists of three major systems:
+SmartCart has three primary layers:
 
-- backend/: the authoritative commerce API and business logic
-- frontend/: the Angular SSR client application
+- backend/: API and business logic
+- frontend/: Angular SSR client
 - tests/: API-level functional, security, and performance suites
 
-Local infrastructure commonly used in development:
+Supporting infrastructure:
 
-- docker-compose.yml: orchestrates frontend, backend, redis, and ngrok
+- Redis for stock-locking and worker queues
+- BullMQ worker for cart-expiration tasks
+- Docker Compose files for local dev and production-like runtime
 
 ## Backend architecture
 
-The backend uses a conventional service-layer flow:
+Backend flow:
 
 ```text
 Route -> Controller -> Service -> Model
 ```
 
-Main backend structure:
+Key backend modules:
 
-- backend/src/server.js: process bootstrap, middleware registration, route mounting, health route, startup, and shutdown handling
-- backend/src/routes/: HTTP route definitions
-- backend/src/controllers/: request and response orchestration
-- backend/src/services/: business rules and multi-model workflows
-- backend/src/models/: Mongoose schemas and persistence rules
-- backend/src/middleware/: auth, validation, and centralized error handling
-- backend/src/utils/: async wrapper, token generation, logging, HMAC helpers, and Paymob client utilities
-- backend/src/workers/: BullMQ workers for background cart lock expiration
+- backend/src/server.js: startup, middleware, route mounts, sockets, graceful shutdown
+- backend/src/routes/: endpoint grouping
+- backend/src/controllers/: HTTP orchestration
+- backend/src/services/: business workflows
+- backend/src/models/: persistence schemas
+- backend/src/middleware/: auth/validation/error handling
+- backend/src/workers/: background jobs
 
-### Important backend runtime behavior
+### Runtime behavior
 
-- Environment validation happens during startup for JWT_SECRET, JWT_EXPIRE, and MONGODB_URI.
-- MongoDB is connected before the server starts listening.
-- Helmet and CORS are applied globally.
-- express.json uses a 50kb request-body limit.
-- Production mode enables rate limiting under /api.
-- Swagger is mounted only outside production.
-- Graceful shutdown disconnects Mongoose and quits Redis on SIGTERM and SIGINT.
+- Startup validates required environment variables.
+- MongoDB connection is awaited before listening.
+- Global middleware: morgan, helmet, cors, express.json.
+- Production-only rate limiting is applied under /api.
+- Swagger is mounted only in non-production mode.
+- Graceful shutdown closes HTTP, MongoDB, Redis, and BullMQ resources.
 
-## Backend domains
+### Route groups
+
+- /api/v1/auth
+- /api/v1/categories
+- /api/v1/products
+- /api/v1/cart
+- /api/v1/orders
+- /api/v1/reviews
+- /api/v1/webhook
+- /api/v1/users
+- /api/v1/notifications
+- /api/v1/countries
+- /api/v1/health
+
+## Key backend domains
 
 ### Auth and profile
 
-- JWT-based login and registration
-- Password reset token flow
-- User profile retrieval and first or last name updates
-- Wishlist and saved-address management for authenticated users
+- JWT authentication and RBAC (customer/admin/owner)
+- Profile, wishlist, and address management
 
 ### Catalog
 
-- Categories are slug-addressable
-- Products support filtering, sorting, pagination, ratings, and soft deletion
+- Categories and products with filtering and pagination
+- Product soft deletion by owner
 
-### Cart
+### Cart and inventory locking
 
-- One server-side cart per user
-- Locked price snapshots inside cart items
-- Subtotal recalculation after every mutation
+- User cart with subtotal recalculation
+- Overselling protection and lock accounting
+- Cart expiration worker releases locks and emits notifications
 
 ### Orders and payments
 
-- Order creation reads the cart, snapshots item cost, decrements stock, and clears the cart in a MongoDB transaction
-- Order status transitions are constrained
-- Cancellation restocks inventory transactionally
-- Paymob payment initiation is separate from order creation
-- Webhook handling updates payment state after HMAC validation
+- Transactional order creation from cart
+- Status transition rules with cancellation restocking
+- Paymob payment initiation and webhook verification
 
-### Reviews
+### Notifications
 
-- One review per product and customer
-- Product rating and reviewCount are recomputed after review changes
+- Notification model persisted in MongoDB
+- User/admin notification persistence services
+- REST retrieval and read-state APIs
+- Socket.IO event emission to user/admin rooms
 
-### User administration
+### Countries
 
-- Admin and owner can list users
-- Owner can create, update, and delete non-owner users
+- Canonical country constants in backend
+- Input normalization helper (codes to names)
+- Public countries endpoint for frontend hydration
 
 ## Frontend architecture
 
-The frontend is an Angular 21 SSR app using NgModules rather than standalone route configuration.
+Frontend is an Angular 21 SSR app using NgModules.
 
 Key files:
 
-- frontend/src/main.ts: browser bootstrap
-- frontend/src/main.server.ts: server bootstrap entry
-- frontend/src/app/app-module.ts: root NgModule, declarations, hydration, and HTTP interceptor registration
-- frontend/src/app/app-routing-module.ts: primary route definitions
-- frontend/src/app/app.module.server.ts: SSR server module
-- frontend/src/app/core/: guards, interceptors, interfaces, reusable services, and shared UI components
-- frontend/src/app/features/: page-level and admin feature components
+- frontend/src/app/app-module.ts
+- frontend/src/app/app-routing-module.ts
+- frontend/src/app/app.module.server.ts
+- frontend/src/app/core/
+- frontend/src/app/features/
 
-### Frontend navigation model
+### Routing and guards
 
-Primary routes include:
+Main routes include customer flows and lazy admin module.
 
-- /, /products, /products/:slug
-- /cart, /checkout, /account, /wishlist, /orders/:id
-- /about, /help-center, /categories, /gift-finder, /payment-callback
-- /admin with child routes for dashboard, orders, users, products, and categories
+Guard model:
 
-Route protection is implemented with:
+- authGuard: authenticated customer routes
+- guestGuard: login/register gate
+- AdminGuard: admin area
+- OwnerGuard: owner-only admin users screen
 
-- authGuard for authenticated customer routes
-- guestGuard for login and register
-- AdminGuard for the admin area
-- OwnerGuard for /admin/users
+### State and integration patterns
 
-### Frontend state and integration patterns
-
-- AuthService stores the JWT in localStorage when running in the browser.
-- AuthInterceptor adds the bearer token to outgoing requests.
-- ErrorInterceptor handles network failures, token-related 401 flows, and server-error logging in development.
-- CartService mirrors cart state into localStorage and exposes a reactive cartCount$ stream.
-- RoutePersistenceService restores the last visited admin route in the browser.
+- AuthService with APP_INITIALIZER-based hydration
+- AuthInterceptor and ErrorInterceptor for request/error behavior
+- NotificationService with persisted hydration + realtime merge
+- CountryService hydrates countries from backend with fallback constants
+- SocketService manages user/admin room subscriptions
 
 ## Data flow examples
 
-### Product browsing
-
-1. The frontend product service calls GET /api/v1/products with filters.
-2. The backend product service runs an aggregation pipeline with category lookup, pagination, and sorting.
-3. The frontend renders paged product cards and product detail views.
-
 ### Checkout and payment
 
-1. CartService mutates the server-side cart.
-2. OrderService creates an order from the cart by posting shippingAddress.
-3. OrderService then initiates payment separately through POST /orders/:id/pay.
-4. Paymob calls the webhook endpoint.
-5. The frontend payment callback route reads redirected query parameters from Paymob.
+1. Customer mutates cart through API.
+2. Order is created transactionally from cart.
+3. Customer initiates payment with /orders/:id/pay.
+4. Paymob webhook updates order state and notification records.
+5. Frontend receives realtime events and can rehydrate from /notifications.
 
-## Current constraints
+### Notification lifecycle
 
-- MongoDB transactions are required for checkout and cancellation integrity.
-- The Paymob redirect route is currently hardcoded to a localhost frontend callback URL.
-- The frontend has no E2E browser test suite in this repository.
-- Dockerized Angular dev-server host checks require NG_ALLOWED_HOSTS to include expected hostnames or IPs.
+1. Domain event occurs (payment success, status change, cart expiration).
+2. Backend persists notification document(s).
+3. Backend emits Socket.IO event.
+4. Frontend appends realtime event and reloads persisted list on reconnect.
+
+### Country data lifecycle
+
+1. Frontend bootstraps static country fallback.
+2. CountryService requests /api/v1/countries.
+3. Checkout/account dropdowns hydrate from backend response.
+4. Backend validates and normalizes incoming country values.
+
+## Operational constraints
+
+- MongoDB transaction support is required for order integrity.
+- Paymob redirect helper endpoint is currently hardcoded to localhost callback.
+- CI ignores docs-only changes by default through path filters.

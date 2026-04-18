@@ -1,80 +1,99 @@
 # Security
 
-This document describes the security controls that are present in the current SmartCart codebase.
+This document summarizes current SmartCart security posture, controls, and active workflows.
 
-## Authentication
+## Security baseline controls
 
-- Protected API routes expect Authorization: Bearer <token>.
-- JWTs are signed with JWT_SECRET and use JWT_EXPIRE from environment variables.
-- Passwords are hashed in a Mongoose pre-save hook using bcryptjs.
-- The current implementation uses bcrypt.genSalt(10) in the model hook.
+### Application-layer controls
 
-## Authorization
+- Helmet middleware for security headers.
+- CORS restricted by configurable origin (CORS_ORIGIN).
+- Production-only rate limiter under /api.
+- Validation middleware for request payload contracts.
+- Centralized error middleware with structured error envelopes.
 
-Roles defined in the user model are:
+### Authentication and authorization
 
-- customer
-- admin
-- owner
+- JWT-based authentication for protected routes.
+- Role-based access control for customer/admin/owner privileges.
+- Owner-only protection for high-risk user management paths.
 
-Backend route protection is composed from:
+### Payment integrity
 
-- protect: validates the token and loads req.user
-- authorize(...roles): restricts access by role
+- Paymob webhook HMAC verification before processing.
+- Idempotency guard prevents duplicate paid-state updates.
+- Payment event handling includes persisted notification generation.
 
-Important safeguards in the code:
+### Inventory safety
 
-- non-owner users cannot be promoted to owner through normal user updates
-- owners cannot create another owner account through POST /users
-- owners cannot delete themselves
-- owner accounts cannot be deleted
+- Stock lock accounting prevents overselling races.
+- Paid/cancelled transitions trigger lock and stock adjustments.
 
-## Input validation
+## CI security automation
 
-- express-validator is used on product, cart, order, review, and payment routes
-- invalid payloads return 400 with aggregated validation messages
-- product and category validation includes ObjectId checks where required
-- order creation currently validates shippingAddress.street, shippingAddress.city, and shippingAddress.country
-- wallet payments validate Egyptian mobile number format when mobileNumber is provided
+### CodeQL
 
-## API hardening
+- Workflow: .github/workflows/codeql.yml
+- Languages: javascript-typescript, python
+- Query suite: security-and-quality
+- Trigger: push, pull_request, weekly schedule, manual
 
-- Helmet is enabled globally.
-- CORS is enabled with origin set from CORS_ORIGIN or defaulting to http://localhost:4200.
-- express.json is configured with a 50kb payload limit.
-- express-rate-limit is enabled only when NODE_ENV is production.
-- Swagger UI is disabled in production.
-- startup validation fails fast when JWT_SECRET, JWT_EXPIRE, or MONGODB_URI is missing.
+### Trivy vulnerability scanning
 
-## Payment security
+- Workflow: .github/workflows/trivy.yml
+- Scope: filesystem scan for OS and library vulnerabilities
+- Severity gate in scan output: HIGH, CRITICAL
+- SARIF upload to GitHub Security tab
+- Weekly scheduled run plus push/pull_request/manual triggers
 
-- Paymob webhook processing is publicly reachable but protected by HMAC verification logic (SHA-512 digest over Paymob field contract).
-- Already-paid orders are not re-processed.
-- payOrder blocks payment attempts for orders that are already paid.
-- wallet payments require a mobile number from the request or saved user profile.
+### SBOM generation
 
-## Data protection and logging
+- Workflow: .github/workflows/trivy.yml (sbom job)
+- Output: CycloneDX JSON artifact (trivy-sbom.cdx.json)
 
-- MongoDB connection credentials are not logged.
-- Startup fails fast if JWT_SECRET, JWT_EXPIRE, or MONGODB_URI is missing.
-- Order creation and cancellation use MongoDB transactions to keep stock and order state consistent under failure.
-- Graceful shutdown closes HTTP server, disconnects MongoDB, and quits Redis.
-- The backend still contains a few direct console.error or console.log calls in payment, worker, and webhook paths, so console output is not fully centralized.
-- The frontend error interceptor only logs network and 5xx errors in development mode.
+## Dependency security status
 
-## Frontend security behavior
+Recently remediated high-priority dependency risks:
 
-- AuthInterceptor injects the bearer token into outgoing HTTP requests.
-- authGuard protects customer routes such as cart, checkout, account, wishlist, and order detail.
-- guestGuard keeps authenticated users away from login and register.
-- AdminGuard protects the admin area.
-- OwnerGuard protects the admin users route.
-- ErrorInterceptor only logs a user out on some token-related 401 cases. It does not redirect all 403 responses.
-- Browser-only code paths are guarded with isPlatformBrowser where needed for SSR safety.
+- axios upgraded to ^1.15.0 (backend)
+- path-to-regexp pinned via overrides to ^8.4.0
+- lodash pinned via overrides to ^4.17.24
 
-## Known limitations
+Current posture note:
 
-- The Paymob redirect endpoint is hardcoded to http://localhost:4200/payment-callback.
-- No CSRF mitigation is implemented because auth is bearer-token based, not cookie-based.
-- No dependency-scanning or SAST pipeline is defined in this repository.
-- Python security tests exist, but they were not re-run during this documentation refresh.
+- Major HIGH/CRITICAL risks targeted in recent cycle are remediated.
+- Medium findings may remain and should be handled in scheduled triage.
+
+## Operational security guidance
+
+### Secrets and environment variables
+
+- Keep production secrets out of repository and local dev defaults.
+- Maintain separate env files per mode (.env, .env.dev, .env.prod).
+- Required startup variables include JWT_SECRET, JWT_EXPIRE, and MONGODB_URI.
+
+### Runtime hardening
+
+- Ensure NODE_ENV is set correctly in production.
+- Keep Swagger disabled in production (already conditional in server startup).
+- Set strict CORS_ORIGIN in production deployment.
+- Review rate limiter thresholds according to traffic profile.
+
+### Logging and privacy
+
+- Avoid logging raw tokens and sensitive payload fields.
+- Review error logs for possible secret leakage during incident response.
+
+## Known security gaps and follow-ups
+
+- Payment redirect target is currently hardcoded for localhost and should be environment-driven.
+- No dedicated CSRF token model because API uses bearer auth; maintain strict CORS and auth boundaries.
+- Add periodic dependency refresh policy and automated patch PR cadence.
+
+## Incident response checklist
+
+1. Identify affected routes/services.
+2. Disable vulnerable surface with minimal feature impact.
+3. Patch and verify with tests.
+4. Re-run CI, CodeQL, and Trivy scans.
+5. Document impact and mitigation in changelog/status docs.
