@@ -5,8 +5,8 @@ module.exports = {
     const { Server } = require('socket.io');
     io = new Server(httpServer, {
       cors: {
-        origin: process.env.CORS_ORIGIN || 'http://localhost:4200',
-        methods: ['GET', 'POST'],
+        origin: ['http://localhost:4200', process.env.CORS_ORIGIN],
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
         credentials: true
       }
     });
