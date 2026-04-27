@@ -1,0 +1,43 @@
+name: AWS Server Remote Control
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'What do you want to do?'
+        required: true
+        default: 'status'
+        type: choice
+        options:
+          - start
+          - stop
+          - rebuild
+          - status
+
+jobs:
+  control-server:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute SSH Commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.AWS_SSH_KEY }}
+          script: |
+            cd ~/smartcart
+            
+            if [ "${{ github.event.inputs.action }}" == "start" ]; then
+              echo "Starting containers..."
+              docker compose -f docker-compose.prod.yml up -d
+            elif [ "${{ github.event.inputs.action }}" == "stop" ]; then
+              echo "Stopping containers..."
+              docker compose -f docker-compose.prod.yml down
+            elif [ "${{ github.event.inputs.action }}" == "rebuild" ]; then
+              echo "Rebuilding and starting..."
+              docker compose -f docker-compose.prod.yml down --remove-orphans
+              docker compose -f docker-compose.prod.yml up -d --build
+            elif [ "${{ github.event.inputs.action }}" == "status" ]; then
+              echo "Current Docker Status:"
+              docker ps
+            fi
