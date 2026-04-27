@@ -7,6 +7,8 @@ RUN npm ci --omit=dev && npm cache clean --force
 
 COPY --chown=node:node . .
 
+RUN mkdir -p logs && chmod 777 logs
+
 USER node
 
 EXPOSE 5000
