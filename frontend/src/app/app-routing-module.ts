@@ -10,6 +10,8 @@ import { CartComponent } from './features/cart/cart'; // Fixed
 import { CheckoutComponent } from './features/checkout/checkout'; // Fixed
 import { Login } from './features/login/login';
 import { Register } from './features/register/register';
+import { ForgotPassword } from './features/forgot-password/forgot-password';
+import { ResetPassword } from './features/reset-password/reset-password';
 import { Account } from './features/account/account';
 import { CategoryComponent } from './features/category/category';
 import { OrderDetailComponent } from './features/order-detail/order-detail'; // (Check if CLI named it OrderDetail or OrderDetailComponent)
@@ -27,6 +29,8 @@ const routes: Routes = [
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard] },
   { path: 'login', component: Login, canActivate: [guestGuard] },
   { path: 'register', component: Register, canActivate: [guestGuard] },
+  { path: 'forgot-password', component: ForgotPassword, canActivate: [guestGuard] },
+  { path: 'reset-password/:token', component: ResetPassword, canActivate: [guestGuard] },
   { path: 'about', component: AboutComponent },
   { path: 'help-center', component: HelpCenterComponent },
   { path: 'wishlist', component: WishlistComponent, canActivate: [authGuard] },

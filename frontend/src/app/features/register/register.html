@@ -9,7 +9,7 @@ REGISTER PAGE
 
     <div class="sc-auth-logo">
       <div class="sc-auth-logo-icon"><i class="icon icon-zap"></i></div>
-      <span>SMARTCART</span>
+      <span>Electrofied</span>
     </div>
 
     <h1 class="sc-auth-title">Create Account</h1>
@@ -45,8 +45,8 @@ REGISTER PAGE
               <div class="sc-pw-wrap">
                 <input [type]="showPassword ? 'text' : 'password'" class="form-control"
                   [(ngModel)]="password" (ngModelChange)="onPasswordChange()" name="password" placeholder="Min 8 characters" required minlength="8">
-                  <button type="button" class="sc-pw-toggle" (click)="showPassword = !showPassword">
-                    <i class="icon" [class.icon-eye]="!showPassword" [class.icon-eye-off]="showPassword"></i>
+                  <button type="button" class="sc-pw-toggle" aria-label="Toggle password visibility" (click)="showPassword = !showPassword">
+                    <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
                   </button>
                 </div>
                 <!-- Strength bar -->
@@ -63,10 +63,10 @@ REGISTER PAGE
               <div class="sc-form-group">
                 <label class="form-label">Confirm Password</label>
                 <div class="sc-pw-wrap">
-                  <input [type]="showPassword ? 'text' : 'password'" class="form-control"
+                  <input [type]="showConfirmPassword ? 'text' : 'password'" class="form-control"
                     [(ngModel)]="confirmPassword" name="confirmPassword" placeholder="Repeat password" required>
-                    <button type="button" class="sc-pw-toggle" (click)="showPassword = !showPassword">
-                      <i class="icon" [class.icon-eye]="!showPassword" [class.icon-eye-off]="showPassword"></i>
+                    <button type="button" class="sc-pw-toggle" aria-label="Toggle confirm password visibility" (click)="showConfirmPassword = !showConfirmPassword">
+                      <i class="bi" [class.bi-eye]="!showConfirmPassword" [class.bi-eye-slash]="showConfirmPassword"></i>
                     </button>
                   </div>
                   @if (confirmPassword && password !== confirmPassword) {

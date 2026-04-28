@@ -10,7 +10,7 @@ LOGIN PAGE
     <!-- Logo -->
     <div class="sc-auth-logo">
       <div class="sc-auth-logo-icon"><i class="icon icon-zap"></i></div>
-      <span>SMARTCART</span>
+      <span>Electrofied</span>
     </div>
 
     <h1 class="sc-auth-title">Welcome Back</h1>
@@ -35,8 +35,8 @@ LOGIN PAGE
             <input [type]="showPassword ? 'text' : 'password'" class="form-control"
               [(ngModel)]="password" name="password" placeholder="Your password" required
               autocomplete="current-password">
-              <button type="button" class="sc-pw-toggle" (click)="showPassword = !showPassword">
-                <i class="icon" [class.icon-eye]="!showPassword" [class.icon-eye-off]="showPassword"></i>
+              <button type="button" class="sc-pw-toggle" aria-label="Toggle password visibility" (click)="showPassword = !showPassword">
+                <i class="bi" [class.bi-eye]="!showPassword" [class.bi-eye-slash]="showPassword"></i>
               </button>
             </div>
           </div>

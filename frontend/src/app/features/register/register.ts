@@ -23,6 +23,7 @@ export class Register {
   errorMessage: string = '';
   isLoading: boolean = false;
   showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
   acceptTerms: boolean = false;
   passwordStrength: number = 0;
   passwordStrengthLabel: string = '';

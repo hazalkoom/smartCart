@@ -2,7 +2,7 @@ import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap, catchError, of, map, firstValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, tap, catchError, of, map, firstValueFrom, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { User, AuthResponse } from '../interfaces/user';
 import { SocketService } from './socket';
@@ -236,5 +236,38 @@ export class AuthService {
     this.socketService.disconnect();
     this.clearAuthState();
     this.router.navigate(['/login']);
+  }
+
+  // POST /api/v1/auth/forgot-password - Request password reset token
+  forgotPassword(email: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(
+      `${this.apiUrl}/forgot-password`, 
+      { email }
+    ).pipe(
+      catchError((error) => {
+        const errorMsg = error.error?.message || 'Failed to process request';
+        return throwError(() => new Error(errorMsg));
+      })
+    );
+  }
+
+  // POST /api/v1/auth/reset-password/:token - Reset password with token (auto-logs in)
+  resetPassword(token: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(
+      `${this.apiUrl}/reset-password/${token}`, 
+      { password }
+    ).pipe(
+      tap(response => {
+        if (response.success && response.data?.token) {
+          this.saveToken(response.data.token);
+          this.isLoggedIn$.next(true);
+          this.currentUser$.next(response.data);
+        }
+      }),
+      catchError((error) => {
+        const errorMsg = error.error?.message || 'Failed to reset password';
+        return throwError(() => new Error(errorMsg));
+      })
+    );
   }
 }

@@ -252,7 +252,9 @@ const resetPasswordValidationRules = [
   body('password')
     .notEmpty().withMessage('New password is required')
     .isString()
-    .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
+    .isLength({ min: 7 }).withMessage('Password must be at least 7 characters long')
+    .matches(/[A-Z]/).withMessage('Password must contain at least 1 uppercase letter')
+    .matches(/\d/).withMessage('Password must contain at least 1 number'),
 ];
 
 module.exports = {

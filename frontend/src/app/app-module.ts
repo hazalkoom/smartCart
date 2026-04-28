@@ -15,6 +15,8 @@ import { CartComponent } from './features/cart/cart';
 import { CheckoutComponent } from './features/checkout/checkout';
 import { Login } from './features/login/login';
 import { Register } from './features/register/register';
+import { ForgotPassword } from './features/forgot-password/forgot-password';
+import { ResetPassword } from './features/reset-password/reset-password';
 import { Account } from './features/account/account';
 import { CategoryComponent } from './features/category/category';
 import { CartAnimationComponent } from './core/components/cart-animation/cart-animation';
@@ -46,6 +48,8 @@ export function initializeAuthFactory(authService: AuthService): () => Promise<v
     CheckoutComponent, // Fixed Name
     Login,
     Register,
+    ForgotPassword,
+    ResetPassword,
     Account,
     CategoryComponent,
     CartAnimationComponent,
