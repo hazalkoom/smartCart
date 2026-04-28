@@ -29,7 +29,8 @@ const swaggerSpec = require('./config/swagger');
 const socket = require('./utils/socket');
 const redisClient = require('./utils/redisClient');
 const cartWorker = require('./workers/cartWorker');
-const { cartQueue } = require('./workers/queueSetup');
+const emailWorker = require('./workers/emailWorker');
+const { cartQueue, emailQueue } = require('./workers/queueSetup');
 
 const requiredEnvVars = ['JWT_SECRET', 'JWT_EXPIRE', 'MONGODB_URI'];
 for (const envVar of requiredEnvVars) {
@@ -111,17 +112,15 @@ const safeCloseRedis = async () => {
 
 const safeCloseBullMQ = async () => {
   try {
-    if (cartWorker && typeof cartWorker.close === 'function') {
-      await cartWorker.close();
-    }
+    if (cartWorker && typeof cartWorker.close === 'function') await cartWorker.close();
+    if (emailWorker && typeof emailWorker.close === 'function') await emailWorker.close();
   } catch (err) {
     logger.error('BullMQ worker shutdown error: ' + err.message);
   }
 
   try {
-    if (cartQueue && typeof cartQueue.close === 'function') {
-      await cartQueue.close();
-    }
+    if (cartQueue && typeof cartQueue.close === 'function') await cartQueue.close();
+    if (emailQueue && typeof emailQueue.close === 'function') await emailQueue.close();
   } catch (err) {
     logger.error('BullMQ queue shutdown error: ' + err.message);
   }
