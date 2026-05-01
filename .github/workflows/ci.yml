@@ -95,6 +95,7 @@ jobs:
       PAYMOB_INTEGRATION_ID_FAWRY: "5482773"
       PAYMOB_HMAC_SECRET: "9398BBEE4367A5BB6119DD67EECECC1D"
       PAYMOB_IFRAME_ID: "1000652"
+      RESEND_API_KEY: "re_dummy_testing_key_123"
 
     steps:
       - uses: actions/checkout@v4
