@@ -236,6 +236,46 @@
   border-radius: 10px;
 }
 
+/* --- Email Verification Banner --- */
+.email-verify-banner {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.email-verify-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  color: var(--warning);
+}
+
+.email-verify-content .icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.email-verify-content strong {
+  display: block;
+  color: var(--warning);
+  margin-bottom: 0.2rem;
+}
+
+.email-verify-content p {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.email-verify-banner .btn-warning {
+  align-self: flex-start;
+}
+
 @media (max-width: 991px) {
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
   .account-sidebar { position: static; }
@@ -247,3 +287,4 @@
   .orders-wrapper,
   .addresses-wrapper { padding: 1.25rem; }
 }
+

@@ -6,6 +6,31 @@
         <h2>Welcome back, {{ user.firstName }}! 👋</h2>
         <p>Manage your account, track orders, and explore more</p>
       </div>
+
+      @if (user.isEmailVerified === false) {
+        <div class="email-verify-banner">
+          <div class="email-verify-content">
+            <i class="icon icon-alert-circle"></i>
+            <div>
+              <strong>Email not verified</strong>
+              <p class="mb-0">Please verify your email address to unlock all features like updating your profile and managing addresses.</p>
+            </div>
+          </div>
+          <button class="btn btn-warning btn-sm" (click)="resendVerificationEmail()" [disabled]="isResendingVerification">
+            @if (isResendingVerification) {
+              <span class="spinner-border spinner-border-sm me-1" role="status"></span> Sending...
+            } @else {
+              <i class="icon icon-mail me-1"></i> Resend Verification Email
+            }
+          </button>
+          @if (resendVerificationMessage) {
+            <div class="alert alert-success mt-2 mb-0 py-2">{{ resendVerificationMessage }}</div>
+          }
+          @if (resendVerificationError) {
+            <div class="alert alert-danger mt-2 mb-0 py-2">{{ resendVerificationError }}</div>
+          }
+        </div>
+      }
     }
 
     @if (isLoading) {

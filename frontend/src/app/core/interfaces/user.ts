@@ -16,6 +16,7 @@ export interface User {
   lastName: string;
   role: 'customer' | 'user' | 'admin' | 'owner';
   token?: string;
+  isEmailVerified?: boolean;
   createdAt?: string;
   addresses?: Address[];
   wishlist?: any[];

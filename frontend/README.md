@@ -65,6 +65,7 @@ Production:
 ## Notable frontend capabilities
 
 - Customer storefront routes (products, cart, checkout, account, wishlist)
+- Email verification flow: verify-email page, account banner with resend button
 - Admin lazy module with role guards
 - Notification bell with persisted notification hydration
 - Country dropdown hydration via backend countries API

@@ -21,6 +21,7 @@ export class Register {
 
   // State variables
   errorMessage: string = '';
+  successMessage: string = '';
   isLoading: boolean = false;
   showPassword: boolean = false;
   showConfirmPassword: boolean = false;
@@ -83,6 +84,7 @@ export class Register {
 
     this.isLoading = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     // 2. Call the API
     const userData = {
@@ -97,7 +99,11 @@ export class Register {
         this.isLoading = false;
         if (response.success && response.data?.token) {
           // Token is already saved by AuthService.register()
-          this.router.navigate(['/']);
+          this.successMessage = response.message || 'Account created! A verification email has been sent to your inbox.';
+          // Redirect after a short delay so the user can see the message
+          setTimeout(() => {
+            this.router.navigate(['/']);
+          }, 3000);
         }
       },
       error: (error) => {

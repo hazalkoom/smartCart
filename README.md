@@ -17,10 +17,10 @@ Electrofied is a full-stack commerce platform with a Node.js/Express API, an Ang
 - tests/: Python functional, security, and performance suites
 - docs/: project documentation set
 
-## Current verification snapshot (2026-04-18)
+## Current verification snapshot (2026-05-01)
 
 - Backend unit tests: 17 suites, 99 tests passed
-- Frontend build: npm run build passed
+- Frontend build: npm run build passed (email verification feature added)
 - Python suites: pytest tests/functional tests/security -q -> 156 passed
 
 ## Security snapshot (2026-04-18)

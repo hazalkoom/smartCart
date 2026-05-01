@@ -270,4 +270,38 @@ export class AuthService {
       })
     );
   }
+
+  // POST /api/v1/auth/verify-email/:token - Verify user email
+  verifyEmail(token: string): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(
+      `${this.apiUrl}/verify-email/${token}`,
+      {}
+    ).pipe(
+      tap(response => {
+        if (response.success) {
+          const user = this.currentUser$.value;
+          if (user) {
+            this.currentUser$.next({ ...user, isEmailVerified: true });
+          }
+        }
+      }),
+      catchError((error) => {
+        const errorMsg = error.error?.message || 'Failed to verify email';
+        return throwError(() => new Error(errorMsg));
+      })
+    );
+  }
+
+  // POST /api/v1/auth/resend-verification - Resend verification email
+  resendVerification(): Observable<{ success: boolean; message: string }> {
+    return this.http.post<{ success: boolean; message: string }>(
+      `${this.apiUrl}/resend-verification`,
+      {}
+    ).pipe(
+      catchError((error) => {
+        const errorMsg = error.error?.message || 'Failed to resend verification email';
+        return throwError(() => new Error(errorMsg));
+      })
+    );
+  }
 }

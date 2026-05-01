@@ -1,0 +1,30 @@
+.verify-email-container {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: var(--background-light);
+}
+
+.verify-email-card {
+  background: white;
+  padding: 3rem 2rem;
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--box-shadow);
+  text-align: center;
+  max-width: 500px;
+  width: 100%;
+}
+
+.icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+}
+
+.icon-container.verifying .spinner-border {
+  width: 3rem;
+  height: 3rem;
+}

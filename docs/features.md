@@ -7,6 +7,9 @@ SmartCart feature inventory, grouped by user area.
 ### Authentication and profile
 
 - Register and login with JWT authentication.
+- Email verification flow with one-hour JWT tokens queued via BullMQ.
+- Resend verification email endpoint for logged-in users.
+- requireEmailVerification middleware gates sensitive actions (profile update, address management).
 - Password reset flow.
 - Profile update endpoint.
 - Saved address management.

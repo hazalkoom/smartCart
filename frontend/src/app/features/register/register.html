@@ -19,6 +19,12 @@ REGISTER PAGE
       <div class="alert alert-danger">{{ errorMessage }}</div>
     }
 
+    @if (successMessage) {
+      <div class="alert alert-success">
+        <i class="icon icon-check-circle me-2"></i>{{ successMessage }}
+      </div>
+    }
+
     <form (ngSubmit)="onSubmit()" #registerForm="ngForm" novalidate>
 
       <div class="sc-form-row sc-reg-name-row">

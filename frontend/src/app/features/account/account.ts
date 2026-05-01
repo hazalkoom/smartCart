@@ -28,6 +28,11 @@ export class Account implements OnInit, OnDestroy {
   editData = { firstName: '', lastName: '', email: '' };
   updateMessage: string = '';
 
+  // --- EMAIL VERIFICATION STATE ---
+  isResendingVerification: boolean = false;
+  resendVerificationMessage: string = '';
+  resendVerificationError: string = '';
+
   // --- REAL ADDRESS STATE ---
   isAddingAddress: boolean = false;
   addressErrorMessage: string = '';
@@ -183,6 +188,25 @@ export class Account implements OnInit, OnDestroy {
         }
       });
     }
+  }
+  // --- EMAIL VERIFICATION METHODS ---
+  resendVerificationEmail(): void {
+    this.isResendingVerification = true;
+    this.resendVerificationMessage = '';
+    this.resendVerificationError = '';
+
+    this.authService.resendVerification().subscribe({
+      next: (res) => {
+        this.resendVerificationMessage = res.message || 'Verification email sent! Please check your inbox.';
+        this.isResendingVerification = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        this.resendVerificationError = err.message || 'Failed to resend verification email.';
+        this.isResendingVerification = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   // --- HELPER METHODS ---

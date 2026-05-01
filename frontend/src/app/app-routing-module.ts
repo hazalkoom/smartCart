@@ -20,6 +20,7 @@ import { AboutComponent } from './features/about/about';
 import { HelpCenterComponent } from './features/help-center/help-center';
 import { WishlistComponent } from './features/wishlist/wishlist';
 import { GiftFinderComponent } from './features/gift-finder/gift-finder';
+import { VerifyEmailComponent } from './features/verify-email/verify-email';
 
 const routes: Routes = [
   { path: '', component: Home },
@@ -31,6 +32,7 @@ const routes: Routes = [
   { path: 'register', component: Register, canActivate: [guestGuard] },
   { path: 'forgot-password', component: ForgotPassword, canActivate: [guestGuard] },
   { path: 'reset-password/:token', component: ResetPassword, canActivate: [guestGuard] },
+  { path: 'verify-email/:token', component: VerifyEmailComponent },
   { path: 'about', component: AboutComponent },
   { path: 'help-center', component: HelpCenterComponent },
   { path: 'wishlist', component: WishlistComponent, canActivate: [authGuard] },

@@ -2,6 +2,21 @@
 
 All notable documentation-relevant and platform-level changes are recorded here.
 
+## 2026-05-01
+
+### Email verification — full-stack implementation
+
+- Backend: register now generates a 1-hour JWT verification token and queues a verification email via BullMQ/Redis.
+- Backend: added `POST /auth/verify-email/:token` (public) and `POST /auth/resend-verification` (protected) endpoints.
+- Backend: added `requireEmailVerification` middleware gating profile updates and address management.
+- Backend: login and register responses now include `isEmailVerified` flag.
+- Frontend: added `isEmailVerified` to User interface.
+- Frontend: added `verifyEmail()` and `resendVerification()` methods to AuthService.
+- Frontend: created `VerifyEmailComponent` with loading, success, and error states at `/verify-email/:token`.
+- Frontend: added email verification warning banner with resend button on Account page.
+- Frontend: register now shows a success message about the verification email before redirecting.
+- Docs: updated api.md, features.md, changelog.md, frontend README, and backend README.
+
 ## 2026-04-18
 
 ### Documentation refresh

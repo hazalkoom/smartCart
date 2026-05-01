@@ -29,6 +29,7 @@ import { AboutComponent } from './features/about/about';
 import { HelpCenterComponent } from './features/help-center/help-center';
 import { WishlistComponent } from './features/wishlist/wishlist';
 import { GiftFinderComponent } from './features/gift-finder/gift-finder';
+import { VerifyEmailComponent } from './features/verify-email/verify-email';
 import { NotificationBellComponent } from './core/components/notification-bell/notification-bell';
 import { AuthService } from './core/services/auth';
 
@@ -58,7 +59,8 @@ export function initializeAuthFactory(authService: AuthService): () => Promise<v
     AboutComponent,
     HelpCenterComponent,
     WishlistComponent,
-    GiftFinderComponent
+    GiftFinderComponent,
+    VerifyEmailComponent
   ],
   imports: [
     BrowserModule,

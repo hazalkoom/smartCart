@@ -40,8 +40,10 @@ SmartCart backend API reference.
 | POST | /auth/login | Public | Login and get token |
 | POST | /auth/forgot-password | Public | Start reset flow |
 | POST | /auth/reset-password/:token | Public | Reset password |
+| POST | /auth/verify-email/:token | Public | Verify email with JWT token |
+| POST | /auth/resend-verification | Protected | Resend verification email |
 | GET | /auth/me | Protected | Current user profile |
-| PUT | /auth/updatedetails | Protected | Update profile fields |
+| PUT | /auth/updatedetails | Protected + Verified | Update profile fields |
 
 ## Wishlist
 

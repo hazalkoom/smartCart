@@ -84,3 +84,4 @@ npm run test:coverage
 - Swagger UI is available at /api-docs outside production mode.
 - Checkout and cancellation flows rely on MongoDB transactions.
 - WebSocket notifications are room-based (user rooms and admin_room).
+- Email verification: registration queues a verification email via BullMQ. Verify with POST /auth/verify-email/:token; resend with POST /auth/resend-verification (protected). The requireEmailVerification middleware gates profile updates and address management.
