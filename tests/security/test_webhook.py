@@ -88,6 +88,16 @@ def webhook_ctx():
     res_user = requests.post(f"{BASE_URL}/auth/login", json={"email": user_email, "password": "password123"})
     user_body = assert_success(res_user, 200, "webhook login user")
     user_headers = auth_header(user_body['data']['token'])
+    user_id = user_body['data']['_id']
+
+    # ---> THE FIX: Promote the test user to Admin so they bypass the Email Verification guard <---
+    res_promote = requests.put(
+        f"{BASE_URL}/users/{user_id}",
+        json={"role": "admin"},
+        headers=owner_headers
+    )
+    assert_status(res_promote, 200, "webhook promote test user to admin")
+    # ---------------------------------------------------------------------------------------------
 
     res_cart = requests.post(f"{BASE_URL}/cart/items", json={"productId": product_id, "quantity": 1}, headers=user_headers)
     if res_cart.status_code not in [200, 201]:
@@ -114,7 +124,6 @@ def webhook_ctx():
 
     requests.delete(f"{BASE_URL}/products/{ctx['product_id']}", headers=ctx['owner_headers'])
     requests.delete(f"{BASE_URL}/categories/{ctx['category_id']}", headers=ctx['owner_headers'])
-
 # --- TESTS ---
 
 @pytest.mark.run(order=91)
