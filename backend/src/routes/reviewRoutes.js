@@ -1,5 +1,5 @@
 const express = require('express');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { protect, authorize, requireEmailVerification } = require('../middleware/authMiddleware');
 const { validate, reviewValidationRules, reviewUpdateValidationRules } = require('../middleware/validationMiddleware');
 const reviewController = require('../controllers/reviewController');
 
@@ -11,7 +11,7 @@ router.get('/', reviewController.getProductReviews);
 // Protected Routes
 router.use(protect);
 
-router.post('/', authorize('customer', 'user'), reviewValidationRules, validate, reviewController.createReview);
+router.post('/', authorize('customer', 'user'), requireEmailVerification, reviewValidationRules, validate, reviewController.createReview);
 
 router
   .route('/:id')

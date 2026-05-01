@@ -9,10 +9,12 @@ const {
   toggleWishlist,
   getWishlist,
   addAddress,
-  deleteAddress
+  deleteAddress,
+  verifyEmail,       // ---> IMPORT THE NEW CONTROLLER <---
+  resendVerification
 } = require('../controllers/authController');
 
-const { protect } = require('../middleware/authMiddleware');
+const { protect, requireEmailVerification } = require('../middleware/authMiddleware');
 const { validate, addressValidationRules } = require('../middleware/validationMiddleware');
 
 const router = express.Router();
@@ -37,15 +39,19 @@ router.post('/reset-password/:token', resetPassword);
 router.get('/me', protect, getMe);
 
 
-router.put('/updatedetails', protect, updateDetails);
+router.put('/updatedetails', protect, requireEmailVerification, updateDetails);
 
 // Wishlist Routes
 router.post('/wishlist', protect, toggleWishlist);
 router.get('/wishlist', protect, getWishlist);
 
 // Address Routes
-router.post('/addresses', protect, addressValidationRules, validate, addAddress);
-router.delete('/addresses/:id', protect, deleteAddress);
+router.post('/addresses', protect, requireEmailVerification, addressValidationRules, validate, addAddress);
+router.delete('/addresses/:id', protect, requireEmailVerification, deleteAddress);
+
+// ---> NEW: Email Verification Routes <---
+router.post('/verify-email/:token', verifyEmail);
+router.post('/resend-verification', protect, resendVerification);
 
 module.exports = router;
 
@@ -450,4 +456,65 @@ module.exports = router;
  *                     $ref: '#/components/schemas/AddressInput'
  *       401:
  *         description: Not authorized
+ */
+
+/**
+ * @swagger
+ * /auth/verify-email/{token}:
+ *   post:
+ *     summary: Verify User Email
+ *     description: Verifies a user's email using the JWT token sent to their inbox.
+ *     tags: [Auth]
+ *     parameters:
+ *       - in: path
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The JWT verification token
+ *     responses:
+ *       200:
+ *         description: Email verified successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Email verified successfully. You now have full access.
+ *       400:
+ *         description: Invalid or expired token
+ */
+
+/**
+ * @swagger
+ * /auth/resend-verification:
+ *   post:
+ *     summary: Resend Verification Email
+ *     description: Generates a new verification token and queues a new email to the logged-in user.
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Verification email resent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 message:
+ *                   type: string
+ *                   example: Verification email resent. Please check your inbox.
+ *       401:
+ *         description: Not authorized (Must be logged in)
+ *       400:
+ *         description: Email is already verified
  */

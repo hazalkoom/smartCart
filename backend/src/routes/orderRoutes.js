@@ -1,5 +1,5 @@
 const express = require('express');
-const { protect, authorize } = require('../middleware/authMiddleware');
+const { protect, authorize, requireEmailVerification } = require('../middleware/authMiddleware');
 const {
   validate,
   orderCreateValidationRules,
@@ -21,12 +21,13 @@ const router = express.Router();
 router.use(protect);
 
 router.route('/my').get(getMyOrders);
-router.route('/').post(orderCreateValidationRules, validate, createOrder);
+router.route('/').post(requireEmailVerification, orderCreateValidationRules, validate, createOrder);
 router.route('/:id').get(getOrderById);
 router.route('/').get(authorize('admin', 'owner'), getAllOrders);
 router.route('/:id/status').patch(authorize('admin', 'owner'), orderStatusValidationRules, validate, updateOrderStatus);
 router.post(
   '/:id/pay',
+  requireEmailVerification,
   payOrderValidationRules,   // 1. Check Input Rules
   validate,                  // 2. Check for Validation Errors
   payOrder                   // 3. Execute Logic

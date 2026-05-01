@@ -11,7 +11,7 @@ const registerUser = asyncHandler(async (req, res) => {
   res.status(201).json({
     success: true,
     data: user,
-    message: 'User registered successfully',
+    message: 'User registered successfully. Please check your email to verify your account.',
   });
 });
 
@@ -19,11 +19,10 @@ const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    res.status(400); // Bad Request
+    res.status(400);
     throw new Error('Please provide an email and password'); 
   }
 
-  // We wrap this in try/catch to handle the 401 specifically
   try {
     const user = await AuthService.loginUser(email, password);
     res.status(200).json({
@@ -32,9 +31,37 @@ const loginUser = asyncHandler(async (req, res) => {
       message: 'User logged in successfully',
     });
   } catch (error) {
-    res.status(401); // Unauthorized
+    res.status(401);
     throw error;
   }
+});
+
+// ---> NEW: Verify Email Controller <---
+const verifyEmail = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+  
+  if (!token) {
+    res.status(400);
+    throw new Error('Verification token is missing');
+  }
+  
+  await AuthService.verifyEmail(token);
+  
+  res.status(200).json({
+    success: true,
+    message: 'Email verified successfully. You now have full access.',
+  });
+});
+
+// ---> NEW: Resend Verification Controller <---
+const resendVerification = asyncHandler(async (req, res) => {
+  // We will protect this route, so req.user.id is guaranteed to exist
+  await AuthService.resendVerification(req.user.id);
+  
+  res.status(200).json({
+    success: true,
+    message: 'Verification email resent. Please check your inbox.',
+  });
 });
 
 const getMe = asyncHandler(async (req, res) => {
@@ -46,36 +73,22 @@ const getMe = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: user });
 });
 
-// --- FIXED ENDPOINT 1: FORGOT PASSWORD ---
+// --- UPDATED: FORGOT PASSWORD (Cleaner, no token leaking) ---
 const forgotPassword = asyncHandler(async (req, res) => {
   const { email } = req.body;
 
-  // 1. SECURITY PATCH: Strict Type Checking
-  // This prevents the NoSQL Injection attack: {"email": {"$ne": null}}
   if (!email || typeof email !== 'string') {
     res.status(400);
     throw new Error('Please provide a valid email address');
   }
 
   try {
-    const resetToken = await AuthService.forgotPassword(email);
-
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/auth/reset-password/${resetToken}`;
-
-    const responseData = {
+    await AuthService.forgotPassword(email);
+    res.status(200).json({
       success: true,
       message: 'If that email is registered, a reset link has been sent.',
-    };
-
-    // Only expose token in non-production (for testing)
-    if (process.env.NODE_ENV !== 'production') {
-      responseData.resetToken = resetToken;
-      responseData.resetUrl = resetUrl;
-    }
-
-    res.status(200).json(responseData);
+    });
   } catch (error) {
-    // Security: Always return 200 with same message to prevent user enumeration
     res.status(200).json({
       success: true,
       message: 'If that email is registered, a reset link has been sent.',
@@ -83,7 +96,6 @@ const forgotPassword = asyncHandler(async (req, res) => {
   }
 });
 
-// --- FIXED ENDPOINT 2: RESET PASSWORD ---
 const resetPassword = asyncHandler(async (req, res) => {
   const { token } = req.params;
   const { password } = req.body;
@@ -101,8 +113,7 @@ const resetPassword = asyncHandler(async (req, res) => {
       message: 'Password updated successfully. You can now login with the new password.',
     });
   } catch (error) {
-    // If token is invalid or expired
-    res.status(400); // Bad Request (instead of 500)
+    res.status(400);
     throw error;
   }
 });
@@ -146,6 +157,8 @@ const deleteAddress = asyncHandler(async (req, res) => {
 module.exports = {
   registerUser,
   loginUser,
+  verifyEmail,       // Exported the new controller
+  resendVerification, // Exported the new controller
   getMe,
   forgotPassword,
   resetPassword,
