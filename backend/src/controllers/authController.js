@@ -44,24 +44,34 @@ const verifyEmail = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error('Verification token is missing');
   }
-  
-  await AuthService.verifyEmail(token);
-  
-  res.status(200).json({
-    success: true,
-    message: 'Email verified successfully. You now have full access.',
-  });
+
+  try {
+    await AuthService.verifyEmail(token);
+
+    res.status(200).json({
+      success: true,
+      message: 'Email verified successfully. You now have full access.',
+    });
+  } catch (error) {
+    res.status(400);
+    throw error;
+  }
 });
 
 // ---> NEW: Resend Verification Controller <---
 const resendVerification = asyncHandler(async (req, res) => {
   // We will protect this route, so req.user.id is guaranteed to exist
-  await AuthService.resendVerification(req.user.id);
-  
-  res.status(200).json({
-    success: true,
-    message: 'Verification email resent. Please check your inbox.',
-  });
+  try {
+    await AuthService.resendVerification(req.user.id);
+
+    res.status(200).json({
+      success: true,
+      message: 'Verification email resent. Please check your inbox.',
+    });
+  } catch (error) {
+    res.status(400);
+    throw error;
+  }
 });
 
 const getMe = asyncHandler(async (req, res) => {

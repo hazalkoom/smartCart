@@ -12,6 +12,7 @@ from tests.helpers.api_assertions import (
     assert_status,
     assert_success,
     auth_header,
+    create_email_verification_token,
     unique_suffix,
 )
 from tests.test_config import BASE_URL, OWNER_LOGIN
@@ -186,6 +187,10 @@ def notifications_ctx():
     customer_headers = auth_header(customer_body['data']['token'])
     customer_id = customer_body['data']['_id']
 
+    verify_token = create_email_verification_token(customer_id)
+    verify_res = requests.post(f"{BASE_URL}/auth/verify-email/{verify_token}")
+    assert_success(verify_res, 200, "notifications verify customer email")
+
     other_email = f"notif_other_{unique_suffix()}@example.com"
     other_register = requests.post(
         f"{BASE_URL}/auth/register",
@@ -198,6 +203,11 @@ def notifications_ctx():
     )
     other_body = assert_success(other_login, 200, 'notifications setup other login')
     other_headers = auth_header(other_body['data']['token'])
+    other_id = other_body['data']['_id']
+
+    other_verify = create_email_verification_token(other_id)
+    verify_res = requests.post(f"{BASE_URL}/auth/verify-email/{other_verify}")
+    assert_success(verify_res, 200, "notifications verify other email")
 
     requests.delete(notification_url, headers=customer_headers)
     requests.delete(notification_url, headers=other_headers)

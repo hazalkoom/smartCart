@@ -5,9 +5,18 @@ jest.mock('../../src/models/userModel', () => ({
 }));
 
 jest.mock('../../src/utils/generateToken', () => jest.fn());
+jest.mock('../../src/workers/queueSetup', () => ({
+  emailQueue: { add: jest.fn() },
+}));
+jest.mock('jsonwebtoken', () => ({
+  sign: jest.fn(),
+  verify: jest.fn(),
+}));
 
 const User = require('../../src/models/userModel');
 const generateToken = require('../../src/utils/generateToken');
+const { emailQueue } = require('../../src/workers/queueSetup');
+const jwt = require('jsonwebtoken');
 
 const authService = require('../../src/services/authService');
 
@@ -36,6 +45,7 @@ describe('AuthService', () => {
 
     it('creates a user and returns an auth payload with token', async () => {
       User.findOne.mockResolvedValue(null);
+      process.env.JWT_SECRET = 'test-secret';
 
       const createdUser = {
         _id: 'user-id-1',
@@ -43,10 +53,12 @@ describe('AuthService', () => {
         lastName: 'User',
         email: 'test@example.com',
         role: 'customer',
+        isEmailVerified: false,
       };
 
       User.create.mockResolvedValue(createdUser);
       generateToken.mockReturnValue('token-abc');
+      jwt.sign.mockReturnValue('verify-token-123');
 
       const result = await authService.registerUser({
         email: 'test@example.com',
@@ -65,12 +77,23 @@ describe('AuthService', () => {
       });
 
       expect(generateToken).toHaveBeenCalledWith('user-id-1');
+      expect(jwt.sign).toHaveBeenCalledWith(
+        { id: 'user-id-1', purpose: 'email_verification' },
+        'test-secret',
+        { expiresIn: '1h' }
+      );
+      expect(emailQueue.add).toHaveBeenCalledWith('send-verification', {
+        type: 'verification',
+        email: 'test@example.com',
+        token: 'verify-token-123',
+      });
       expect(result).toEqual({
         _id: 'user-id-1',
         firstName: 'Test',
         lastName: 'User',
         email: 'test@example.com',
         role: 'customer',
+        isEmailVerified: false,
         token: 'token-abc',
       });
     });
@@ -84,6 +107,7 @@ describe('AuthService', () => {
         lastName: 'Doe',
         email: 'jane@example.com',
         role: 'customer',
+        isEmailVerified: true,
         matchPassword: jest.fn().mockResolvedValue(true),
       };
 
@@ -105,6 +129,7 @@ describe('AuthService', () => {
         lastName: 'Doe',
         email: 'jane@example.com',
         role: 'customer',
+        isEmailVerified: true,
         token: 'token-xyz',
       });
     });
@@ -138,6 +163,92 @@ describe('AuthService', () => {
     });
   });
 
+  describe('verifyEmail', () => {
+    it('marks the user as verified for a valid token', async () => {
+      process.env.JWT_SECRET = 'verify-secret';
+      jwt.verify.mockReturnValue({ id: 'user-id-5', purpose: 'email_verification' });
+
+      const mockUser = {
+        _id: 'user-id-5',
+        isEmailVerified: false,
+        save: jest.fn().mockResolvedValue(true),
+      };
+
+      User.findById.mockResolvedValue(mockUser);
+
+      const result = await authService.verifyEmail('valid-token');
+
+      expect(jwt.verify).toHaveBeenCalledWith('valid-token', 'verify-secret');
+      expect(User.findById).toHaveBeenCalledWith('user-id-5');
+      expect(mockUser.isEmailVerified).toBe(true);
+      expect(mockUser.save).toHaveBeenCalledWith({ validateBeforeSave: false });
+      expect(result).toBe(mockUser);
+    });
+
+    it('throws when token purpose is invalid', async () => {
+      process.env.JWT_SECRET = 'verify-secret';
+      jwt.verify.mockReturnValue({ id: 'user-id-6', purpose: 'reset_password' });
+
+      await expect(authService.verifyEmail('wrong-purpose-token')).rejects.toThrow(
+        'Invalid or expired verification token'
+      );
+
+      expect(User.findById).not.toHaveBeenCalled();
+    });
+
+    it('throws when token is invalid or expired', async () => {
+      process.env.JWT_SECRET = 'verify-secret';
+      jwt.verify.mockImplementation(() => {
+        throw new Error('expired');
+      });
+
+      await expect(authService.verifyEmail('expired-token')).rejects.toThrow(
+        'Invalid or expired verification token'
+      );
+
+      expect(User.findById).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('resendVerification', () => {
+    it('queues a new verification email for unverified users', async () => {
+      process.env.JWT_SECRET = 'verify-secret';
+      const mockUser = {
+        _id: 'user-id-7',
+        email: 'verify@test.com',
+        isEmailVerified: false,
+      };
+
+      User.findById.mockResolvedValue(mockUser);
+      jwt.sign.mockReturnValue('verify-token-xyz');
+
+      const result = await authService.resendVerification('user-id-7');
+
+      expect(User.findById).toHaveBeenCalledWith('user-id-7');
+      expect(jwt.sign).toHaveBeenCalledWith(
+        { id: 'user-id-7', purpose: 'email_verification' },
+        'verify-secret',
+        { expiresIn: '1h' }
+      );
+      expect(emailQueue.add).toHaveBeenCalledWith('send-verification', {
+        type: 'verification',
+        email: 'verify@test.com',
+        token: 'verify-token-xyz',
+      });
+      expect(result).toBe(true);
+    });
+
+    it('throws when the email is already verified', async () => {
+      User.findById.mockResolvedValue({ isEmailVerified: true });
+
+      await expect(authService.resendVerification('user-id-8')).rejects.toThrow(
+        'Email is already verified'
+      );
+
+      expect(emailQueue.add).not.toHaveBeenCalled();
+    });
+  });
+
   describe('forgotPassword', () => {
     it('throws error when email is not found', async () => {
       User.findOne.mockResolvedValue(null);
@@ -150,6 +261,7 @@ describe('AuthService', () => {
     });
 
     it('generates reset token, saves user, and returns raw token', async () => {
+      process.env.FRONTEND_URL = 'http://localhost:4200';
       const mockUser = {
         _id: 'user-id-reset',
         email: 'reset@test.com',
@@ -164,6 +276,11 @@ describe('AuthService', () => {
       expect(User.findOne).toHaveBeenCalledWith({ email: 'reset@test.com' });
       expect(mockUser.getResetPasswordToken).toHaveBeenCalled();
       expect(mockUser.save).toHaveBeenCalledWith({ validateBeforeSave: false });
+      expect(emailQueue.add).toHaveBeenCalledWith('send-reset', {
+        type: 'reset-password',
+        email: 'reset@test.com',
+        resetUrl: 'http://localhost:4200/reset-password/raw-reset-token-123',
+      });
       expect(result).toBe('raw-reset-token-123');
     });
   });

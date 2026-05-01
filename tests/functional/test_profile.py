@@ -6,6 +6,7 @@ from tests.helpers.api_assertions import (
     assert_status,
     assert_success,
     auth_header,
+    create_email_verification_token,
     unique_suffix,
 )
 
@@ -26,6 +27,11 @@ def profile_ctx():
     res_login = requests.post(f"{auth_url}/login", json={"email": email, "password": "password123"})
     user_body = assert_success(res_login, 200, "profile login user")
     user_header = auth_header(user_body['data']['token'])
+    user_id = user_body['data']['_id']
+
+    verify_token = create_email_verification_token(user_id)
+    verify_res = requests.post(f"{auth_url}/verify-email/{verify_token}")
+    assert_success(verify_res, 200, "profile verify email")
 
     res_owner = requests.post(f"{auth_url}/login", json=OWNER_LOGIN)
     owner_body = assert_success(res_owner, 200, "profile owner login")

@@ -21,4 +21,4 @@ const emailQueue = new Queue('email-queue', {
 
 console.log('⏳ [BULLMQ] Cart Expiration Queue initialized');
 
-module.exports = { cartQueue };
+module.exports = { cartQueue, emailQueue };

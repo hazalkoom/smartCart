@@ -6,6 +6,7 @@ from tests.helpers.api_assertions import (
     assert_status,
     assert_success,
     auth_header,
+    create_email_verification_token,
     unique_suffix,
 )
 
@@ -62,6 +63,11 @@ def payment_ctx():
     res_main = requests.post(f"{BASE_URL}/auth/login", json={"email": email_main, "password": "password123"})
     main_body = assert_success(res_main, 200, "payment setup main login")
     user_headers = auth_header(main_body['data']['token'])
+    main_id = main_body['data']['_id']
+
+    main_verify = create_email_verification_token(main_id)
+    verify_res = requests.post(f"{BASE_URL}/auth/verify-email/{main_verify}")
+    assert_success(verify_res, 200, "payment setup verify main user")
 
     # E. Attacker user
     email_hack = f"hacker_{unique_suffix()}@test.com"
@@ -72,6 +78,11 @@ def payment_ctx():
     res_hack = requests.post(f"{BASE_URL}/auth/login", json={"email": email_hack, "password": "password123"})
     hack_body = assert_success(res_hack, 200, "payment setup attacker login")
     attacker_headers = auth_header(hack_body['data']['token'])
+    attacker_id = hack_body['data']['_id']
+
+    attacker_verify = create_email_verification_token(attacker_id)
+    verify_res = requests.post(f"{BASE_URL}/auth/verify-email/{attacker_verify}")
+    assert_success(verify_res, 200, "payment setup verify attacker user")
 
     # F. Create order for main user
     requests.post(f"{cart_url}/items", json={"productId": product_id, "quantity": 1}, headers=user_headers)

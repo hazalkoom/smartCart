@@ -6,6 +6,7 @@ from tests.helpers.api_assertions import (
     assert_status,
     assert_success,
     auth_header,
+    create_email_verification_token,
     get_data,
     unique_suffix,
 )
@@ -29,6 +30,11 @@ def _create_buyer_and_order(product_id: str):
     res_login = requests.post(f"{auth_url}/login", json={"email": email, "password": "password123"})
     buyer_body = assert_success(res_login, 200, "financials buyer login")
     buyer_header = auth_header(buyer_body['data']['token'])
+    buyer_id = buyer_body['data']['_id']
+
+    verify_token = create_email_verification_token(buyer_id)
+    verify_res = requests.post(f"{auth_url}/verify-email/{verify_token}")
+    assert_success(verify_res, 200, "financials verify buyer email")
 
     res_add = requests.post(f"{cart_url}/items", json={"productId": product_id, "quantity": 1}, headers=buyer_header)
     if res_add.status_code not in [200, 201]:

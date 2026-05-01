@@ -2,7 +2,9 @@ import requests
 import pytest
 from tests.test_config import BASE_URL, print_test_result
 from tests.helpers.api_assertions import (
+    assert_error,
     assert_success,
+    create_email_verification_token,
     unique_suffix,
 )
 
@@ -19,6 +21,7 @@ def auth_ctx():
     }
     return {
         'user': user,
+        'user_id': None,
         'token': None,
         'reset_token': None,
         'old_password': user['password'],
@@ -33,7 +36,14 @@ def _login_and_store_token(ctx):
     )
     body = assert_success(res, 200, "auth login helper")
     ctx['token'] = body['data']['token']
+    ctx['user_id'] = body['data'].get('_id')
     return ctx['token']
+
+
+def _verify_user_email(user_id):
+    token = create_email_verification_token(user_id)
+    res = requests.post(f"{auth_url}/verify-email/{token}")
+    assert_success(res, 200, "verify email helper")
 
 @pytest.mark.run(order=1)
 def test_register(auth_ctx):
@@ -45,6 +55,10 @@ def test_register(auth_ctx):
     print_test_result("Register - 1: Success (201)", success, res_success)
     assert success
     assert 'data' in res_success.json() and 'email' in res_success.json()['data']
+    assert res_success.json()['data'].get('isEmailVerified') is False
+
+    auth_ctx['user_id'] = res_success.json()['data'].get('_id')
+    _verify_user_email(auth_ctx['user_id'])
 
     # Scenario 2: Duplicate Registration
     res_duplicate = requests.post(f"{auth_url}/register", json=auth_ctx['user'])
@@ -75,8 +89,10 @@ def test_login(auth_ctx):
     success = res_success.status_code == 200 and res_success.json()['success'] == True
     if success:
         auth_ctx['token'] = res_success.json()['data']['token']
+        auth_ctx['user_id'] = res_success.json()['data'].get('_id')
     print_test_result("Login - 1: Success (200)", success, res_success)
     assert success
+    assert res_success.json()['data'].get('isEmailVerified') is True
 
     # Scenario 2: Wrong Password
     wrong_pass_data = {"email": auth_ctx['user']['email'], "password": "wrongpassword"}
@@ -170,6 +186,29 @@ def test_update_details(auth_ctx):
     assert email_unchanged
 
 
+@pytest.mark.run(order=4.05)
+def test_verify_email_invalid_token():
+    res = requests.post(f"{auth_url}/verify-email/invalid-token")
+    assert_error(res, 400, 'VALIDATION_ERROR', 'Invalid or expired verification token', 'verify email invalid token')
+
+
+@pytest.mark.run(order=4.06)
+def test_resend_verification_happy_path():
+    email = f"resend_user_{unique_suffix()}@example.com"
+    res_reg = requests.post(
+        f"{auth_url}/register",
+        json={"email": email, "password": "password123", "firstName": "Resend", "lastName": "User"},
+    )
+    assert res_reg.status_code == 201
+
+    res_login = requests.post(f"{auth_url}/login", json={"email": email, "password": "password123"})
+    body = assert_success(res_login, 200, "resend verification login")
+    token = body['data']['token']
+
+    res = requests.post(f"{auth_url}/resend-verification", headers={"Authorization": f"Bearer {token}"})
+    assert_success(res, 200, "resend verification")
+
+
 @pytest.mark.run(order=4.1)
 def test_forgot_password_happy_path(auth_ctx):
     print("\n--- 🧪 Running Forgot Password Tests ---")
@@ -180,12 +219,7 @@ def test_forgot_password_happy_path(auth_ctx):
     success = res.status_code == 200 and res.json().get('success') == True
     print_test_result("Forgot Password - 1: Success (200)", success, res)
     assert success
-    
-    # Save the reset token for the next test
-    reset_token = res.json().get('resetToken')
-    assert reset_token is not None, "Reset token not returned in response"
-    auth_ctx['reset_token'] = reset_token
-    auth_ctx['old_password'] = auth_ctx['user']['password']
+    assert res.json().get('resetToken') is None
 
 
 @pytest.mark.run(order=4.2)
@@ -198,49 +232,3 @@ def test_forgot_password_invalid_email():
     assert success
     # Crucially, no resetToken should be in the response for non-existent email
     assert res.json().get('resetToken') is None, "Token should NOT be returned for non-existent email"
-
-
-@pytest.mark.run(order=4.3)
-def test_reset_password_happy_path(auth_ctx):
-    print("\n--- 🧪 Running Reset Password Tests ---")
-    
-    reset_token = auth_ctx.get('reset_token')
-    assert reset_token is not None, "No reset token found. Run forgot_password test first."
-    
-    new_password = "newSecurePassword123"
-    
-    res = requests.post(f"{auth_url}/reset-password/{reset_token}", json={"password": new_password})
-    
-    success = res.status_code == 200 and res.json().get('success') == True
-    print_test_result("Reset Password - 1: Success (200)", success, res)
-    assert success
-    
-    # Save new password for verification
-    auth_ctx['new_password'] = new_password
-
-
-@pytest.mark.run(order=4.4)
-def test_login_with_new_password(auth_ctx):
-    print("\n--- 🧪 Verifying Password Change ---")
-    
-    new_password = auth_ctx.get('new_password')
-    old_password = auth_ctx.get('old_password')
-    
-    assert new_password is not None, "New password not set"
-    
-    # Scenario 1: Login with NEW password should WORK
-    res_new = requests.post(f"{auth_url}/login", json={"email": auth_ctx['user']['email'], "password": new_password})
-    new_works = res_new.status_code == 200 and res_new.json().get('success') == True
-    print_test_result("Password Verify - 1: New Password Works", new_works, res_new)
-    assert new_works
-    
-    # Update the shared token with new login
-    if new_works:
-        auth_ctx['token'] = res_new.json()['data']['token']
-        auth_ctx['user']['password'] = new_password
-    
-    # Scenario 2: Login with OLD password should FAIL
-    res_old = requests.post(f"{auth_url}/login", json={"email": auth_ctx['user']['email'], "password": old_password})
-    old_fails = res_old.status_code == 401
-    print_test_result("Password Verify - 2: Old Password Fails", old_fails, res_old)
-    assert old_fails

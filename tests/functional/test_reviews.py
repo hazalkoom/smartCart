@@ -7,6 +7,7 @@ from tests.helpers.api_assertions import (
     assert_status,
     assert_success,
     auth_header,
+    create_email_verification_token,
     unique_suffix,
 )
 
@@ -59,6 +60,11 @@ def review_ctx():
     )
     cust_body = assert_success(res_cust_login, 200, "review setup customer login")
     customer_headers = auth_header(cust_body['data']['token'])
+    customer_id = cust_body['data']['_id']
+
+    verify_token = create_email_verification_token(customer_id)
+    verify_res = requests.post(f"{BASE_URL}/auth/verify-email/{verify_token}")
+    assert_success(verify_res, 200, "review setup verify customer email")
 
     ctx = {
         'owner_headers': owner_headers,

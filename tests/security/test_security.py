@@ -33,19 +33,6 @@ def customer_token():
     return res_login.json()['data']['token']
 
 
-@pytest.fixture(scope='module')
-def reset_user_email():
-    email = _unique_email('security_reset')
-    payload = {
-        "email": email,
-        "password": "password123",
-        "firstName": "Reset",
-        "lastName": "User",
-    }
-    res = requests.post(f"{auth_url}/register", json=payload)
-    assert res.status_code in [201, 400]
-    return email
-
 @pytest.mark.run(order=95)
 def test_security_rbac(customer_token):
     print("\n--- 🛡️ Running Security (RBAC) Tests ---")
@@ -95,69 +82,6 @@ def test_security_injection():
     is_safe = res.status_code in [400, 401]
     print_test_result("Security - 3: NoSQL Injection Blocked", is_safe, res)
     assert is_safe
-
-
-@pytest.mark.run(order=96.1)
-def test_reset_token_tampering(reset_user_email):
-    """
-    Security Test: Modifying even one character of a reset token should fail.
-    """
-    print("\n--- 🛡️ Running Password Reset Security Tests ---")
-    
-    # First, get a valid reset token
-    res_forgot = requests.post(f"{auth_url}/forgot-password", json={"email": reset_user_email})
-    
-    if res_forgot.status_code != 200:
-        pytest.skip("Could not get reset token for security test")
-    
-    valid_token = res_forgot.json().get('resetToken', '')
-    
-    if not valid_token:
-        pytest.skip("Reset token not in response")
-    
-    # Tamper with the token (change last character)
-    tampered_token = valid_token[:-1] + ('X' if valid_token[-1] != 'X' else 'Y')
-    
-    res = requests.post(f"{auth_url}/reset-password/{tampered_token}", json={"password": "hackerpass"})
-    
-    # Should be 400 (Invalid token)
-    success = res.status_code == 400
-    print_test_result("Security - Token Tampering Blocked", success, res)
-    assert success
-
-
-@pytest.mark.run(order=96.2)
-def test_reset_token_replay_attack():
-    """
-    Security Test: Using the same reset token twice should fail the second time.
-    """
-    email = _unique_email('security_replay')
-    requests.post(
-        f"{auth_url}/register",
-        json={"email": email, "password": "password123", "firstName": "Replay", "lastName": "User"},
-    )
-    
-    # Get a fresh reset token
-    res_forgot = requests.post(f"{auth_url}/forgot-password", json={"email": email})
-    
-    if res_forgot.status_code != 200:
-        pytest.skip("Could not get reset token")
-    
-    token = res_forgot.json().get('resetToken')
-    
-    # First use - should succeed
-    res_first = requests.post(f"{auth_url}/reset-password/{token}", json={"password": "firstReset123"})
-    first_worked = res_first.status_code == 200
-    
-    if not first_worked:
-        pytest.skip("First reset failed, cannot test replay")
-    
-    # Second use - MUST fail (token should be cleared)
-    res_replay = requests.post(f"{auth_url}/reset-password/{token}", json={"password": "replayAttempt"})
-    
-    replay_blocked = res_replay.status_code == 400
-    print_test_result("Security - Replay Attack Blocked", replay_blocked, res_replay)
-    assert replay_blocked
 
 
 @pytest.mark.run(order=96.3)

@@ -6,6 +6,7 @@ from tests.helpers.api_assertions import (
     assert_status,
     assert_success,
     auth_header,
+    create_email_verification_token,
     unique_suffix,
 )
 from tests.test_config import BASE_URL, OWNER_LOGIN
@@ -94,6 +95,11 @@ def test_country_validation_order_and_address_contract():
         )
         customer_body = assert_success(customer_login, 200, 'country setup login')
         customer_headers = auth_header(customer_body['data']['token'])
+        customer_id = customer_body['data']['_id']
+
+        verify_token = create_email_verification_token(customer_id)
+        verify_res = requests.post(f"{BASE_URL}/auth/verify-email/{verify_token}")
+        assert_success(verify_res, 200, 'country setup verify email')
 
         # Positive: Egypt accepted in order flow
         add_to_cart(customer_headers, product_id)

@@ -6,6 +6,7 @@ from tests.helpers.api_assertions import (
     assert_status,
     assert_success,
     auth_header,
+    create_email_verification_token,
     unique_suffix,
 )
 
@@ -57,6 +58,11 @@ def order_ctx():
     )
     customer_login_body = assert_success(res_customer_login, 200, "order setup login customer")
     customer_headers = auth_header(customer_login_body['data']['token'])
+    customer_id = customer_login_body['data']['_id']
+
+    verify_token = create_email_verification_token(customer_id)
+    verify_res = requests.post(f"{BASE_URL}/auth/verify-email/{verify_token}")
+    assert_success(verify_res, 200, "order setup verify customer email")
 
     # Deterministic customer cart state for this module.
     requests.delete(cart_url, headers=customer_headers)
