@@ -14,7 +14,11 @@ const emailWorker = new Worker('email-queue', async (job) => {
   } else {
     throw new Error(`Unknown job type: ${type}`);
   }
-}, { connection: redisClient });
+}, { 
+  connection: redisClient , 
+  skipStalledCheck: true, // MUST HAVE
+  drainDelay: 300
+});
 
 emailWorker.on('completed', (job) => {
   console.log(`✅ [EMAIL WORKER] Job ${job.id} completed successfully`);

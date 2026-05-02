@@ -49,9 +49,8 @@ const cartWorker = new Worker('cart-expiration', async (job) => {
   // --- UPSTASH FREE TIER SAVERS ---
   stalledInterval: 300000, 
   lockDuration: 60000,     
-  removeOnComplete: { count: 10 }, 
-  removeOnFail: { count: 10 },
-  drainDelay: 120
+  skipStalledCheck: true,
+  drainDelay: 300
 });
 
 cartWorker.on('completed', (job) => {
