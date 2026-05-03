@@ -19,19 +19,64 @@ if (!DB_URI) {
 const FIRST_NAMES = [
   'Alex', 'Sam', 'Jordan', 'Riley', 'Taylor', 'Morgan', 'Casey', 'Jamie',
   'Avery', 'Reese', 'Parker', 'Drew', 'Blake', 'Cameron', 'Quinn', 'Harper',
+  'Liam', 'Noah', 'Oliver', 'Elijah', 'James', 'William', 'Benjamin', 'Lucas',
+  'Henry', 'Theodore', 'Jack', 'Levi', 'Alexander', 'Jackson', 'Mateo', 'Daniel',
+  'Michael', 'Mason', 'Sebastian', 'Ethan', 'Logan', 'Owen', 'Samuel', 'Jacob',
+  'Asher', 'Aiden', 'John', 'Joseph', 'Wyatt', 'David', 'Leo', 'Luke', 'Julian',
+  'Hudson', 'Grayson', 'Matthew', 'Ezra', 'Gabriel', 'Carter', 'Isaac', 'Jayden',
+  'Luca', 'Anthony', 'Dylan', 'Lincoln', 'Thomas', 'Maverick', 'Elias', 'Josiah',
+  'Charles', 'Caleb', 'Christopher', 'Ezekiel', 'Miles', 'Jaxon', 'Isaiah', 'Andrew',
+  'Olivia', 'Emma', 'Charlotte', 'Amelia', 'Ava', 'Sophia', 'Isabella', 'Mia',
+  'Evelyn', 'Luna', 'Camila', 'Gianna', 'Elizabeth', 'Eleanor', 'Ella',
+  'Abigail', 'Sofia', 'Mila', 'Aria', 'Scarlett', 'Penelope', 'Layla',
+  'Chloe', 'Victoria', 'Madison', 'Grace', 'Nora', 'Zoey'
 ];
 
 const LAST_NAMES = [
   'Stone', 'Reed', 'Cole', 'Perry', 'Brooks', 'Hayes', 'Fisher', 'Mason',
   'Turner', 'Frost', 'Ellis', 'Bennett', 'Parker', 'Lane', 'Bailey', 'Scott',
+  'Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Garcia', 'Miller', 'Davis',
+  'Rodriguez', 'Martinez', 'Hernandez', 'Lopez', 'Gonzalez', 'Wilson', 'Anderson', 'Thomas',
+  'Taylor', 'Moore', 'Jackson', 'Martin', 'Lee', 'Perez', 'Thompson', 'White',
+  'Harris', 'Sanchez', 'Clark', 'Ramirez', 'Lewis', 'Robinson', 'Walker', 'Young',
+  'Allen', 'King', 'Wright', 'Torres', 'Nguyen', 'Hill', 'Flores',
+  'Green', 'Adams', 'Nelson', 'Baker', 'Hall', 'Rivera', 'Campbell', 'Mitchell',
+  'Carter', 'Roberts', 'Gomez', 'Phillips', 'Evans', 'Diaz',
+  'Cruz', 'Edwards', 'Collins', 'Reyes', 'Stewart', 'Morris', 'Morales', 'Murphy',
+  'Cook', 'Rogers', 'Gutierrez', 'Ortiz', 'Morgan', 'Cooper', 'Peterson'
 ];
 
 const TITLES_BY_RATING = {
-  5: ['Excellent value', 'Top tier pick', 'Exceeded expectations', 'Highly recommended'],
-  4: ['Very good product', 'Solid choice', 'Great overall', 'Happy with purchase'],
-  3: ['Good with caveats', 'Decent option', 'Works as expected', 'Mixed but okay'],
-  2: ['Below expectations', 'Needs improvement', 'Not ideal', 'Could be better'],
-  1: ['Disappointing experience', 'Would not recommend', 'Poor quality', 'Not worth it'],
+  5: [
+    'Excellent value', 'Top tier pick', 'Exceeded expectations', 'Highly recommended',
+    'Absolutely love it!', 'Best purchase I\'ve made', 'Five stars aren\'t enough', 'Perfect in every way',
+    'Outstanding quality', 'Incredible performance', 'Exactly what I needed', 'A game changer',
+    'Superb craftsmanship', 'Brilliant design', 'Unbeatable for the price', 'My new favorite thing'
+  ],
+  4: [
+    'Very good product', 'Solid choice', 'Great overall', 'Happy with purchase',
+    'Almost perfect', 'Really good quality', 'Worth the money', 'I like it a lot',
+    'Good, but has minor flaws', 'Very satisfied', 'Performs well', 'A reliable option',
+    'Better than most', 'Would buy again', 'Great, with one small issue', 'Impressive'
+  ],
+  3: [
+    'Good with caveats', 'Decent option', 'Works as expected', 'Mixed but okay',
+    'Just average', 'Nothing special', 'It\'s alright', 'Gets the job done',
+    'Okay for the price', 'Has some annoying quirks', 'Middle of the road', 'Neither good nor bad',
+    'Functional but not amazing', 'Somewhat underwhelming', 'Met basic expectations', 'Fair'
+  ],
+  2: [
+    'Below expectations', 'Needs improvement', 'Not ideal', 'Could be better',
+    'Disappointed', 'Has some major flaws', 'I wouldn\'t recommend it', 'Fell short',
+    'Overpriced for what it is', 'Frustrating to use', 'Poorly designed', 'Barely acceptable',
+    'Quality control issues', 'Not what was advertised', 'Regret buying this', 'Two stars is generous'
+  ],
+  1: [
+    'Disappointing experience', 'Would not recommend', 'Poor quality', 'Not worth it',
+    'Absolute garbage', 'Terrible product', 'Complete waste of money', 'Do not buy this',
+    'Broke immediately', 'Awful customer service', 'A total scam', 'Worst purchase ever',
+    'Defective out of the box', 'Useless', 'Horrible design', 'Zero stars if I could'
+  ],
 };
 
 const COMMENTS_BY_RATING = {
@@ -40,39 +85,94 @@ const COMMENTS_BY_RATING = {
     'Performance is fantastic for the price and it fits my workflow perfectly.',
     'Great packaging, great finish, and works exactly as described.',
     'One of the best purchases I made this year. Reliable and fast.',
+    'I was skeptical at first, but this absolutely blew me away. The attention to detail is remarkable.',
+    'This product has completely transformed the way I work. I cannot recommend it highly enough!',
+    'Arrived much faster than expected and the quality is premium. Definitely worth every penny.',
+    'I\'ve tried several alternatives before this one, and nothing even comes close. Truly exceptional.',
+    'Flawless execution. It does exactly what it claims to do without any hiccups or complicated setup.',
+    'I bought this as a gift for a friend and they won\'t stop raving about it. I might have to buy one for myself.',
+    'The customer support was amazing when I had a quick question, and the product itself is phenomenal.',
+    'It\'s rare to find something that perfectly matches the marketing hype, but this definitely does.',
+    'Sleek, modern, and incredibly durable. I\'ve been using it daily for weeks and it still looks brand new.',
+    'Honestly, I couldn\'t be happier. It exceeds all my expectations in every single category.',
+    'If you\'re on the fence about buying this, just do it. You won\'t regret the investment.'
   ],
   4: [
     'Very good overall with only minor things I would tweak.',
     'Does what I needed and feels dependable for daily use.',
     'Nice quality and solid performance. Worth considering.',
     'Good product, just not perfect. Still happy with it.',
+    'I really like this, but I took off one star because the instructions were slightly confusing.',
+    'Solid build and reliable. I just wish it came in more color options.',
+    'It works great 95% of the time, occasionally it has a tiny glitch but nothing deal-breaking.',
+    'Great value for the price point. It\'s not luxury tier, but it definitely punches above its weight.',
+    'I\'m satisfied with my purchase. It arrived quickly and functions exactly as intended.',
+    'Almost a perfect score. If they improve the battery life in the next version, it\'ll be a 5-star product.',
+    'Very intuitive to use. I didn\'t even need to read the manual to get started.',
+    'It\'s sturdy and looks nice on my desk. Overall a very positive experience.',
+    'Good quality materials used. It feels substantial and not cheap at all.',
+    'I\'ve recommended this to a few colleagues. It\'s a very safe and reliable choice.',
+    'Meets my expectations well. It\'s a good, honest product without any deceptive marketing.'
   ],
   3: [
     'It is acceptable, but there are trade-offs you should know about.',
     'Works okay for light use. Expected a little more for the price.',
     'Not bad, not amazing. Gets the job done.',
     'Average experience so far. Might be better after updates.',
+    'It\'s functional, but you can definitely tell where they cut corners to save money.',
+    'I\'ll keep using it because it works, but I wouldn\'t necessarily go out of my way to buy it again.',
+    'It\'s just okay. Nothing about it stands out, but it doesn\'t completely fail either.',
+    'Setup was a bit of a hassle, and the final result is merely adequate.',
+    'It does the bare minimum of what was promised. Don\'t expect to be blown away.',
+    'It\'s a classic case of "you get what you pay for". It\'s cheap and it feels cheap.',
+    'I have mixed feelings. Some features are great, but others feel like an afterthought.',
+    'It works fine for occasional use, but I wouldn\'t rely on it for heavy, daily tasks.',
+    'The design is nice but the execution leaves a bit to be desired in terms of durability.',
+    'It\'s right down the middle. Not the worst thing I\'ve bought, but far from the best.',
+    'I think there are better options out there for a similar price, but this isn\'t terrible.'
   ],
   2: [
     'Had a few issues during setup and day-to-day use.',
     'Performance is inconsistent and the value feels low.',
     'I expected better quality and polish at this price point.',
     'There are better alternatives in the same range.',
+    'I really wanted to like this, but it just frustrates me every time I try to use it.',
+    'The build quality is remarkably flimsy. I feel like I\'m going to break it just by holding it.',
+    'It looks nice in the pictures, but in person it looks and feels like cheap plastic.',
+    'It technically works, but the user experience is incredibly clunky and unintuitive.',
+    'I\'ve had to contact support twice already to get it working properly. Not worth the headache.',
+    'It arrived with a small scratch, which is annoying, but even worse, it underperforms terribly.',
+    'The marketing for this is incredibly misleading. It doesn\'t do half the things it claims.',
+    'Battery life is abysmal compared to what was advertised. I constantly have to charge it.',
+    'I regret spending my money on this. I should have gone with the more expensive, reputable brand.',
+    'It completely failed on me after just two weeks of light use. Very disappointing.',
+    'The software integration is a nightmare. It constantly disconnects and crashes.'
   ],
   1: [
     'Ran into repeated issues and could not rely on it.',
     'Poor experience overall. I would avoid this model.',
     'Did not match the product description in practice.',
     'Not satisfied with quality or performance.',
+    'Absolute trash. It broke within five minutes of taking it out of the box.',
+    'I would give this zero stars if I could. A complete and utter waste of money.',
+    'Do not buy this under any circumstances. It is a terrible product.',
+    'Customer service is nonexistent. They completely ignored my emails when I asked for a refund.',
+    'This is essentially a scam. The product looks nothing like the photos and barely functions.',
+    'It actually caused damage to my other equipment. I am furious with this purchase.',
+    'The worst thing I have ever bought online. Quality control clearly does not exist at this company.',
+    'It never worked from day one. Completely dead on arrival and unable to be fixed.',
+    'It feels incredibly unsafe to use. I\'m honestly worried it might catch fire.',
+    'Save yourself the time, money, and frustration. Look literally anywhere else.',
+    'I threw it straight into the garbage. Not even worth the effort to package it up for a return.'
   ],
 };
 
 function parseArgs(argv) {
   const defaults = {
-    min: 2,
-    max: 6,
+    min: 5,
+    max: 10,
     dryRun: false,
-    targetUsers: 24,
+    targetUsers: 150,
   };
 
   const options = { ...defaults };
@@ -204,6 +304,12 @@ function parseInsertedCount(result) {
 }
 
 async function generateReviews(options) {
+  if (!options.dryRun) {
+    console.log('Deleting all existing reviews...');
+    const deleteResult = await Review.deleteMany({});
+    console.log(`Deleted ${deleteResult.deletedCount || 0} existing reviews.`);
+  }
+
   const products = await Product.find({}, '_id name slug').lean();
 
   if (products.length === 0) {
@@ -292,10 +398,10 @@ async function generateReviews(options) {
     }
   }
 
-  if (!options.dryRun && productsNeedingRecalc.size > 0) {
-    console.log(`Recalculating product ratings for ${productsNeedingRecalc.size} touched products...`);
-    for (const productId of productsNeedingRecalc) {
-      await Review.calcAverageRatings(productId);
+  if (!options.dryRun) {
+    console.log(`Recalculating product ratings for ${products.length} products...`);
+    for (const product of products) {
+      await Review.calcAverageRatings(product._id);
     }
   }
 
